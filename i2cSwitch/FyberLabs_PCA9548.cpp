@@ -44,17 +44,18 @@ void FyberLabs_PCA9548::onSwitchChannels(uint8_t channels) {
   write8(channels);
 }
 
+//Bit
 void FyberLabs_PCA9548::onSwitchChannel(uint8_t channel) {
   uint8_t channels;
   channels = readSwitchChannel();
-  channels |= (1 << channel);
+  channels |= (1 << (channel-1));
   onSwitchChannels(channels);
 }
 
 void FyberLabs_PCA9548::offSwitchChannel(uint8_t channel) {
   uint8_t channels;
   channels = readSwitchChannel();
-  channels &= ~(1 << channel);
+  channels &= ~(1 << (channel-1));
   onSwitchChannels(channels);
 }
 

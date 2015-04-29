@@ -38,19 +38,23 @@
 #define PCA9548_A1 0x02
 #define PCA9548_A0 0x01
 
-class Fyberlabs_PCA9548 {
+class FyberLabs_PCA9548 {
   public:
-    Fyberlabs_PCA9548();
-    boolean begin(uint8_t address = PCA9548_I2CADDR);
+    FyberLabs_PCA9548(uint8_t address = PCA9548_I2CADDR);
+    boolean begin();
     uint8_t readSwitchChannel(void);
-    void writeSwitchChannel(uint8_t channel);
-    unit8_t setSolderBridge(uint8_t address);
+
+    void offAllSwitchChannels(void);
+    void onSwitchChannels(uint8_t channels);
+    void offSwitchChannel(uint8_t channel);
+    void onSwitchChannel(uint8_t channel);
+    uint8_t setSolderBridge(uint8_t address);
 
   private:
-    uint8_t read8(uint8_t address);
-    void write8(uint8_t address, uint8_t data);
-
     uint8_t _i2c_address;
+    
+    uint8_t read8();
+    void write8(uint8_t data);
 };
 
 #endif  //  FYBERLABS_PCA9548_H

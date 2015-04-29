@@ -23,64 +23,71 @@
 
 *****************************************************************************************/
 
-#include "Fyberlabs_PCA9548.h"
+#include "FyberLabs_PCA9548.h"
 
-Fyberlabs_PCA9548::Fyberlabs_PCA9548() {
+FyberLabs_PCA9548::FyberLabs_PCA9548(uint8_t address) {
+  _i2c_address = address;
 }
 
-boolean Fyberlabs_PCA9548::begin(uint8_t address) {
-  _i2c_address = address;
-
+boolean FyberLabs_PCA9548::begin() {
   Wire.begin();
+  offAllSwitchChannels();
   return true;
 }
 
-unint8_t FyberLabs_PCA9548::readSwitchChannel(void) {
-  return read8(PCA9548_I2CADDR);
+uint8_t FyberLabs_PCA9548::readSwitchChannel(void) {
+  return read8();
 }
 
-void FyberLabs_PCA9548::writeSwitchChannel(uint8_t channel) {
-  write8(PCA9548_I2CADDR, channel);
+//Each channel is a bit, so shift 1 by the channel number
+void FyberLabs_PCA9548::onSwitchChannels(uint8_t channels) {
+  write8(channels);
+}
+
+void FyberLabs_PCA9548::onSwitchChannel(uint8_t channel) {
+  uint8_t channels;
+  channels = readSwitchChannel();
+  channels |= (1 << channel);
+  onSwitchChannels(channels);
+}
+
+void FyberLabs_PCA9548::offSwitchChannel(uint8_t channel) {
+  uint8_t channels;
+  channels = readSwitchChannel();
+  channels &= ~(1 << channel);
+  onSwitchChannels(channels);
+}
+
+void FyberLabs_PCA9548::offAllSwitchChannels() {
+  onSwitchChannels(0x00);
 }
 
 //Pass defined solder bridge hex to create the correct address
-uint8_t FyberLabs_PCA9548::setSolderBridge(uint8)t address) {
+uint8_t FyberLabs_PCA9548::setSolderBridge(uint8_t address) {
   _i2c_address = _i2c_address | address;
   return _i2c_address;
 }
 
 //read/write structure borrowed from Adafruit
-uint8_t FyberLabs_PCA9548::read8(uint8_t address) {
+uint8_t FyberLabs_PCA9548::read8() {
   uint8_t ret;
 
-  Wire.beginTransmission(_i2c_address); // start transmission to device 
-#if (ARDUINO >= 100)
-  Wire.write(address); // sends register address to read from
-#else
-  Wire.send(address); // sends register address to read from
-#endif
-  Wire.endTransmission(); // end transmission
-  
-  Wire.beginTransmission(_i2c_address); // start transmission to device 
-  Wire.requestFrom(_i2c_address, 1);// send data n-bytes read
+  Wire.requestFrom((uint8_t)_i2c_address, (uint8_t)1);// send data n-bytes read
 #if (ARDUINO >= 100)
   ret = Wire.read(); // receive DATA
 #else
   ret = Wire.receive(); // receive DATA
 #endif
-  Wire.endTransmission(); // end transmission
 
   return ret;
 }
 
-void FyberLabs_PCA9548::write8(uint8_t address, uint8_t data) {
+void FyberLabs_PCA9548::write8(uint8_t data) {
   Wire.beginTransmission(_i2c_address); // start transmission to device 
 #if (ARDUINO >= 100)
-  Wire.write(address); // sends register address to read from
   Wire.write(data);  // write data
 #else
-  Wire.send(address); // sends register address to read from
   Wire.send(data);  // write data
 #endif
-  Wire.endTransmission(); // end transmission
+  Wire.endTransmission();
 }

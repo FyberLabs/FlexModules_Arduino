@@ -25,40 +25,54 @@
 
 #include "FyberLabs_PCA9548.h"
 
+/*
+  Switching for more than one channel.  To turn on only 
+  a specific channel then all other channels must be
+  turned off.
+
+  Maybe used to broadcast writes to multiple devices with
+  the same address on each bus channel.  Only select one
+  channel/device to read from at a time.
+*/
+
+
 FyberLabs_PCA9548::FyberLabs_PCA9548(uint8_t address) {
   _i2c_address = address;
 }
 
 boolean FyberLabs_PCA9548::begin() {
   Wire.begin();
-  offAllSwitchChannels();
+  //offAllSwitchChannels();
   return true;
 }
 
+//Create an instance for each switch in the system
 uint8_t FyberLabs_PCA9548::readSwitchChannel(void) {
   return read8();
 }
 
-//Each channel is a bit, so shift 1 by the channel number
+//Enter the raw hex for the channels to be on
 void FyberLabs_PCA9548::onSwitchChannels(uint8_t channels) {
   write8(channels);
 }
 
-//Bit
+//Turn on a specific channel 1-8
 void FyberLabs_PCA9548::onSwitchChannel(uint8_t channel) {
   uint8_t channels;
   channels = readSwitchChannel();
-  channels |= (1 << (channel-1));
+  channels |= (1 << (channel-1)); //Bit ops at 0, so subtract 1 for channels
   onSwitchChannels(channels);
 }
 
+//Turn off a specific channel 1-8
 void FyberLabs_PCA9548::offSwitchChannel(uint8_t channel) {
   uint8_t channels;
   channels = readSwitchChannel();
-  channels &= ~(1 << (channel-1));
+  channels &= ~(1 << (channel-1)); //Bit ops at 0, so subtract 1 for channels
   onSwitchChannels(channels);
 }
 
+//Turn off all switches
 void FyberLabs_PCA9548::offAllSwitchChannels() {
   onSwitchChannels(0x00);
 }
@@ -69,7 +83,7 @@ uint8_t FyberLabs_PCA9548::setSolderBridge(uint8_t address) {
   return _i2c_address;
 }
 
-//read/write structure borrowed from Adafruit
+//read/write structure/legacy borrowed from Adafruit
 uint8_t FyberLabs_PCA9548::read8() {
   uint8_t ret;
 

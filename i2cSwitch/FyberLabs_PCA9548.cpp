@@ -83,26 +83,17 @@ uint8_t FyberLabs_PCA9548::setSolderBridge(uint8_t address) {
   return _i2c_address;
 }
 
-//read/write structure/legacy borrowed from Adafruit
 uint8_t FyberLabs_PCA9548::read8() {
   uint8_t ret;
 
-  Wire.requestFrom((uint8_t)_i2c_address, (uint8_t)1);// send data n-bytes read
-#if (ARDUINO >= 100)
-  ret = Wire.read(); // receive DATA
-#else
-  ret = Wire.receive(); // receive DATA
-#endif
+  Wire.requestFrom((uint8_t)_i2c_address, (uint8_t)1);
+  ret = Wire.read();
 
   return ret;
 }
 
 void FyberLabs_PCA9548::write8(uint8_t data) {
-  Wire.beginTransmission(_i2c_address); // start transmission to device 
-#if (ARDUINO >= 100)
-  Wire.write(data);  // write data
-#else
-  Wire.send(data);  // write data
-#endif
+  Wire.beginTransmission(_i2c_address);
+  Wire.write(data);
   Wire.endTransmission();
 }

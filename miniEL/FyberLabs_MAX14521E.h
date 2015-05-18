@@ -23,6 +23,14 @@
 
 *****************************************************************************************/
 
+/*
+    TODO
+    move argument enum to define?
+    move private stuff
+    move around documentation better
+    ??implement register readers - should we also set internal variables from them?
+*/
+
 #ifndef FYBERLABS_MAX14521E_H
 #define FYBERLABS_MAX14521E_H
 
@@ -35,9 +43,9 @@
 #define MAX14521E_A0 0x2
 #define MAX14521E_A1 0x4
 
-class Fyberlabs_MAX14521E {
+class FyberLabs_MAX14521E {
   public:
-  	Fyberlabs_MAX14521E(uint8_t address = MAX14521E_I2CADDR);
+  	FyberLabs_MAX14521E(uint8_t address = MAX14521E_I2CADDR);
 
     typedef enum
     {
@@ -136,14 +144,14 @@ class Fyberlabs_MAX14521E {
     uint8_t ELPeakStart[4];
 
     typedef enum {
-      MAX14521E_PEAK_MIN 0x00,
-      MAX14521E_PEAK_62 0x20,
-      MAX14521E_PEAK_125 0x40,
-      MAX14521E_PEAK_250 0x60,
-      MAX14521E_PEAK_500 0x80,
-      MAX14521E_PEAK_750 0xA0,
-      MAX14521E_PEAK_1000 0xC0,
-      MAX14521E_PEAK_2000 0xE0
+      MAX14521E_PEAK_MIN        = 0x00,
+      MAX14521E_PEAK_62         = 0x20,
+      MAX14521E_PEAK_125        = 0x40,
+      MAX14521E_PEAK_250        = 0x60,
+      MAX14521E_PEAK_500        = 0x80,
+      MAX14521E_PEAK_750        = 0xA0,
+      MAX14521E_PEAK_1000       = 0xC0,
+      MAX14521E_PEAK_2000       = 0xE0,
     } MAX14521EPeak_t;
 
     //+ 0-150V 0x00-0x1F
@@ -169,8 +177,8 @@ class Fyberlabs_MAX14521E {
     void boostConvModulation(uint8_t fsw);
 
     void audioEffectType(uint8_t voltOrFreq);
-    void audioEffectChannelOn(uint8_t channel);
-    void audioEffectChannelOff(uint8_t channel); //No sample?
+    void audioEffectELOn(uint8_t EL);
+    void audioEffectELOff(uint8_t EL); //No sample?
 
 
     void peakVoltage(uint8_t EL, uint8_t voltage);

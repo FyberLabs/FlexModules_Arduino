@@ -30,11 +30,10 @@ FyberLabs_MAX14521E::FyberLabs_MAX14521E(uint8_t address) {
     _i2c_address = address;
 }
 
-boolean FyberLabs_MAX14521E::begin() {
+void FyberLabs_MAX14521E::begin(void) {
     //Should setup a safe default configuration and check for device and complain if serial is up
     Wire.begin();
     reset();
-    return true;
 }
 
 //Safe configuration
@@ -180,7 +179,7 @@ void FyberLabs_MAX14521E::audioEffectELOff(uint8_t EL) {
 //Updates the audioEffects registers based on stored variables
 void FyberLabs_MAX14521E::audioEffectSet(void) {
     uint8_t data;
-    data = voltOrFreq;
+    data = audioType;
     if(audioELOn[0]) {
         data += MAX14521E_AUDIO_EL1EN;
     }
@@ -208,7 +207,7 @@ void FyberLabs_MAX14521E::peakVoltage(uint8_t EL, uint8_t voltage) {
         data = voltage + ELPeakStart[ELin];
         ELPeakVoltage[ELin] = voltage;
         write8(MAX14521E_REGISTER_EL1_PEAK + ELin, data);
-        updatePeaK();
+        updatePeak();
     }  //else report error
 }
 
@@ -232,7 +231,7 @@ void FyberLabs_MAX14521E::startTime(uint8_t EL, uint8_t timing) {
         data = timing + ELPeakVoltage[ELin];
         ELPeakStart[ELin] = timing;
         write8(MAX14521E_REGISTER_EL1_PEAK + ELin, data);
-        updatePeaK();
+        updatePeak();
     }  //else report error
 }
 

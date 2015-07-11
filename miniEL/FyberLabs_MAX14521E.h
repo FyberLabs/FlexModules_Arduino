@@ -24,11 +24,7 @@
 *****************************************************************************************/
 
 /*
-    TODO
-    move argument enum to define?
-    move private stuff
-    move around documentation better
-    ??implement register readers - should we also set internal variables from them?
+    TODO: implement register readers - should we also set internal variables from them?
 */
 
 #ifndef FYBERLABS_MAX14521E_H

@@ -163,14 +163,14 @@ void FyberLabs_MAX14521E::audioEffectType(uint8_t voltOrFreq) {
 }
 
 void FyberLabs_MAX14521E::audioEffectELOn(uint8_t EL) {
-    if (EL > 0 && EL < 4) {
+    if (EL > 0 && EL < 5) {
         audioELOn[EL-1] = 1;
     }
     audioEffectSet();
 }
 
 void FyberLabs_MAX14521E::audioEffectELOff(uint8_t EL) {
-    if (EL > 0 && EL < 4) {
+    if (EL > 0 && EL < 5) {
         audioELOn[EL-1] = 0;
     }
     audioEffectSet();

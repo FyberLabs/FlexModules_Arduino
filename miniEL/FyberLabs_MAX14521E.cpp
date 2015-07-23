@@ -202,7 +202,7 @@ void FyberLabs_MAX14521E::peakVoltage(uint8_t EL, uint8_t voltage) {
     uint8_t data;
     uint8_t ELin;
 
-    if (EL > 0 && EL < 4 && voltage <= 0x1F) {
+    if (EL > 0 && EL < 5 && voltage <= 0x1F) {
         ELin = EL - 1;
         data = voltage + ELPeakStart[ELin];
         ELPeakVoltage[ELin] = voltage;
@@ -226,7 +226,7 @@ void FyberLabs_MAX14521E::startTime(uint8_t EL, uint8_t timing) {
     uint8_t data;
     uint8_t ELin;
 
-    if (EL > 0 && EL < 4 && timing <= MAX14521E_PEAK_2000) {
+    if (EL > 0 && EL < 5 && timing <= MAX14521E_PEAK_2000) {
         ELin = EL - 1;
         data = timing + ELPeakVoltage[ELin];
         ELPeakStart[ELin] = timing;

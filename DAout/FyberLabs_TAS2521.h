@@ -843,6 +843,7 @@ class FyberLabs_TAS2521 {
 
 #endif
 
+//TODO: Turn each of these recipes into public methods that run them
 /*
 The following example EVM I2C register control scripts can be taken directly for the TAS2521 EVM setup. The # marks a comment line, w marks an I2C write command followed by the device address, the I2C register address and the value. The EVM I2C register control scripts follows to show how to set up the TAS2521 in playback mode with fS = 44.1 kHz and MCLK = 11.2896 MHz.
 */

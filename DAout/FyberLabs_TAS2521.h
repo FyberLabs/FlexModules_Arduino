@@ -1,8 +1,11 @@
 //TODO make class methods based on usage examples in http://www.ti.com/lit/ug/slau456/slau456.pdf
 
-//The TAS2521 contains several pages of 8-bit registers, and each page can contain up to 128 registers. The register pages are divided up based on functional blocks for this device. Page 0 is the default home page after RST. Page control is done by writing a new page value into register 0 of the current page.
+//The TAS2521 contains several pages of 8-bit registers, and each page can contain up to 128 registers.
+//The register pages are divided up based on functional blocks for this device. Page 0 is the default home page after RST. 
+//Page control is done by writing a new page value into register 0 of the current page.
 //Pages legal: 0, 1, 44-52, 62-70, and 152-169
-//All registers are 8 bits in width, with D7 referring to the most-significant bit of each register, and D0 referring to the least-significant b
+//All registers are 8 bits in width, with D7 referring to the most-significant bit of each register, 
+//and D0 referring to the least-significant b
 
 /*
 Summary of Register Map	Page Number	Description
@@ -21,29 +24,137 @@ Summary of Register Map	Page Number	Description
 #ifndef FYBERLABS_TAS2521_H
 #define FYBERLABS_TAS2521_H
 
+#include <iostream>
+//#include "Arduino.h"
+#include "wire.h"
+#include <stdint.h>
 
-#include "Arduino.h"
-#include "Wire.h"
+namespace TAS2521{
 
-#define TAS2521_DEBUG 0
-#define TAS2521_I2CADDR 0x18
+#define TAS2521_DEBUG
+
+enum CODEC_CLKIN_t{
+  CODEC_CLKIN_MCLK	= 0x00,
+  CODEC_CLKIN_BCLK	= 0x01,
+  CODEC_CLKIN_GPIO	= 0x02,
+  CODEC_CLKIN_PLL	= 0x03,
+};
+
+enum PLL_CLKIN_t{
+  PLL_CLKIN_MCLK	= 0x00,
+  PLL_CLKIN_BCLK	= 0x01,
+  PLL_CLKIN_GPIO	= 0x02,
+  PLL_CLKIN_DIN		= 0x03,
+};
+
+enum PLL_RANGE_t{
+  PLL_RANGE_LOW		= 0x00,
+  PLL_RANGE_HIGH	= 0x01,
+};
+
+enum PLL_DIV_P_t{
+  PLL_DIV_1	=0x01,
+  PLL_DIV_2	=0x02,
+  PLL_DIV_3	=0x03,
+  PLL_DIV_4	=0x04,
+  PLL_DIV_5	=0x05,
+  PLL_DIV_6	=0x06,
+  PLL_DIV_7	=0x07,
+  PLL_DIV_8	=0x00,
+};
+
+enum PLL_MULT_R_t{
+  PLL_MULT_1	=0x01,
+  PLL_MULT_2	=0x02,
+  PLL_MULT_3	=0x03,
+  PLL_MULT_4	=0x04,
+};
+
+// default configuration
+const PLL_RANGE_t 	DEFAULT_PLL_RANGE = PLL_RANGE_LOW;
+const PLL_CLKIN_t 	DEFAULT_PLL_CLKIN = PLL_CLKIN_MCLK;
+const CODEC_CLKIN_t 	DEFAULT_CODEC_CLKIN = CODEC_CLKIN_MCLK;
+const bool		DEFAULT_PLL_ON = false;
+const PLL_DIV_P_t	DEFAULT_PLL_DIV_P = PLL_DIV_1;
+const PLL_MULT_R_t	DEFAULT_PLL_MULT_R = PLL_MULT_1;
+
+// register definition
+
+//Page 0 / Register 4: Clock Setting Register 1, Multiplexers - 0x00 / 0x04
+class P0R4_t{
+    const static int Address = 4;
+    PLL_RANGE_t pll_range:1;
+    PLL_CLKIN_t pll_clk_in:2;
+    CODEC_CLKIN_t codec_clk_in:2;
+  public:
+    P0R4_t(PLL_RANGE_t range=DEFAULT_PLL_RANGE,
+	   PLL_CLKIN_t pll_in=DEFAULT_PLL_CLKIN,
+	   CODEC_CLKIN_t codec_in=DEFAULT_CODEC_CLKIN):
+	     pll_range(range),pll_clk_in(pll_in),codec_clk_in(codec_in){}
+
+    P0R4_t(uint8_t reg){
+      codec_clk_in = (CODEC_CLKIN_t)(reg&0x03);
+      pll_clk_in  = (PLL_CLKIN_t)((reg>>2)&0x03);
+      pll_range  = (PLL_RANGE_t)((reg>>6)&0x01);
+    }
+
+    uint8_t GetAddress(){return Address;}
+    uint8_t toByte(){return codec_clk_in|(pll_clk_in<<2)|(pll_range<<5);}
+
+    void setPLLRange(PLL_RANGE_t range){pll_range = range;}
+    PLL_RANGE_t getPLLRange(){return pll_range;}
+
+    void setPLLClk(PLL_CLKIN_t clk){pll_clk_in=clk;}
+    PLL_CLKIN_t getPLLClk(){return pll_clk_in;}
+
+    void setCodecClk(CODEC_CLKIN_t clk){codec_clk_in=clk;}
+    CODEC_CLKIN_t getCodecClk(){return codec_clk_in;}
+};
+
+//Page 0 / Register 5: Clock Setting Register 2, PLL P and R Values - 0x00 / 0x05
+class P0R5_t{
+      const static int Address = 5;
+      bool pll_on:1;
+      PLL_DIV_P_t pll_div_p:3;
+      PLL_MULT_R_t pll_mult_r:4;
+    public:
+      P0R5_t(bool pll_on_i = DEFAULT_PLL_ON,
+	     PLL_DIV_P_t pll_div_p_i = DEFAULT_PLL_DIV_P,
+	     PLL_MULT_R_t pll_mult_r_i = DEFAULT_PLL_MULT_R):
+	       pll_on(pll_on_i),pll_div_p(pll_div_p_i),pll_mult_r(pll_mult_r_i){}
+
+      P0R5_t(uint8_t reg){
+	pll_mult_r = (PLL_MULT_R_t)(reg&0x0F);
+	pll_div_p  = (PLL_DIV_P_t)((reg>>4)&0x07);
+	pll_on	= ((reg>>7)&0x01);
+      }
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return pll_mult_r|(pll_div_p<<4)|(pll_on<<7);}
+
+      void setPLLPower(bool power){pll_on = power;}
+      bool getPLLPower(){return pll_on;}
+
+      void setPLLDivP(PLL_DIV_P_t P){pll_div_p = P;}
+      PLL_DIV_P_t getPLLDivP(){return pll_div_p;}
+
+      void setPLLMultR(PLL_MULT_R_t R){pll_mult_r = R;}
+      PLL_MULT_R_t getPLLMultR(){return pll_mult_r;}
+};
+
 
 class FyberLabs_TAS2521 {
-  public:
-  	FyberLabs_TAS2521();
 
+  const uint8_t _i2c_address;
+  void switchPage(uint8_t page);
+  uint8_t read8(uint8_t reg);
+  void write8(uint8_t reg, uint8_t data);
+  uint8_t _page;
+public:
+  	FyberLabs_TAS2521(uint8_t addr=0x18):_i2c_address(addr){};
+  	uint8_t GetAddress(void){return _i2c_address;}
   	void begin(void);
   	void reset(void);
-
-  	typedef enum {
-  		TAS2521_MCLK	= 0x00,
-  		TAS2521_BCLK	= 0x01,
-  		TAS2521_GPIO	= 0x02,
-  		TAS2521_PLL		= 0x03,
-  		TAS2521_DAC		= 0x04,  //CDIV
-  		TAS2521_DAC_MOD	= 0x05,  //CDIV
-  	} TAS2521clkmux_t;
-
 
   	void setPLLCLKRangeLow(void);
   	void setPLLCLKRangeHigh(void);
@@ -54,7 +165,7 @@ class FyberLabs_TAS2521 {
 		10: GPIO pin is input to PLL
 		11: DIN pin is input to PLL
   	*/
-  	void setPLLCLK(uint8_t clkmux);
+  	void setPLLCLK(PLL_CLKIN_t);
   	/*
   		Select CODEC_CLKIN
 		00: MCLK pin is CODEC_CLKIN
@@ -62,7 +173,7 @@ class FyberLabs_TAS2521 {
 		10: GPIO pin is CODEC_CLKIN
 		11: PLL Clock is CODEC_CLKIN
   	*/
-  	void setCODECCLK(uint8_t clkmux);
+  	void setCODECCLK(CODEC_CLKIN_t);
 
   	void setPLLPowerDown(void);
   	void setPLLPowerUp(void);
@@ -829,495 +940,9 @@ class FyberLabs_TAS2521 {
   	void setDACminiDSPInstruction(uint8_t reg, uint8_t value);
   	uint8_t getDACminiDSPInstruction(uint8_t reg);
 
-
-
-  private:
-  	uint8_t _i2c_address;
-  	uint8_t _page;
-
-  	void switchPage(uint8_t page);
-  	uint8_t read8(uint8_t reg);
-  	void write8(uint8_t reg, uint8_t data);
-
 };
+
+}//namespace TAS2521
 
 #endif
 
-//TODO: Turn each of these recipes into public methods that run them
-/*
-The following example EVM I2C register control scripts can be taken directly for the TAS2521 EVM setup. The # marks a comment line, w marks an I2C write command followed by the device address, the I2C register address and the value. The EVM I2C register control scripts follows to show how to set up the TAS2521 in playback mode with fS = 44.1 kHz and MCLK = 11.2896 MHz.
-*/
-
-//Example Register Setup to Play Digital Data Through DAC and Headphone/Speaker Outputs
-# I2C Script to Setup the device in Playback Mode
-# Key: w 30 XX YY ==> write to I2C address 0x30, to register 0xXX, data 0xYY
-# This script set DAC output routed to HP Driver and Class-D driver via Mixer
-# # ==> comment delimiter
-
-# Page switch to Page 0
-W 30 00 00
-# Assert Software reset (P0, R1, D0=1)
-W 30 01 01
-# Page Switch to Page 1
-W 30 00 01
-# LDO output programmed as 1.8V and Level shifters powered up. (P1, R2, D5-D4=00, D3=0)
-W 30 02 00
-# Page switch to Page 0
-W 30 00 00
-#         PLL_clkin = MCLK, codec_clkin = PLL_CLK, MCLK should be 11.2896MHz (P0, R4, D1-D0=03)
-w 30 04 03
-# Power up PLL, set P=1, R=1, (Page-0, Reg-5)
-w 30 05 91
-# Set J=4, (Page-0, Reg-6)
-w 30 06 04
-# D = 0000, D(13:8) = 0, (Page-0, Reg-7)
-w 30 07 00
-#           D(7:0) = 0,  (Page-0, Reg-8)
-w 30 08 00
-# add delay of 15 ms for PLL to lock
-d 15
-#        DAC NDAC Powered up, NDAC=4 (P0, R11, D7=1, D6-D0=0000100)
-W 30 0B 84
-#        DAC MDAC Powered up, MDAC=2 (P0, R12, D7=1, D6-D0=0000010)
-W 30 0C 82
-#        DAC OSR(9:0)-> DOSR=128 (P0, R12, D1-D0=00)
-W 30 0D 00
-#        DAC OSR(9:0)-> DOSR=128 (P0, R13, D7-D0=10000000)
-W 30 0E 80
-# Codec Interface control Word length = 16bits, BCLK&WCLK inputs, I2S mode. (P0, R27, D7-
-D6=00, D5-D4=00, D3-D2=00)
-W 30 1B 00
-# Data slot offset 00 (P0, R28, D7-D0=0000)
-W 30 1C 00
-# Dac Instruction programming PRB #2 for Mono routing. Type interpolation (x8) and 3 programmable
-Biquads. (P0, R60, D4-D0=0010)
-W 30 3C 02
-# Page Switch to Page 1
-W 30 00 01
-# Master Reference Powered on (P1, R1, D4=1)
-W 30 01 10
-# Output common mode for DAC set to 0.9V (default) (P1, R10)
-W 30 0A 00
-# Mixer P output is connected to HP Out Mixer (P1, R12, D2=1)
-w 30 0C 04
-# HP Voulme, 0dB Gain (P1, R22, D6-D0=0000000)
-W 30 16 00
-# No need to enable Mixer M and Mixer P, AINL Voulme, 0dB Gain (P1, R24, D7=1, D6-D0=0000000)
-W 30 18 00
-# Power up HP (P1, R9, D5=1)
-w 30 09 20
-# Unmute HP with 0dB gain (P1, R16, D4=1)
-w 30 10 00
-#          SPK attn. Gain =0dB (P1, R46, D6-D0=000000)
-W 30 2E 00
-#          SPK driver Gain=6.0dB (P1, R48, D6-D4=001)
-W 30 30 10
-#          SPK powered up (P1, R45, D1=1)
-W 30 2D 02
-# Page switch to Page 0
-W 30 00 00
-# DAC powered up, Soft step 1 per Fs. (P0, R63, D7=1, D5-D4=01, D3-D2=00, D1-D0=00)
-W 30 3F 90
-# DAC digital gain 0dB (P0, R65, D7-D0=00000000)
-W 30 41 00
-# DAC volume not muted. (P0, R64, D3=0, D2=1)
-W 30 40 04
-#
-
-//Example Register Setup to Play Digital Data Through DAC and Headphone Output
-# I2C Script to Setup the device in Playback Mode
-# Key: w 30 XX YY ==> write to I2C address 0x30, to register 0xXX, data 0xYY
-# This script set DAC output routed to only HP Driver
-# # ==> comment delimiter
-#
-# Page switch to Page 0
-W 30 00 00
-# Assert Software reset (P0, R1, D0=1)
-W 30 01 01
-# Page Switch to Page 1
-W 30 00 01
-# LDO output programmed as 1.8V and Level shifters powered up. (P1, R2, D5-D4=00, D3=0)
-W 30 02 00
-Page switch to Page 0
-W 30 00 00
-#         CODEC_CLKIN=MCLK, MCLK should be 11.2896MHz (P0, R4, D1-D0=00)
-W 30 04 00
-#        DAC NDAC Powered up, NDAC=1 (P0, R11, D7=1, D6-D0=0000001)
-W 30 0B 81
-#        DAC MDAC Powered up, MDAC=2 (P0, R12, D7=1, D6-D0=0000010)
-W 30 0C 82
-#        DAC OSR(9:0)-> DOSR=128 (P0, R12, D1-D0=00)
-W 30 0D 00
-#        DAC OSR(9:0)-> DOSR=128 (P0, R13, D7-D0=10000000)
-W 30 0E 80
-# Codec Interface control Word length = 16bits, BCLK&WCLK inputs, I2S mode. (P0, R27, D7-
-D6=00, D5-D4=00, D3-D2=00)
-W 30 1B 00
-# Data slot offset 00 (P0, R28, D7-D0=0000)
-W 30 1C 00
-# Dac Instruction programming PRB #2 for Mono routing. Type interpolation (x8) and 3 programmable
-Biquads. (P0, R60, D4-D0=0010)
-W 30 3C 02
-# Page Switch to Page 1
-W 30 00 01
-# Master Reference Powered on (P1, R1, D4=1)
-W 30 01 10
-# Output common mode for DAC set to 0.9V (default) (P1, R10)
-W 30 0A 00
-# DAC output is routed directly to HP driver (P1, R12, D3=1)
-w 30 0C 08
-# HP Voulme, 0dB Gain (P1, R22, D6-D0=0000000)
-W 30 16 00
-# Power up HP (P1, R9, D5=1)
-w 30 09 20
-# Unmute HP with 0dB gain (P1, R16, D4=1)
-w 30 10 00
-# Page switch to Page 0
-W 30 00 00
-# DAC powered up, Soft step 1 per Fs. (P0, R63, D7=1, D5-D4=01, D3-D2=00, D1-D0=00)
-W 30 3F 90
-# DAC digital gain 0dB (P0, R65, D7-D0=00000000)
-W 30 41 00
-# DAC volume not muted. (P0, R64, D3=0, D2=1)
-W 30 40 04
-#
-
-//Example Register Setup to Play AINL and AINR Through Headphone/Speaker Outputs
-# I2C Script to Setup the device in Playback Mode
-# This script set AINL and AINR inputs routed to HP Driver and Class-D driver via Mixer
-# Key: w 30 XX YY ==> write to I2C address 0x30, to register 0xXX, data 0xYY
-# # ==> comment delimiter
-#
-# Page switch to Page 0
-W 30 00 00
-# Assert Software reset (P0, R1, D0=1)
-W 30 01 01
-# Page Switch to Page 1
-W 30 00 01
-# LDO output programmed as 1.8V and Level shifters powered up. (P1, R2, D5-D4=00, D3=0)
-W 30 02 00
-# Master Reference Powered on (P1, R1, D4=1)
-W 30 01 10
-# Enable AINL and AINR (P1, R9, D1-D0=11)
-w 30 09 03
-# AINL/R to HP driver via Mixer P (P1, R12, D7-D6=11, D2=1)
-w 30 0C C4
-# HP Voulme, 0dB Gain (P1, R22, D6-D0=0000000)
-W 30 16 00
-# Enable Mixer P and Mixer M, AINL Voulme, 0dB Gain (P1, R24, D7=1, D6-D0=0000000)
-W 30 18 80
-# Enable AINL and AINR and Power up HP (P1, R9, D5=1, D1-D0=11)
-w 30 09 23
-# Unmute HP with 0dB gain (P1, R16, D4=1)
-w 30 10 00
-#          SPK attn. Gain =0dB (P1, R46, D6-D0=000000)
-W 30 2E 00
-#          SPK driver Gain=6.0dB (P1, R48, D6-D4=001)
-W 30 30 10
-#          SPK powered up (P1, R45, D1=1)
-W 30 2D 02
-#
-
-//Example Register Setup to Play AINL and AINR Through Headphone Output
-# I2C Script to Setup the device in Playback Mode
-# This script set AINL and AINR inputs routed to only HP Driver
-# Key: w 30 XX YY ==> write to I2C address 0x30, to register 0xXX, data 0xYY
-# # ==> comment delimiter
-#
-# Page switch to Page 0
-W 30 00 00
-# Assert Software reset (P0, R1, D0=1)
-W 30 01 01
-# Page Switch to Page 1
-W 30 00 01
-# LDO output programmed as 1.8V and Level shifters powered up. (P1, R2, D5-D4=00, D3=0)
-W 30 02 00
-# Master Reference Powered on (P1, R1, D4=1)
-W 30 01 10
-# Enable AINL and AINR (P1, R9, D1-D0=11)
-w 30 09 03
-# AINL/R to HP driver not via Mixer P (P1, R12, D1-D0=11)
-w 30 0C 03
-# HP Voulme, 0dB Gain (P1, R22, D6-D0=0000000)
-W 30 16 00
-# Not enable HP Out Mixer, AINL Voulme, 0dB Gain (P1, R24, D7=0, D6-D0=0000000)
-W 30 18 00
-# Enable AINL and AINR and Power up HP (P1, R9, D5=1, D1-D0=11)
-w 30 09 23
-# Unmute HP with 0dB gain (P1, R16, D4=1)
-w 30 10 00
-#
-
-//Example Register Setup to Play Digital Data Through DAC and Headphone/Speaker Outputs with 3 programmable Biquads
-# I2C Script to Setup the device in Playback Mode #2
-# Key: w 30 XX YY ==> write to I2C address 0x30, to register 0xXX, data 0xYY
-# This script set DAC output routed to HP Driver and Class-
-D driver via Mixer with 3 programmable Biquads.
-# # ==> comment delimiter
-#
-# Page switch to Page 0
-W 30 00 00
-# Assert Software reset (P0, R1, D0=1)
-W 30 01 01
-# Page Switch to Page 1
-W 30 00 01
-# LDO output programmed as 1.8V and Level shifters powered up. (P1, R2, D5-D4=00, D3=0)
-W 30 02 00
-# Page switch to Page 0
-W 30 00 00
-#         CODEC_CLKIN=MCLK, MCLK should be 11.2896MHz (P0, R4, D1-D0=00)
-W 30 04 00
-#        DAC NDAC Powered up, NDAC=1 (P0, R11, D7=1, D6-D0=0000001)
-W 30 0B 81
-#        DAC MDAC Powered up, MDAC=2 (P0, R12, D7=1, D6-D0=0000010)
-W 30 0C 82
-#        DAC OSR(9:0)-> DOSR=128 (P0, R12, D1-D0=00)
-W 30 0D 00
-#        DAC OSR(9:0)-> DOSR=128 (P0, R13, D7-D0=10000000)
-W 30 0E 80
-# Codec Interface control Word length = 16bits, BCLK&WCLK inputs, I2S mode. (P0, R27, D7-
-D6=00, D5-D4=00, D3-D2=00)
-W 30 1B 00
-# Data slot offset 00 (P0, R28, D7-D0=0000)
-W 30 1C 00
-# Dac Instruction programming PRB #2 for Mono routing. Type interpolation (x8) and 3 programmable
-Biquads. (P0, R60, D4-D0=0010)
-W 30 3C 02
-##########--------------- BEGIN COEFFICIENTS --------------------------------------
-# reg 00 - Page Select Register = 44
-# sets active page to page 44 for 3-BQs (BQ-A, BQ-B, BQ-C)
-w 30 00 2C
-#
-#-----------------------------------------------------------------------
-#  BQ-A = 100Hz HP
-#-----------------------------------------------------------------------
-# reg 12/13/14 - N0 Coefficient
-w 30 0C 7E B7 7B
-# reg 16/17/18 - N1 Coefficient
-w 30 10 81 48 85
-# reg 20/21/22 - N2 Coefficient
-w 30 14 7E B7 7B
-# reg 24/25/26 - D1 Coefficient
-w 30 18 7E B5 D5
-# reg 28/29/30 - D2 Coefficient
-w 30 1C 82 8D BE
-#-----------------------------------------------------------------------
-# BQ-B=1KHzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 32/33/34 - N0 Coefficient
-w 30 20 7F C5 BD
-# reg 36/37/38 - N1 Coefficient
-w 30 24 81 85 B1
-# reg 40/41/42 - N2 Coefficient
-w 30 28 7F C5 BD
-# reg 44/45/46 - D1 Coefficient
-w 30 2C 7E 7A 4F
-# reg 48/49/50 - D2 Coefficient
-w 30 30 80 74 84
-#-----------------------------------------------------------------------
-# BQ-C=5KHzNotchBW=125
-#-----------------------------------------------------------------------
-# reg 52/53/54 - N0 Coefficient
-w 30 34 7E DE C5
-# reg 56/57/58 - N1 Coefficient
-w 30 38 9F FB C8
-# reg 60/61/62 - N2 Coefficient
-w 30 3C 7E DE C5
-# reg 64/65/66 - D1 Coefficient
-w 30 40 60 04 38
-# reg 68/69/70 - D2 Coefficient
-w 30 44 82 42 74
-##########--------------- END COEFFICIENTS OF Notch Filters  ------------------------
-#######################################################
-# Page Switch to Page 1
-W 30 00 01
-# Master Reference Powered on (P1, R1, D4=1)
-W 30 01 10
-# Output common mode for DAC set to 0.9V (default) (P1, R10)
-W 30 0A 00
-# Mixer P output is connected to HP Out Mixer (P1, R12, D2=1)
-w 30 0C 04
-# HP Voulme, 0dB Gain (P1, R22, D6-D0=0000000)
-W 30 16 00
-# Power up HP (P1, R9, D5=1)
-w 30 09 20
-# Unmute HP with 0dB gain (P1, R16, D4=1)
-w 30 10 00
-#          SPK attn. Gain =0dB (P1, R46, D6-D0=000000)
-W 30 2E 00
-#          SPK driver Gain=6.0dB (P1, R48, D6-D4=001)
-W 30 30 10
-#          SPK powered up (P1, R45, D1=1)
-W 30 2D 02
-# Page switch to Page 0
-W 30 00 00
-# DAC powered up, Soft step 1 per Fs. (P0, R63, D7=1, D5-D4=01, D3-D2=00, D1-D0=00)
-W 30 3F 90
-# DAC digital gain 0dB (P0, R65, D7-D0=00000000)
-W 30 41 00
-# DAC volume not muted. (P0, R64, D3=0, D2=1)
-W 30 40 04
-#
-
-//Example Register Setup to Play Digital Data Through DAC and Headphone/Speaker Outputs with 6 programmable Biquads
-# I2C Script to Setup the device in Playback Mode #3
-# Key: w 30 XX YY ==> write to I2C address 0x30, to register 0xXX, data 0xYY
-# This script set DAC output routed to HP Driver and Class-
-D driver via Mixer with 6 programmable Biquads.
-# # ==> comment delimiter
-#
-# Page switch to Page 0
-W 30 00 00
-# Assert Software reset (P0, R1, D0=1)
-W 30 01 01
-# Page Switch to Page 1
-W 30 00 01
-# LDO output programmed as 1.8V and Level shifters powered up. (P1, R2, D5-D4=00, D3=0)
-W 30 02 00
-# Page switch to Page 0
-W 30 00 00
-#         CODEC_CLKIN=MCLK, MCLK should be 11.2896MHz (P0, R4, D1-D0=00)
-W 30 04 00
-#        DAC NDAC Powered up, NDAC=1 (P0, R11, D7=1, D6-D0=0000001)
-W 30 0B 81
-#        DAC MDAC Powered up, MDAC=2 (P0, R12, D7=1, D6-D0=0000010)
-W 30 0C 82
-#        DAC OSR(9:0)-> DOSR=128 (P0, R12, D1-D0=00)
-W 30 0D 00
-#        DAC OSR(9:0)-> DOSR=128 (P0, R13, D7-D0=10000000)
-W 30 0E 80
-# Codec Interface control Word length = 16bits, BCLK&WCLK inputs, I2S mode. (P0, R27, D7-
-D6=00, D5-D4=00, D3-D2=00)
-W 30 1B 00
-# Data slot offset 00 (P0, R28, D7-D0=0000)
-W 30 1C 00
-# Dac Instruction programming PRB #3 for Mono routing. Type B nterpolation (x4) and 6
-programmable Biquads. (P0, R60, D4-D0=0011)
-W 30 3C 03
-##########--------------- BEGIN COEFFICIENTS --------------------------------------
-# reg 00 - Page Select Register = 46
-# sets active page to page 46 for First-Order IIR
-w 30 00 2E
-#-----------------------------------------------------------------------
-#  First-Order IIR = 100Hz HP
-#-----------------------------------------------------------------------
-# reg 28/29/30 - N0 Coefficient
-w 30 1C 7F 18 36
-# reg 32/33/34 - N1 Coefficient
-w 30 20 80 E7 CA
-# reg 36/37/38 - N2 Coefficient
-w 30 24 7E 30 6D
-# reg 00 - Page Select Register = 44
-# sets active page to page 44 for 6-BQs (BQ-A, BQ-B, BQ-C, BQ-D, BQ-E, BQ-F) w 30 00 2C
-#
-#-----------------------------------------------------------------------
-# BQ-A=500HzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 12/13/14 - N0 Coefficient
-w 30 0C 7F C5 BD
-# reg 16/17/18 - N1 Coefficient
-w 30 10 80 8D 39
-# reg 20/21/22 - N2 Coefficient
-w 30 14 7F C5 BD
-# reg 24/25/26 - D1 Coefficient
-w 30 18 7F 72 C7
-# reg 28/29/30 - D2 Coefficient
-w 30 1C 80 74 84
-#-----------------------------------------------------------------------
-# BQ-B=1KHzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 32/33/34 - N0 Coefficient
-w 30 20 7F C5 BD
-# reg 36/37/38 - N1 Coefficient
-w 30 24 81 85 B1
-# reg 40/41/42 - N2 Coefficient
-w 30 28 7F C5 BD
-# reg 44/45/46 - D1 Coefficient
-w 30 2C 7E 7A 4F
-# reg 48/49/50 - D2 Coefficient
-w 30 30 80 74 84
-#-----------------------------------------------------------------------
-# BQ-C=2KHzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 52/53/54 - N0 Coefficient
-w 30 34 7F C5 BD
-# reg 56/57/58 - N1 Coefficient
-w 30 38 85 61 46
-# reg 60/61/62 - N2 Coefficient
-w 30 3C 7F C5 BD
-# reg 64/65/66 - D1 Coefficient
-w 30 40 7A 9E BA
-# reg 68/69/70 - D2 Coefficient
-w 30 44 80 74 84
-#-----------------------------------------------------------------------
-# BQ-D=3KHzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 72/73/74 - N0 Coefficient
-w 30 48 7F C5 BD
-# reg 76/77/78 - N1 Coefficient
-w 30 4C 8B B8 FD
-# reg 80/81/82 - N2 Coefficient
-w 30 50 7F C5 BD
-# reg 84/85/86 - D1 Coefficient
-w 30 54 74 47 03
-# reg 88/89/90 - D2 Coefficient
-w 30 58 80 74 84
-#-----------------------------------------------------------------------
-# BQ-E=4KHzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 92/93/94 - N0 Coefficient
-w 30 5C 7F C5 BD
-# reg 96/97/98 - N1 Coefficient
-w 30 60 94 6B EF
-# reg 100/101/102 - N2 Coefficient
-w 30 64 7F C5 BD
-# reg 104/105/106 - D1 Coefficient
-w 30 68 6B 94 11
-# reg 108/109/110 - D2 Coefficient
-w 30 6C 80 74 84
-#-----------------------------------------------------------------------
-# BQ-F=5KHzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 112/113/114 - N0 Coefficient
-w 30 70 7F C5 BD
-# reg 116/117/118 - N1 Coefficient
-w 30 74 9F 4C FB
-# reg 120/121/122 - N2 Coefficient
-w 30 78 7F C5 BD
-# reg 124/125/126 - D1 Coefficient
-w 30 7C 60 B3 05
-# sets active page to page 45 for BQ-F D2
-w 30 00 2D
-# reg 8/9/10 - D2 Coefficient
-w 30 08 80 74 84
-##########--------------- END COEFFICIENTS OF Notch Filters  ------------------------
-#######################################################
-# Page Switch to Page 1
-W 30 00 01
-# Master Reference Powered on (P1, R1, D4=1)
-W 30 01 10
-# Output common mode for DAC set to 0.9V (default) (P1, R10)
-W 30 0A 00
-# Mixer P output is connected to HP Out Mixer (P1, R12, D2=1)
-w 30 0C 04
-# HP Voulme, 0dB Gain (P1, R22, D6-D0=0000000)
-W 30 16 00
-# Power up HP (P1, R9, D5=1)
-w 30 09 20
-# Unmute HP with 0dB gain (P1, R16, D4=1)
-w 30 10 00
-#          SPK attn. Gain =0dB (P1, R46, D6-D0=000000)
-W 30 2E 00
-#          SPK driver Gain=6.0dB (P1, R48, D6-D4=001)
-W 30 30 10
-#          SPK powered up (P1, R45, D1=1)
-W 30 2D 02
-# Page switch to Page 0
-W 30 00 00
-# DAC powered up, Soft step 1 per Fs. (P0, R63, D7=1, D5-D4=01, D3-D2=00, D1-D0=00)
-W 30 3F 90
-# DAC digital gain 0dB (P0, R65, D7-D0=00000000)
-W 30 41 00
-# DAC volume not muted. (P0, R64, D3=0, D2=1)
-W 30 40 04
-#

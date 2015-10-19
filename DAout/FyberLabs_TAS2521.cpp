@@ -19,221 +19,281 @@ Summary of Register Map	Page Number	Description
 */
 
 #include "FyberLabs_TAS2521.h"
+namespace TAS2521{
 
-FyberLabs_TAS2521::FyberLabs_TAS2521(uint8_t address) {
-    _i2c_address = address{
+  void FyberLabs_TAS2521::switchPage(uint8_t page) {
+    _page = page;
+    write8(0x00,page);
+  }
 
-}
-}
 
+  uint8_t FyberLabs_TAS2521::read8(uint8_t reg) {
+    Wire.beginTransmission(_i2c_address);
+    Wire.write(reg);
+    Wire.endTransmission();
+    Wire.requestFrom((uint8_t)_i2c_address, (uint8_t)1);
+    return Wire.read();;
+  }
 
-void FyberLabs_TAS2521::setPLLCLKRangeLow(void) {
+  void FyberLabs_TAS2521::write8(uint8_t reg, uint8_t data) {
+      Wire.beginTransmission(_i2c_address);
+      Wire.write(reg);
+      Wire.write(data);
+      Wire.endTransmission();
+  }
 
-}
-void FyberLabs_TAS2521::setPLLCLKRangeHigh(void) {
+  void FyberLabs_TAS2521::begin(void) {
+    P0R4_t P0R4;
+    P0R5_t P0R5;
 
-}
+    Wire.begin();
 
-/*
-	Select PLL Input Clock
-00: MCLK pin is input to PLL
-01: BCLK pin is input to PLL
-10: GPIO pin is input to PLL
-11: DIN pin is input to PLL
-*/
-void FyberLabs_TAS2521::setPLLCLK(uint8_t clkmux) {
+    switchPage(0);
+    //use default configuration
+    write8(P0R4.GetAddress(),P0R4.toByte());
+    write8(P0R5.GetAddress(),P0R5.toByte());
+  }
 
-}
-/*
-	Select CODEC_CLKIN
-00: MCLK pin is CODEC_CLKIN
-01: BCLK pin is CODEC_CLKIN
-10: GPIO pin is CODEC_CLKIN
-11: PLL Clock is CODEC_CLKIN
-*/
-void FyberLabs_TAS2521::setCODECCLK(uint8_t clkmux) {
+  void FyberLabs_TAS2521::setPLLCLKRangeLow(void) {
+    if(_page !=0)
+      switchPage(0);
 
-}
+    P0R4_t P0R4(read8(4));
+    if(P0R4.getPLLRange()!=PLL_RANGE_LOW)
+    {
+      P0R4.setPLLRange(PLL_RANGE_LOW);
+      write8(P0R4.GetAddress(),P0R4.toByte());
+    }
+  }
 
-void FyberLabs_TAS2521::setPLLPowerDown(void) {
+  void FyberLabs_TAS2521::setPLLCLKRangeHigh(void) {
+    if(_page !=0)
+          switchPage(0);
 
-}
-void FyberLabs_TAS2521::setPLLPowerUp(void) {
+    P0R4_t P0R4(read8(4));
+    if(P0R4.getPLLRange()!=PLL_RANGE_HIGH)
+    {
+      P0R4.setPLLRange(PLL_RANGE_HIGH);
+      write8(P0R4.GetAddress(),P0R4.toByte());
+    }
+  }
 
-}
+  /*
+	  Select PLL Input Clock
+  00: MCLK pin is input to PLL
+  01: BCLK pin is input to PLL
+  10: GPIO pin is input to PLL
+  11: DIN pin is input to PLL
+  */
+  void FyberLabs_TAS2521::setPLLCLK(PLL_CLKIN_t clk) {
+    if(_page !=0)
+      switchPage(0);
 
-/*
-	000: PLL divider P = 8
-	001: PLL divider P = 1
-	010: PLL divider P = 2
-	...
-110: PLL divider P = 6
-111: PLL divider P = 7
-*/
-void FyberLabs_TAS2521::setPLLDividerP(uint8_t P) {
+    P0R4_t P0R4(read8(4));
+    if(P0R4.getPLLClk()!=clk)
+    {
+      P0R4.setPLLClk(clk);
+      write8(P0R4.GetAddress(),P0R4.toByte());
+    }
+  }
+  /*
+	  Select CODEC_CLKIN
+  00: MCLK pin is CODEC_CLKIN
+  01: BCLK pin is CODEC_CLKIN
+  10: GPIO pin is CODEC_CLKIN
+  11: PLL Clock is CODEC_CLKIN
+  */
+  void FyberLabs_TAS2521::setCODECCLK(CODEC_CLKIN_t clk) {
+    if(_page !=0)
+      switchPage(0);
 
-}
+    P0R4_t P0R4(read8(4));
+    if(P0R4.getCodecClk()!=clk)
+    {
+      P0R4.setCodecClk(clk);
+      write8(P0R4.GetAddress(),P0R4.toByte());
+    }
+  }
 
-/*
-	0000: Reserved. Do not use
-	0001: PLL multiplier R = 1
-	0010: PLL multiplier R = 2
-	0011: PLL multipler R = 3
-	0100: PLL multipler R = 4
-...
-0101...0111: Reserved. Do not use
-*/
-void FyberLabs_TAS2521::setPLLDividerR(uint8_t R) {
+  void FyberLabs_TAS2521::setPLLPowerDown(void) {
 
-}
+  }
+  void FyberLabs_TAS2521::setPLLPowerUp(void) {
 
-/*
-	PLL divider J value
-00 0000...00 0011: Do not use 00 0100: J = 4
-00 0101: J = 5
-...
-11 1110: J = 62
-11 1111: J = 63
-*/
-void FyberLabs_TAS2521::setPLLDividerJ(uint8_t J) {
+  }
 
-}
+  /*
+	  000: PLL divider P = 8
+	  001: PLL divider P = 1
+	  010: PLL divider P = 2
+	  ...
+  110: PLL divider P = 6
+  111: PLL divider P = 7
+  */
+  void FyberLabs_TAS2521::setPLLDividerP(uint8_t P) {
 
-/*
-	PLL divider D value (MSB)
-PLL divider D value(MSB) and PLL divider D value(LSB)
-00 0000 0000 0000: D=0000
-00 0000 0000 0001: D=0001
-...
-10 0111 0000 1110: D=9998
-10 0111 0000 1111: D=9999
-10 0111 0001 0000...11 1111 1111 1111: Do not use
-Note: This register will be updated only when the Page-0, Reg-8 is written immediately after Page-0, Reg-7.
-*/
-void FyberLabs_TAS2521::setPLLDividerDMSB(uint8_t DMSB) {
+  }
 
-}
+  /*
+	  0000: Reserved. Do not use
+	  0001: PLL multiplier R = 1
+	  0010: PLL multiplier R = 2
+	  0011: PLL multipler R = 3
+	  0100: PLL multipler R = 4
+  ...
+  0101...0111: Reserved. Do not use
+  */
+  void FyberLabs_TAS2521::setPLLDividerR(uint8_t R) {
 
-/*
-	PLL divider D value (LSB)
-PLL divider D value(MSB) and PLL divider D value(LSB)
-00 0000 0000 0000: D=0000
-00 0000 0000 0001: D=0001
-...
-10 0111 0000 1110: D=9998
-10 0111 0000 1111: D=9999
-10 0111 0001 0000...11 1111 1111 1111: Do not use
-Note: Page-0, Reg-8 should be written immediately after Page-0, Reg-7.
-*/
-void FyberLabs_TAS2521::setPLLDividerDLSB(uint8_t DLSB) {
+  }
 
-}
+  /*
+	  PLL divider J value
+  00 0000...00 0011: Do not use 00 0100: J = 4
+  00 0101: J = 5
+  ...
+  11 1110: J = 62
+  11 1111: J = 63
+  */
+  void FyberLabs_TAS2521::setPLLDividerJ(uint8_t J) {
 
-void FyberLabs_TAS2521::setNDACPowerDown(void) {
+  }
 
-}
-void FyberLabs_TAS2521::setNDACPowerUp(void) {
+  /*
+	  PLL divider D value (MSB)
+  PLL divider D value(MSB) and PLL divider D value(LSB)
+  00 0000 0000 0000: D=0000
+  00 0000 0000 0001: D=0001
+  ...
+  10 0111 0000 1110: D=9998
+  10 0111 0000 1111: D=9999
+  10 0111 0001 0000...11 1111 1111 1111: Do not use
+  Note: This register will be updated only when the Page-0, Reg-8 is written immediately after Page-0, Reg-7.
+  */
+  void FyberLabs_TAS2521::setPLLDividerDMSB(uint8_t DMSB) {
 
-}
-/*
-	NDAC Value
-000 0000: NDAC=128
-000 0001: NDAC=1
-000 0010: NDAC=2
-...
-111 1110: NDAC=126
-111 1111: NDAC=127
-Note: Please check the clock frequency requirements in the Overview section.
-*/
-void FyberLabs_TAS2521::setNDACCLK(uint8_t clk) {
+  }
 
-}
+  /*
+	  PLL divider D value (LSB)
+  PLL divider D value(MSB) and PLL divider D value(LSB)
+  00 0000 0000 0000: D=0000
+  00 0000 0000 0001: D=0001
+  ...
+  10 0111 0000 1110: D=9998
+  10 0111 0000 1111: D=9999
+  10 0111 0001 0000...11 1111 1111 1111: Do not use
+  Note: Page-0, Reg-8 should be written immediately after Page-0, Reg-7.
+  */
+  void FyberLabs_TAS2521::setPLLDividerDLSB(uint8_t DLSB) {
 
-void FyberLabs_TAS2521::setMDACPowerDown(void) {
+  }
 
-}
-void FyberLabs_TAS2521::setMDACPowerUp(void) {
+  void FyberLabs_TAS2521::setNDACPowerDown(void) {
 
-}
-/*
-	MDAC Value
-000 0000: MDAC=128
-000 0001: MDAC=1
-000 0010: MDAC=2
-...
-111 1110: MDAC=126
-111 1111: MDAC=127
-Note: Please check the clock frequency requirements in the Overview section.
-*/
-void FyberLabs_TAS2521::setMDACCLK(uint8_t clk) {
+  }
+  void FyberLabs_TAS2521::setNDACPowerUp(void) {
 
-}
+  }
+  /*
+	  NDAC Value
+  000 0000: NDAC=128
+  000 0001: NDAC=1
+  000 0010: NDAC=2
+  ...
+  111 1110: NDAC=126
+  111 1111: NDAC=127
+  Note: Please check the clock frequency requirements in the Overview section.
+  */
+  void FyberLabs_TAS2521::setNDACCLK(uint8_t clk) {
 
-/*
-	DAC OSR (DOSR) MSB Setting
-DAC OSR(MSB) and DAC OSR (LSB)
-00 0000 0000: DOSR=1024
-00 0000 0001: DOSR=1
-00 0000 0010: DOSR=2
-...
-11 1111 1110: DOSR=1022
-11 1111 1111: DOSR=1023
-Note: This register is updated when Page-0, Reg-14 is written to immediately after Page-0, Reg-13.
-*/
-void FyberLabs_TAS2521::setDACOSRMSB(uint8_t DOSRMSB) {
+  }
 
-}
+  void FyberLabs_TAS2521::setMDACPowerDown(void) {
 
-/*
-	DAC OSR (DOSR) LSB Setting
-DAC OSR(MSB) and DAC OSR (LSB)
-00 0000 0000: DOSR=1024
-00 0000 0001: DOSR=1
-00 0000 0010: DOSR=2
-...
-11 1111 1110: DOSR=1022
-11 1111 1111: DOSR=1023
-Note: This register should be written immediately after Page-0, Reg-13.
-*/
-void FyberLabs_TAS2521::setDACOSRLSB(uint8_t DOSRLSB) {
+  }
+  void FyberLabs_TAS2521::setMDACPowerUp(void) {
 
-}
+  }
+  /*
+	  MDAC Value
+  000 0000: MDAC=128
+  000 0001: MDAC=1
+  000 0010: MDAC=2
+  ...
+  111 1110: MDAC=126
+  111 1111: MDAC=127
+  Note: Please check the clock frequency requirements in the Overview section.
+  */
+  void FyberLabs_TAS2521::setMDACCLK(uint8_t clk) {
 
-/*
-	miniDSP_D IDAC (14:8) setting. Use when miniDSP_D is in use for signal processing (page 0,Reg 60) miniDSP_D IDAC(14:0)
-000 0000 0000 0000: miniDSP_D IDAC = 32768
-000 0000 0000 0001: miniDSP_D IDAC = 1
-000 0000 0000 0010: miniDSP_D IDAC = 2
-...
-111 1111 1111 1110: miniDSP_D IDAC = 32766
-111 1111 1111 1111: miniDSP_D IDAC = 32767
-Note: IDAC should be a integral multiple of INTERP ( Page-0, Reg-17, D3-D0 )
-Note: Page-0, Reg-15 takes effect after programming Page-0, Reg-16 in the immediate next control command.
-*/
-void FyberLabs_TAS2521::setminiDSP_DMSB(uint8_t IDACMSB) {
+  }
 
-}
-/*
-	miniDSP_D IDAC (7:0) setting. Use when miniDSP_D is in use for signal processing (page 0,Reg 60) miniDSP_D IDAC(14:0)
-000 0000 0000 0000: miniDSP_D 000 0000 0000 0001: miniDSP_D 000 0000 0000 0010: miniDSP_D ......
-111 1111 1111 1110: miniDSP_D
-111 1111 1111 1111: miniDSP_D
-Note: IDAC should be a integral multiple of INTERP ( Page-0, Reg-17, D3-D0 ) Note: Page-0, Reg-16 should be programmed immediately after Page-0, Reg-15.
-*/
-void FyberLabs_TAS2521::setminiDSP_DLSB(uint8_t IDACLSB) {
+  /*
+	  DAC OSR (DOSR) MSB Setting
+  DAC OSR(MSB) and DAC OSR (LSB)
+  00 0000 0000: DOSR=1024
+  00 0000 0001: DOSR=1
+  00 0000 0010: DOSR=2
+  ...
+  11 1111 1110: DOSR=1022
+  11 1111 1111: DOSR=1023
+  Note: This register is updated when Page-0, Reg-14 is written to immediately after Page-0, Reg-13.
+  */
+  void FyberLabs_TAS2521::setDACOSRMSB(uint8_t DOSRMSB) {
 
-}
+  }
 
-/*
-	miniDSP_D interpolation factor setting. Used when miniDSP_D is in use for signal processing (page 0,Reg 60)
-0000 : Interpolation factor in miniDSP_D(INTERP) = 16
-0001: Interpolation factor in miniDSP_D(INTERP)= 1
-0010: Interpolation factor in miniDSP_D(INTERP) = 2 ...
-1110: Interpolation factor in miniDSP_D(INTERP) = 14
-*/
-void FyberLabs_TAS2521::setminiDSP_DIntFactor(uint8_t IntFactor) {
+  /*
+	  DAC OSR (DOSR) LSB Setting
+  DAC OSR(MSB) and DAC OSR (LSB)
+  00 0000 0000: DOSR=1024
+  00 0000 0001: DOSR=1
+  00 0000 0010: DOSR=2
+  ...
+  11 1111 1110: DOSR=1022
+  11 1111 1111: DOSR=1023
+  Note: This register should be written immediately after Page-0, Reg-13.
+  */
+  void FyberLabs_TAS2521::setDACOSRLSB(uint8_t DOSRLSB) {
 
-}
+  }
+
+  /*
+	  miniDSP_D IDAC (14:8) setting. Use when miniDSP_D is in use for signal processing (page 0,Reg 60) miniDSP_D IDAC(14:0)
+  000 0000 0000 0000: miniDSP_D IDAC = 32768
+  000 0000 0000 0001: miniDSP_D IDAC = 1
+  000 0000 0000 0010: miniDSP_D IDAC = 2
+  ...
+  111 1111 1111 1110: miniDSP_D IDAC = 32766
+  111 1111 1111 1111: miniDSP_D IDAC = 32767
+  Note: IDAC should be a integral multiple of INTERP ( Page-0, Reg-17, D3-D0 )
+  Note: Page-0, Reg-15 takes effect after programming Page-0, Reg-16 in the immediate next control command.
+  */
+  void FyberLabs_TAS2521::setminiDSP_DMSB(uint8_t IDACMSB) {
+
+  }
+  /*
+	  miniDSP_D IDAC (7:0) setting. Use when miniDSP_D is in use for signal processing (page 0,Reg 60) miniDSP_D IDAC(14:0)
+  000 0000 0000 0000: miniDSP_D 000 0000 0000 0001: miniDSP_D 000 0000 0000 0010: miniDSP_D ......
+  111 1111 1111 1110: miniDSP_D
+  111 1111 1111 1111: miniDSP_D
+  Note: IDAC should be a integral multiple of INTERP ( Page-0, Reg-17, D3-D0 ) Note: Page-0, Reg-16 should be programmed immediately after Page-0, Reg-15.
+  */
+  void FyberLabs_TAS2521::setminiDSP_DLSB(uint8_t IDACLSB) {
+
+  }
+
+  /*
+	  miniDSP_D interpolation factor setting. Used when miniDSP_D is in use for signal processing (page 0,Reg 60)
+  0000 : Interpolation factor in miniDSP_D(INTERP) = 16
+  0001: Interpolation factor in miniDSP_D(INTERP)= 1
+  0010: Interpolation factor in miniDSP_D(INTERP) = 2 ...
+  1110: Interpolation factor in miniDSP_D(INTERP) = 14
+  */
+  void FyberLabs_TAS2521::setminiDSP_DIntFactor(uint8_t IntFactor) {
+
+  }
 
 /*
 	CDIV_CLKIN Clock Selection
@@ -381,7 +441,7 @@ void FyberLabs_TAS2521::setAudioSecondaryWCLK(uint8_t clk) {
 void FyberLabs_TAS2521::setAudioSecondaryMuxInput(uint8_t input) {
 
 }
-
+/*
 void FyberLabs_TAS2521::setAudioInterfaceUsePrimaryBCLK(void) {
 
 }
@@ -531,7 +591,7 @@ void FyberLabs_TAS2521::setINT2PulseControlSingle(void) {
 void FyberLabs_TAS2521::setINT2PulseControlMultiple(void) {
 
 }
-
+*/
 /*
 	GPIO Control
 0000: GPIO input/output disabled.
@@ -591,13 +651,14 @@ void FyberLabs_TAS2521::setDOUTNotGPIO(void) {
 01: DIN is enabled for Primary Data Input or General Purpose Clock input 10: DIN is used as General Purpose Input
 11: Reserved. Do not use
 */
+/*
 void FyberLabs_TAS2521::setDINFunctionControl(uint8_t control) {
 
 }
 bool FyberLabs_TAS2521::getDINGPIOInput(void) {
 
 }
-
+*/
 /*
 	MISO function control
 0000: MISO buffer disabled
@@ -628,10 +689,11 @@ void FyberLabs_TAS2521::setMISOGPIOOutput(bool bit) {
 void FyberLabs_TAS2521::setSCLKFunctionControl(uint8_t control) {
 
 }
+/*
 bool FyberLabs_TAS2521::getSCLKGPIOInput(void) {
 
 }
-
+*/
 /*
 	0 0000: The miniDSP_D will be used for signal processing 0 0001: DAC Signal Processing Block PRB_P1
 0 0010: DAC Signal Processing Block PRB_P2
@@ -1106,7 +1168,7 @@ void FyberLabs_TAS2521::setSpeakerVolume(uint8_t volume) {
 void FyberLabs_TAS2521::setSpeakerAmplifierVolume(uint8_t volume) {
 
 }
-
+/*
 bool FyberLabs_TAS2521::getHPOUTAppliedGain(void) {
 
 }
@@ -1119,7 +1181,7 @@ bool FyberLabs_TAS2521::getAINLMixPGAAppliedVolume(void) {
 bool FyberLabs_TAS2521::getAINRMixPGAAppliedVolume(void) {
 
 }
-
+*/
 /*
 	Reference Power Up configuration
 	000: Reference will power up slowly when analog blocks are powered up
@@ -1134,7 +1196,7 @@ bool FyberLabs_TAS2521::getAINRMixPGAAppliedVolume(void) {
 void FyberLabs_TAS2521::setReferencePowerUpDelay(uint8_t delay) {
 
 }
-
+/*
 //Page 44 / Register 0: Page Select Register - 0x2C / 0x00
 //Page 45 - 52 / Register 0: Page Select Register - 0x2D - 0x34 / 0x00
 //9 Pages DAC coeff A
@@ -1204,531 +1266,6 @@ uint8_t FyberLabs_TAS2521::getDACminiDSPInstruction(uint8_t reg) {
 
 }
 
-
-
-
-void FyberLabs_TAS2521::switchPage(uint8_t page) {
-
-}
-
-
-
-
-uint8_t FyberLabs_TAS2521::read8(uint8_t reg) {
-    uint8_t ret{
-
-}
-
-    Wire.beginTransmission(_i2c_address) {
-
-}
-    Wire.write(reg) {
-
-}
-    Wire.endTransmission() {
-
-}
-    Wire.requestFrom((uint8_t)_i2c_address, (uint8_t)1) {
-
-}
-    ret = Wire.read() {
-
-}
-
-    return ret{
-
-}
-}
-
-void FyberLabs_TAS2521::write8(uint8_t reg, uint8_t data) {
-    Wire.beginTransmission(_i2c_address) {
-
-}
-    Wire.write(reg) {
-
-}
-    Wire.write(data) {
-
-}
-    Wire.endTransmission() {
-
-}
-}
-
-/*
-The following example EVM I2C register control scripts can be taken directly for the TAS2521 EVM setup. The # marks a comment line, w marks an I2C write command followed by the device address, the I2C register address and the value. The EVM I2C register control scripts follows to show how to set up the TAS2521 in playback mode with fS = 44.1 kHz and MCLK = 11.2896 MHz.
 */
 
-//Example Register Setup to Play Digital Data Through DAC and Headphone/Speaker Outputs
-# I2C Script to Setup the device in Playback Mode
-# Key: w 30 XX YY ==> write to I2C address 0x30, to register 0xXX, data 0xYY
-# This script set DAC output routed to HP Driver and Class-D driver via Mixer
-# # ==> comment delimiter
-
-# Page switch to Page 0
-W 30 00 00
-# Assert Software reset (P0, R1, D0=1)
-W 30 01 01
-# Page Switch to Page 1
-W 30 00 01
-# LDO output programmed as 1.8V and Level shifters powered up. (P1, R2, D5-D4=00, D3=0)
-W 30 02 00
-# Page switch to Page 0
-W 30 00 00
-#         PLL_clkin = MCLK, codec_clkin = PLL_CLK, MCLK should be 11.2896MHz (P0, R4, D1-D0=03)
-w 30 04 03
-# Power up PLL, set P=1, R=1, (Page-0, Reg-5)
-w 30 05 91
-# Set J=4, (Page-0, Reg-6)
-w 30 06 04
-# D = 0000, D(13:8) = 0, (Page-0, Reg-7)
-w 30 07 00
-#           D(7:0) = 0,  (Page-0, Reg-8)
-w 30 08 00
-# add delay of 15 ms for PLL to lock
-d 15
-#        DAC NDAC Powered up, NDAC=4 (P0, R11, D7=1, D6-D0=0000100)
-W 30 0B 84
-#        DAC MDAC Powered up, MDAC=2 (P0, R12, D7=1, D6-D0=0000010)
-W 30 0C 82
-#        DAC OSR(9:0)-> DOSR=128 (P0, R12, D1-D0=00)
-W 30 0D 00
-#        DAC OSR(9:0)-> DOSR=128 (P0, R13, D7-D0=10000000)
-W 30 0E 80
-# Codec Interface control Word length = 16bits, BCLK&WCLK inputs, I2S mode. (P0, R27, D7-
-D6=00, D5-D4=00, D3-D2=00)
-W 30 1B 00
-# Data slot offset 00 (P0, R28, D7-D0=0000)
-W 30 1C 00
-# Dac Instruction programming PRB #2 for Mono routing. Type interpolation (x8) and 3 programmable
-Biquads. (P0, R60, D4-D0=0010)
-W 30 3C 02
-# Page Switch to Page 1
-W 30 00 01
-# Master Reference Powered on (P1, R1, D4=1)
-W 30 01 10
-# Output common mode for DAC set to 0.9V (default) (P1, R10)
-W 30 0A 00
-# Mixer P output is connected to HP Out Mixer (P1, R12, D2=1)
-w 30 0C 04
-# HP Voulme, 0dB Gain (P1, R22, D6-D0=0000000)
-W 30 16 00
-# No need to enable Mixer M and Mixer P, AINL Voulme, 0dB Gain (P1, R24, D7=1, D6-D0=0000000)
-W 30 18 00
-# Power up HP (P1, R9, D5=1)
-w 30 09 20
-# Unmute HP with 0dB gain (P1, R16, D4=1)
-w 30 10 00
-#          SPK attn. Gain =0dB (P1, R46, D6-D0=000000)
-W 30 2E 00
-#          SPK driver Gain=6.0dB (P1, R48, D6-D4=001)
-W 30 30 10
-#          SPK powered up (P1, R45, D1=1)
-W 30 2D 02
-# Page switch to Page 0
-W 30 00 00
-# DAC powered up, Soft step 1 per Fs. (P0, R63, D7=1, D5-D4=01, D3-D2=00, D1-D0=00)
-W 30 3F 90
-# DAC digital gain 0dB (P0, R65, D7-D0=00000000)
-W 30 41 00
-# DAC volume not muted. (P0, R64, D3=0, D2=1)
-W 30 40 04
-#
-
-//Example Register Setup to Play Digital Data Through DAC and Headphone Output
-# I2C Script to Setup the device in Playback Mode
-# Key: w 30 XX YY ==> write to I2C address 0x30, to register 0xXX, data 0xYY
-# This script set DAC output routed to only HP Driver
-# # ==> comment delimiter
-#
-# Page switch to Page 0
-W 30 00 00
-# Assert Software reset (P0, R1, D0=1)
-W 30 01 01
-# Page Switch to Page 1
-W 30 00 01
-# LDO output programmed as 1.8V and Level shifters powered up. (P1, R2, D5-D4=00, D3=0)
-W 30 02 00
-Page switch to Page 0
-W 30 00 00
-#         CODEC_CLKIN=MCLK, MCLK should be 11.2896MHz (P0, R4, D1-D0=00)
-W 30 04 00
-#        DAC NDAC Powered up, NDAC=1 (P0, R11, D7=1, D6-D0=0000001)
-W 30 0B 81
-#        DAC MDAC Powered up, MDAC=2 (P0, R12, D7=1, D6-D0=0000010)
-W 30 0C 82
-#        DAC OSR(9:0)-> DOSR=128 (P0, R12, D1-D0=00)
-W 30 0D 00
-#        DAC OSR(9:0)-> DOSR=128 (P0, R13, D7-D0=10000000)
-W 30 0E 80
-# Codec Interface control Word length = 16bits, BCLK&WCLK inputs, I2S mode. (P0, R27, D7-
-D6=00, D5-D4=00, D3-D2=00)
-W 30 1B 00
-# Data slot offset 00 (P0, R28, D7-D0=0000)
-W 30 1C 00
-# Dac Instruction programming PRB #2 for Mono routing. Type interpolation (x8) and 3 programmable
-Biquads. (P0, R60, D4-D0=0010)
-W 30 3C 02
-# Page Switch to Page 1
-W 30 00 01
-# Master Reference Powered on (P1, R1, D4=1)
-W 30 01 10
-# Output common mode for DAC set to 0.9V (default) (P1, R10)
-W 30 0A 00
-# DAC output is routed directly to HP driver (P1, R12, D3=1)
-w 30 0C 08
-# HP Voulme, 0dB Gain (P1, R22, D6-D0=0000000)
-W 30 16 00
-# Power up HP (P1, R9, D5=1)
-w 30 09 20
-# Unmute HP with 0dB gain (P1, R16, D4=1)
-w 30 10 00
-# Page switch to Page 0
-W 30 00 00
-# DAC powered up, Soft step 1 per Fs. (P0, R63, D7=1, D5-D4=01, D3-D2=00, D1-D0=00)
-W 30 3F 90
-# DAC digital gain 0dB (P0, R65, D7-D0=00000000)
-W 30 41 00
-# DAC volume not muted. (P0, R64, D3=0, D2=1)
-W 30 40 04
-#
-
-//Example Register Setup to Play AINL and AINR Through Headphone/Speaker Outputs
-# I2C Script to Setup the device in Playback Mode
-# This script set AINL and AINR inputs routed to HP Driver and Class-D driver via Mixer
-# Key: w 30 XX YY ==> write to I2C address 0x30, to register 0xXX, data 0xYY
-# # ==> comment delimiter
-#
-# Page switch to Page 0
-W 30 00 00
-# Assert Software reset (P0, R1, D0=1)
-W 30 01 01
-# Page Switch to Page 1
-W 30 00 01
-# LDO output programmed as 1.8V and Level shifters powered up. (P1, R2, D5-D4=00, D3=0)
-W 30 02 00
-# Master Reference Powered on (P1, R1, D4=1)
-W 30 01 10
-# Enable AINL and AINR (P1, R9, D1-D0=11)
-w 30 09 03
-# AINL/R to HP driver via Mixer P (P1, R12, D7-D6=11, D2=1)
-w 30 0C C4
-# HP Voulme, 0dB Gain (P1, R22, D6-D0=0000000)
-W 30 16 00
-# Enable Mixer P and Mixer M, AINL Voulme, 0dB Gain (P1, R24, D7=1, D6-D0=0000000)
-W 30 18 80
-# Enable AINL and AINR and Power up HP (P1, R9, D5=1, D1-D0=11)
-w 30 09 23
-# Unmute HP with 0dB gain (P1, R16, D4=1)
-w 30 10 00
-#          SPK attn. Gain =0dB (P1, R46, D6-D0=000000)
-W 30 2E 00
-#          SPK driver Gain=6.0dB (P1, R48, D6-D4=001)
-W 30 30 10
-#          SPK powered up (P1, R45, D1=1)
-W 30 2D 02
-#
-
-//Example Register Setup to Play AINL and AINR Through Headphone Output
-# I2C Script to Setup the device in Playback Mode
-# This script set AINL and AINR inputs routed to only HP Driver
-# Key: w 30 XX YY ==> write to I2C address 0x30, to register 0xXX, data 0xYY
-# # ==> comment delimiter
-#
-# Page switch to Page 0
-W 30 00 00
-# Assert Software reset (P0, R1, D0=1)
-W 30 01 01
-# Page Switch to Page 1
-W 30 00 01
-# LDO output programmed as 1.8V and Level shifters powered up. (P1, R2, D5-D4=00, D3=0)
-W 30 02 00
-# Master Reference Powered on (P1, R1, D4=1)
-W 30 01 10
-# Enable AINL and AINR (P1, R9, D1-D0=11)
-w 30 09 03
-# AINL/R to HP driver not via Mixer P (P1, R12, D1-D0=11)
-w 30 0C 03
-# HP Voulme, 0dB Gain (P1, R22, D6-D0=0000000)
-W 30 16 00
-# Not enable HP Out Mixer, AINL Voulme, 0dB Gain (P1, R24, D7=0, D6-D0=0000000)
-W 30 18 00
-# Enable AINL and AINR and Power up HP (P1, R9, D5=1, D1-D0=11)
-w 30 09 23
-# Unmute HP with 0dB gain (P1, R16, D4=1)
-w 30 10 00
-#
-
-//Example Register Setup to Play Digital Data Through DAC and Headphone/Speaker Outputs with 3 programmable Biquads
-# I2C Script to Setup the device in Playback Mode #2
-# Key: w 30 XX YY ==> write to I2C address 0x30, to register 0xXX, data 0xYY
-# This script set DAC output routed to HP Driver and Class-
-D driver via Mixer with 3 programmable Biquads.
-# # ==> comment delimiter
-#
-# Page switch to Page 0
-W 30 00 00
-# Assert Software reset (P0, R1, D0=1)
-W 30 01 01
-# Page Switch to Page 1
-W 30 00 01
-# LDO output programmed as 1.8V and Level shifters powered up. (P1, R2, D5-D4=00, D3=0)
-W 30 02 00
-# Page switch to Page 0
-W 30 00 00
-#         CODEC_CLKIN=MCLK, MCLK should be 11.2896MHz (P0, R4, D1-D0=00)
-W 30 04 00
-#        DAC NDAC Powered up, NDAC=1 (P0, R11, D7=1, D6-D0=0000001)
-W 30 0B 81
-#        DAC MDAC Powered up, MDAC=2 (P0, R12, D7=1, D6-D0=0000010)
-W 30 0C 82
-#        DAC OSR(9:0)-> DOSR=128 (P0, R12, D1-D0=00)
-W 30 0D 00
-#        DAC OSR(9:0)-> DOSR=128 (P0, R13, D7-D0=10000000)
-W 30 0E 80
-# Codec Interface control Word length = 16bits, BCLK&WCLK inputs, I2S mode. (P0, R27, D7-
-D6=00, D5-D4=00, D3-D2=00)
-W 30 1B 00
-# Data slot offset 00 (P0, R28, D7-D0=0000)
-W 30 1C 00
-# Dac Instruction programming PRB #2 for Mono routing. Type interpolation (x8) and 3 programmable
-Biquads. (P0, R60, D4-D0=0010)
-W 30 3C 02
-##########--------------- BEGIN COEFFICIENTS --------------------------------------
-# reg 00 - Page Select Register = 44
-# sets active page to page 44 for 3-BQs (BQ-A, BQ-B, BQ-C)
-w 30 00 2C
-#
-#-----------------------------------------------------------------------
-#  BQ-A = 100Hz HP
-#-----------------------------------------------------------------------
-# reg 12/13/14 - N0 Coefficient
-w 30 0C 7E B7 7B
-# reg 16/17/18 - N1 Coefficient
-w 30 10 81 48 85
-# reg 20/21/22 - N2 Coefficient
-w 30 14 7E B7 7B
-# reg 24/25/26 - D1 Coefficient
-w 30 18 7E B5 D5
-# reg 28/29/30 - D2 Coefficient
-w 30 1C 82 8D BE
-#-----------------------------------------------------------------------
-# BQ-B=1KHzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 32/33/34 - N0 Coefficient
-w 30 20 7F C5 BD
-# reg 36/37/38 - N1 Coefficient
-w 30 24 81 85 B1
-# reg 40/41/42 - N2 Coefficient
-w 30 28 7F C5 BD
-# reg 44/45/46 - D1 Coefficient
-w 30 2C 7E 7A 4F
-# reg 48/49/50 - D2 Coefficient
-w 30 30 80 74 84
-#-----------------------------------------------------------------------
-# BQ-C=5KHzNotchBW=125
-#-----------------------------------------------------------------------
-# reg 52/53/54 - N0 Coefficient
-w 30 34 7E DE C5
-# reg 56/57/58 - N1 Coefficient
-w 30 38 9F FB C8
-# reg 60/61/62 - N2 Coefficient
-w 30 3C 7E DE C5
-# reg 64/65/66 - D1 Coefficient
-w 30 40 60 04 38
-# reg 68/69/70 - D2 Coefficient
-w 30 44 82 42 74
-##########--------------- END COEFFICIENTS OF Notch Filters  ------------------------
-#######################################################
-# Page Switch to Page 1
-W 30 00 01
-# Master Reference Powered on (P1, R1, D4=1)
-W 30 01 10
-# Output common mode for DAC set to 0.9V (default) (P1, R10)
-W 30 0A 00
-# Mixer P output is connected to HP Out Mixer (P1, R12, D2=1)
-w 30 0C 04
-# HP Voulme, 0dB Gain (P1, R22, D6-D0=0000000)
-W 30 16 00
-# Power up HP (P1, R9, D5=1)
-w 30 09 20
-# Unmute HP with 0dB gain (P1, R16, D4=1)
-w 30 10 00
-#          SPK attn. Gain =0dB (P1, R46, D6-D0=000000)
-W 30 2E 00
-#          SPK driver Gain=6.0dB (P1, R48, D6-D4=001)
-W 30 30 10
-#          SPK powered up (P1, R45, D1=1)
-W 30 2D 02
-# Page switch to Page 0
-W 30 00 00
-# DAC powered up, Soft step 1 per Fs. (P0, R63, D7=1, D5-D4=01, D3-D2=00, D1-D0=00)
-W 30 3F 90
-# DAC digital gain 0dB (P0, R65, D7-D0=00000000)
-W 30 41 00
-# DAC volume not muted. (P0, R64, D3=0, D2=1)
-W 30 40 04
-#
-
-//Example Register Setup to Play Digital Data Through DAC and Headphone/Speaker Outputs with 6 programmable Biquads
-# I2C Script to Setup the device in Playback Mode #3
-# Key: w 30 XX YY ==> write to I2C address 0x30, to register 0xXX, data 0xYY
-# This script set DAC output routed to HP Driver and Class-
-D driver via Mixer with 6 programmable Biquads.
-# # ==> comment delimiter
-#
-# Page switch to Page 0
-W 30 00 00
-# Assert Software reset (P0, R1, D0=1)
-W 30 01 01
-# Page Switch to Page 1
-W 30 00 01
-# LDO output programmed as 1.8V and Level shifters powered up. (P1, R2, D5-D4=00, D3=0)
-W 30 02 00
-# Page switch to Page 0
-W 30 00 00
-#         CODEC_CLKIN=MCLK, MCLK should be 11.2896MHz (P0, R4, D1-D0=00)
-W 30 04 00
-#        DAC NDAC Powered up, NDAC=1 (P0, R11, D7=1, D6-D0=0000001)
-W 30 0B 81
-#        DAC MDAC Powered up, MDAC=2 (P0, R12, D7=1, D6-D0=0000010)
-W 30 0C 82
-#        DAC OSR(9:0)-> DOSR=128 (P0, R12, D1-D0=00)
-W 30 0D 00
-#        DAC OSR(9:0)-> DOSR=128 (P0, R13, D7-D0=10000000)
-W 30 0E 80
-# Codec Interface control Word length = 16bits, BCLK&WCLK inputs, I2S mode. (P0, R27, D7-
-D6=00, D5-D4=00, D3-D2=00)
-W 30 1B 00
-# Data slot offset 00 (P0, R28, D7-D0=0000)
-W 30 1C 00
-# Dac Instruction programming PRB #3 for Mono routing. Type B nterpolation (x4) and 6
-programmable Biquads. (P0, R60, D4-D0=0011)
-W 30 3C 03
-##########--------------- BEGIN COEFFICIENTS --------------------------------------
-# reg 00 - Page Select Register = 46
-# sets active page to page 46 for First-Order IIR
-w 30 00 2E
-#-----------------------------------------------------------------------
-#  First-Order IIR = 100Hz HP
-#-----------------------------------------------------------------------
-# reg 28/29/30 - N0 Coefficient
-w 30 1C 7F 18 36
-# reg 32/33/34 - N1 Coefficient
-w 30 20 80 E7 CA
-# reg 36/37/38 - N2 Coefficient
-w 30 24 7E 30 6D
-# reg 00 - Page Select Register = 44
-# sets active page to page 44 for 6-BQs (BQ-A, BQ-B, BQ-C, BQ-D, BQ-E, BQ-F) w 30 00 2C
-#
-#-----------------------------------------------------------------------
-# BQ-A=500HzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 12/13/14 - N0 Coefficient
-w 30 0C 7F C5 BD
-# reg 16/17/18 - N1 Coefficient
-w 30 10 80 8D 39
-# reg 20/21/22 - N2 Coefficient
-w 30 14 7F C5 BD
-# reg 24/25/26 - D1 Coefficient
-w 30 18 7F 72 C7
-# reg 28/29/30 - D2 Coefficient
-w 30 1C 80 74 84
-#-----------------------------------------------------------------------
-# BQ-B=1KHzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 32/33/34 - N0 Coefficient
-w 30 20 7F C5 BD
-# reg 36/37/38 - N1 Coefficient
-w 30 24 81 85 B1
-# reg 40/41/42 - N2 Coefficient
-w 30 28 7F C5 BD
-# reg 44/45/46 - D1 Coefficient
-w 30 2C 7E 7A 4F
-# reg 48/49/50 - D2 Coefficient
-w 30 30 80 74 84
-#-----------------------------------------------------------------------
-# BQ-C=2KHzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 52/53/54 - N0 Coefficient
-w 30 34 7F C5 BD
-# reg 56/57/58 - N1 Coefficient
-w 30 38 85 61 46
-# reg 60/61/62 - N2 Coefficient
-w 30 3C 7F C5 BD
-# reg 64/65/66 - D1 Coefficient
-w 30 40 7A 9E BA
-# reg 68/69/70 - D2 Coefficient
-w 30 44 80 74 84
-#-----------------------------------------------------------------------
-# BQ-D=3KHzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 72/73/74 - N0 Coefficient
-w 30 48 7F C5 BD
-# reg 76/77/78 - N1 Coefficient
-w 30 4C 8B B8 FD
-# reg 80/81/82 - N2 Coefficient
-w 30 50 7F C5 BD
-# reg 84/85/86 - D1 Coefficient
-w 30 54 74 47 03
-# reg 88/89/90 - D2 Coefficient
-w 30 58 80 74 84
-#-----------------------------------------------------------------------
-# BQ-E=4KHzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 92/93/94 - N0 Coefficient
-w 30 5C 7F C5 BD
-# reg 96/97/98 - N1 Coefficient
-w 30 60 94 6B EF
-# reg 100/101/102 - N2 Coefficient
-w 30 64 7F C5 BD
-# reg 104/105/106 - D1 Coefficient
-w 30 68 6B 94 11
-# reg 108/109/110 - D2 Coefficient
-w 30 6C 80 74 84
-#-----------------------------------------------------------------------
-# BQ-F=5KHzNotchBW=25
-#-----------------------------------------------------------------------
-# reg 112/113/114 - N0 Coefficient
-w 30 70 7F C5 BD
-# reg 116/117/118 - N1 Coefficient
-w 30 74 9F 4C FB
-# reg 120/121/122 - N2 Coefficient
-w 30 78 7F C5 BD
-# reg 124/125/126 - D1 Coefficient
-w 30 7C 60 B3 05
-# sets active page to page 45 for BQ-F D2
-w 30 00 2D
-# reg 8/9/10 - D2 Coefficient
-w 30 08 80 74 84
-##########--------------- END COEFFICIENTS OF Notch Filters  ------------------------
-#######################################################
-# Page Switch to Page 1
-W 30 00 01
-# Master Reference Powered on (P1, R1, D4=1)
-W 30 01 10
-# Output common mode for DAC set to 0.9V (default) (P1, R10)
-W 30 0A 00
-# Mixer P output is connected to HP Out Mixer (P1, R12, D2=1)
-w 30 0C 04
-# HP Voulme, 0dB Gain (P1, R22, D6-D0=0000000)
-W 30 16 00
-# Power up HP (P1, R9, D5=1)
-w 30 09 20
-# Unmute HP with 0dB gain (P1, R16, D4=1)
-w 30 10 00
-#          SPK attn. Gain =0dB (P1, R46, D6-D0=000000)
-W 30 2E 00
-#          SPK driver Gain=6.0dB (P1, R48, D6-D4=001)
-W 30 30 10
-#          SPK powered up (P1, R45, D1=1)
-W 30 2D 02
-# Page switch to Page 0
-W 30 00 00
-# DAC powered up, Soft step 1 per Fs. (P0, R63, D7=1, D5-D4=01, D3-D2=00, D1-D0=00)
-W 30 3F 90
-# DAC digital gain 0dB (P0, R65, D7-D0=00000000)
-W 30 41 00
-# DAC volume not muted. (P0, R64, D3=0, D2=1)
-W 30 40 04
-#
+}

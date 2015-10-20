@@ -70,15 +70,115 @@ enum PLL_MULT_R_t{
   PLL_MULT_4	=0x04,
 };
 
-// default configuration
+enum POWER_STATE_t{
+  POWER_DOWN	=0x00,
+  POWER_UP	=0x01,
+};
+
+enum CDIV_CLKIN_t{
+  CDIV_CLKIN_MCLK	= 0x00,
+  CDIV_CLKIN_BCLK	= 0x01,
+  CDIV_CLKIN_DIN	= 0x02,
+  CDIV_CLKIN_PLL_CLK	= 0x03,
+  CDIV_CLKIN_DAC_CLK	= 0x04,
+  CDIV_CLKIN_DAC_MOD_CLK= 0x05,
+};
+
+enum INTERFACE_t{
+  I2S	= 0x00,
+  DSP	= 0x01,
+  RJF	= 0x02,
+  LJF	= 0x03,
+};
+
+enum WORD_LENGTH_t{
+  BIT16	= 0x00,
+  BIT20	= 0x01,
+  BIT24	= 0x02,
+  BIT32	= 0x03,
+};
+
+enum DIRECTION_T{
+  IN	= 0x00,
+  OUT	= 0x01,
+};
+
+enum BDIV_CLKIN_t{
+  DAC_CLK = 0,
+  DAC_MOD_CLK = 1
+};
+
+enum BIT_POLARITY_t{
+  DEFAULT = 0,
+  INVERTED = 1
+};
+
+enum SEC_BIT_CLK_MUX_t{
+  GPIO = 0,
+  SCLK = 1,
+  MISO = 2,
+  DOUT = 3
+};
+
+enum DATA_IN_MUX_t{
+  GPIO = 0,
+  SCLK = 1,
+};
+
+//--------------------------- default configuration------------------------------
+//Page 0 / Register 4: Clock Setting Register 1, Multiplexers - 0x00 / 0x04
 const PLL_RANGE_t 	DEFAULT_PLL_RANGE = PLL_RANGE_LOW;
 const PLL_CLKIN_t 	DEFAULT_PLL_CLKIN = PLL_CLKIN_MCLK;
 const CODEC_CLKIN_t 	DEFAULT_CODEC_CLKIN = CODEC_CLKIN_MCLK;
-const bool		DEFAULT_PLL_ON = false;
+//Page 0 / Register 5: Clock Setting Register 2, PLL P and R Values - 0x00 / 0x05
+const POWER_STATE_t	DEFAULT_PLL_ON = POWER_DOWN;
 const PLL_DIV_P_t	DEFAULT_PLL_DIV_P = PLL_DIV_1;
 const PLL_MULT_R_t	DEFAULT_PLL_MULT_R = PLL_MULT_1;
+//Page 0 / Register 6: Clock Setting Register 3, PLL J Values - 0x00 / 0x06
+const uint8_t 		DEFAULT_PLL_DIV_J = 4;
+//Page 0 / Register 7: Clock Setting Register 4, PLL D Values (MSB) - 0x00 / 0x07
+//Page 0 / Register 8: Clock Setting Register 5, PLL D Values (LSB) - 0x00 / 0x08
+const uint16_t		DEFAULT_PLL_DIV_D = 0;
+//Page 0 / Register 11: Clock Setting Register 6, NDAC Values - 0x00 / 0x0B
+const uint8_t		DEFAULT_NDAC_VALUE = 1;
+const POWER_STATE_t	DEFAULT_NDAC_POWER = POWER_DOWN;
+//Page 0 / Register 12: Clock Setting Register 7, MDAC Values - 0x00 / 0x0C
+const uint8_t		DEFAULT_MDAC_VALUE = 1;
+const POWER_STATE_t	DEFAULT_MDAC_POWER = POWER_DOWN;
+//Page 0 / Register 14: DAC OSR Setting Register 2, LSB Value - 0x00 / 0x0E
+//Page 0 / Register 15: miniDSP_D Instruction Control Register 1 - 0x00 / 0x0F
+const uint16_t		DEFAULT_DAC_OSR = 128;
+//Page 0 / Register 16: miniDSP_D Instruction Control Register 2 - 0x00 / 0x10
+const uint16_t		DEFAULT_MINIDSP_IDAC = 512;
+//Page 0 / Register 17: miniDSP_D Interpolation Factor Setting Register - 0x00 / 0x11
+const uint8_t		DEFAULT_MINIDSP_INTERP = 8;
+//Page 0 / Registers 25: Clock Setting Register 10, Multiplexers - 0x00 / 0x19
+const CDIV_CLKIN_t	DEFAULT_CDIV_CLKIN = CDIV_CLKIN_MCLK;
+//Page 0 / Registers 26: Clock Setting Register 11, CLKOUT M divider value - 0x00 / 0x1A
+const uint8_t		DEFAULT_CLKOUT_MDIV_VALUE = 1;
+const POWER_STATE_t	DEFAULT_CLKOUT_MDIV_POWER = POWER_DOWN;
+//Page 0 / Register 27: Audio Interface Setting Register 1 - 0x00 / 0x1B
+const INTERFACE_t	DEFAULT_AUDIO_INTERFACE = I2S;
+const WORD_LENGTH_t	DEFAULT_WORD_LENGTH = BIT16;
+const DIRECTION_T	DEFAULT_BCLK_DIR = IN;
+const DIRECTION_T	DEFAULT_WCLK_DIR = IN;
+//Page 0 / Register 28: Audio Interface Setting Register 2, Data offset setting - 0x00 / 0x1C
+const uint8_t		DEFAULT_DATA_OFFSET = 0;
+//Page 0 / Register 29: Audio Interface Setting Register 3 - 0x00 / 0x1D
+const BIT_POLARITY_t	DEFAULT_CLK_POLARITY = DEFAULT;
+const POWER_STATE_t	DEFAULT_PRIM_WCLK_BCLK_POWER = POWER_UP;
+const BDIV_CLKIN_t	DEFAULT_BDIV_CLKIN = DAC_CLK;
+//Page 0 / Register 30: Clock Setting Register 12, BCLK N Divider- 0x00 / 0x1E
+const POWER_STATE_t	DEFAULT_BCLK_NDIV_POWER	= POWER_DOWN;
+const uint8_t		DEFAULR_BCLK_NDIV_VALUE = 1;
+//Page 0 / Register 31: Audio Interface Setting Register 4, Secondary Audio Interface - 0x00 / 0x1F
 
-// register definition
+
+
+
+
+
+//--------------------------register definition--------------------------------
 
 //Page 0 / Register 4: Clock Setting Register 1, Multiplexers - 0x00 / 0x04
 class P0R4_t{
@@ -114,11 +214,11 @@ class P0R4_t{
 //Page 0 / Register 5: Clock Setting Register 2, PLL P and R Values - 0x00 / 0x05
 class P0R5_t{
       const static int Address = 5;
-      bool pll_on:1;
+      POWER_STATE_t pll_on:1;
       PLL_DIV_P_t pll_div_p:3;
       PLL_MULT_R_t pll_mult_r:4;
     public:
-      P0R5_t(bool pll_on_i = DEFAULT_PLL_ON,
+      P0R5_t(POWER_STATE_t pll_on_i = DEFAULT_PLL_ON,
 	     PLL_DIV_P_t pll_div_p_i = DEFAULT_PLL_DIV_P,
 	     PLL_MULT_R_t pll_mult_r_i = DEFAULT_PLL_MULT_R):
 	       pll_on(pll_on_i),pll_div_p(pll_div_p_i),pll_mult_r(pll_mult_r_i){}
@@ -126,14 +226,14 @@ class P0R5_t{
       P0R5_t(uint8_t reg){
 	pll_mult_r = (PLL_MULT_R_t)(reg&0x0F);
 	pll_div_p  = (PLL_DIV_P_t)((reg>>4)&0x07);
-	pll_on	= ((reg>>7)&0x01);
+	pll_on	= (POWER_STATE_t)((reg>>7)&0x01);
       }
       uint8_t GetAddress(){return Address;}
 
       uint8_t toByte(){return pll_mult_r|(pll_div_p<<4)|(pll_on<<7);}
 
-      void setPLLPower(bool power){pll_on = power;}
-      bool getPLLPower(){return pll_on;}
+      void setPLLPower(POWER_STATE_t power){pll_on = power;}
+      POWER_STATE_t getPLLPower(){return pll_on;}
 
       void setPLLDivP(PLL_DIV_P_t P){pll_div_p = P;}
       PLL_DIV_P_t getPLLDivP(){return pll_div_p;}
@@ -142,14 +242,341 @@ class P0R5_t{
       PLL_MULT_R_t getPLLMultR(){return pll_mult_r;}
 };
 
+//Page 0 / Register 6: Clock Setting Register 3, PLL J Values - 0x00 / 0x06
+class P0R6_t{
+      const static int Address = 6;
+      uint8_t pll_div_j:6;
+    public:
+      P0R6_t(uint8_t reg= DEFAULT_PLL_DIV_J):pll_div_j(reg){
+	if(reg<4) reg=4;
+	if(reg>63) reg=63;
+	pll_div_j  = reg;
+      }
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return pll_div_j;}
+
+      void setPLLDivJ(uint8_t j){pll_div_j = j;}
+      uint8_t getPLLDivJ(){return pll_div_j;}
+};
+
+//Page 0 / Register 7: Clock Setting Register 4, PLL D Values (MSB) - 0x00 / 0x07
+// Note: This register will be updated only when the Page-0, Reg-8 is written immediately after
+//Page-0, Reg-7.
+class P0R7_t{
+      const static int Address = 7;
+      uint8_t pll_div_d_msb:6;
+    public:
+      P0R7_t(uint16_t pll_div_d= DEFAULT_PLL_DIV_D){
+	if(pll_div_d>9999) pll_div_d=9999;
+	pll_div_d_msb  = (pll_div_d&0x3F00)>>8;
+      }
+
+      P0R7_t(uint8_t reg){
+      	pll_div_d_msb  = (reg&0x3F);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return pll_div_d_msb;}
+
+      void setPLLDivD_MSB(uint8_t d){pll_div_d_msb = d&0x3F;}
+      uint8_t getPLLDivD_MSB(){return pll_div_d_msb;}
+};
+
+//Page 0 / Register 8: Clock Setting Register 5, PLL D Values (LSB) - 0x00 / 0x08
+// Note: Page-0, Reg-8 should be written immediately after Page-0, Reg-7.
+class P0R8_t{
+      const static int Address = 8;
+      uint8_t pll_div_d_lsb;
+    public:
+      P0R8_t(uint16_t pll_div_d= DEFAULT_PLL_DIV_D){
+	if(pll_div_d>9999) pll_div_d=9999;
+	pll_div_d_lsb  = (pll_div_d&0x00FF);
+      }
+
+      P0R8_t(uint8_t reg){
+	pll_div_d_lsb  = (reg);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return pll_div_d_lsb;}
+
+      void setPLLDivD_LSB(uint8_t d){pll_div_d_lsb = d;}
+      uint8_t getPLLDivD_LSB(){return pll_div_d_lsb;}
+};
+
+//Page 0 / Registers 9–10: Reserved - 0x00 / 0x09-0x0A
+
+//Page 0 / Register 11: Clock Setting Register 6, NDAC Values - 0x00 / 0x0B
+class P0R11_t{
+      const static int Address = 11;
+      POWER_STATE_t ndac_power:1;
+      uint8_t ndac:7;
+    public:
+      P0R11_t(uint8_t ndac_i= DEFAULT_NDAC_VALUE,POWER_STATE_t ndac_power_i = DEFAULT_NDAC_POWER){
+	ndac  = (ndac_i&0x7F);
+	ndac_power = ndac_power_i;
+      }
+
+      P0R11_t(uint8_t reg){
+      	ndac  = (reg&0x7F);
+      	ndac_power = (POWER_STATE_t)((reg&0x80)>>7);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return ndac|(ndac_power<<7);}
+
+      void setNDACPower(POWER_STATE_t p){ndac_power = p;}
+      POWER_STATE_t getNDACPower(){return ndac_power;}
+
+      void setNDACValue(uint8_t p){ndac = p&0x7F;}
+      uint8_t getNDACValue(){return ndac;}
+};
+
+//Page 0 / Register 12: Clock Setting Register 7, MDAC Values - 0x00 / 0x0C
+class P0R12_t{
+      const static int Address = 12;
+      POWER_STATE_t mdac_power:1;
+      uint8_t mdac:7;
+    public:
+      P0R12_t(uint8_t mdac_i= DEFAULT_MDAC_VALUE,POWER_STATE_t mdac_power_i = DEFAULT_MDAC_POWER){
+	mdac  = (mdac_i&0x7F);
+	mdac_power = mdac_power_i;
+      }
+
+      P0R12_t(uint8_t reg){
+	mdac  = (reg&0x7F);
+	mdac_power = (POWER_STATE_t)((reg&0x80)>>7);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return mdac|(mdac_power<<7);}
+
+      void setMDACPower(POWER_STATE_t p){mdac_power = p;}
+      POWER_STATE_t getMDACPower(){return mdac_power;}
+
+      void setMDACValue(uint8_t p){mdac = p&0x7F;}
+      uint8_t getMDACValue(){return mdac;}
+};
+//Page 0 / Register 13: DAC OSR Setting Register 1, MSB Value - 0x00 / 0x0D
+//Note: This register is updated when Page-0, Reg-14 is written to immediately after Page-0,Reg-13.
+class P0R13_t{
+      const static int Address = 13;
+      uint8_t dac_osr_msb:2;
+    public:
+      P0R13_t(uint16_t osr= DEFAULT_DAC_OSR){
+	if(osr>1023) osr=1023;
+	dac_osr_msb  = (osr&0x0300)>>8;
+      }
+
+      P0R13_t(uint8_t reg){
+	dac_osr_msb  = (reg&0x03);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return dac_osr_msb;}
+
+      void setPLLDivD_MSB(uint8_t d){dac_osr_msb = d&0x03;}
+      uint8_t getPLLDivD_MSB(){return dac_osr_msb;}
+};
+
+//Page 0 / Register 14: DAC OSR Setting Register 2, LSB Value - 0x00 / 0x0E
+class P0R14_t{
+      const static int Address = 14;
+      uint8_t dac_osr_lsb;
+    public:
+      P0R14_t(uint16_t osr= DEFAULT_DAC_OSR){
+	if(osr>1023) osr=1023;
+	dac_osr_lsb  = (osr&0x00FF);
+      }
+
+      P0R14_t(uint8_t reg){
+	dac_osr_lsb  = (reg);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return dac_osr_lsb;}
+
+      void setPLLDivD_MSB(uint8_t d){dac_osr_lsb = d;}
+      uint8_t getPLLDivD_MSB(){return dac_osr_lsb;}
+};
+
+//Note: This register should be written immediately after Page-0, Reg-13.
+//Note: IDAC should be a integral multiple of INTERP ( Page-0, Reg-17, D3-D0 )
+//Note: Page-0, Reg-15 takes effect after programming Page-0, Reg-16 in the immediate next
+//control command.
+//Page 0 / Register 15: miniDSP_D Instruction Control Register 1 - 0x00 / 0x0F
+class P0R15_t{
+      const static int Address = 15;
+      uint8_t IDAC_msb:7;
+    public:
+      P0R15_t(uint16_t idac_i= DEFAULT_MINIDSP_IDAC){
+	IDAC_msb  = (idac_i&0x7F00)>>8;
+      }
+
+      P0R15_t(uint8_t reg){
+	IDAC_msb  = (reg&0x7F);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return IDAC_msb;}
+
+      void setIDACValue(uint8_t p){IDAC_msb = p&0x7F;}
+      uint8_t getIDACValue(){return IDAC_msb;}
+};
+
+//Page 0 / Register 16: miniDSP_D Instruction Control Register 2 - 0x00 / 0x10
+//Note: IDAC should be a integral multiple of INTERP ( Page-0, Reg-17, D3-D0 )
+//Note: Page-0, Reg-16 should be programmed immediately after Page-0, Reg-15.
+class P0R16_t{
+      const static int Address = 16;
+      uint8_t IDAC_lsb;
+    public:
+      P0R16_t(uint16_t idac_i= DEFAULT_MINIDSP_IDAC){
+	IDAC_lsb  = (idac_i&0x00FF);
+      }
+
+      P0R16_t(uint8_t reg){
+	IDAC_lsb  = (reg);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return IDAC_lsb;}
+
+      void setIDACValue(uint8_t p){IDAC_lsb = p;}
+      uint8_t getIDACValue(){return IDAC_lsb;}
+};
+//Page 0 / Register 17: miniDSP_D Interpolation Factor Setting Register - 0x00 / 0x11
+class P0R17_t{
+      const static int Address = 17;
+      uint8_t interp:4;
+    public:
+      P0R17_t(uint8_t interp_i= DEFAULT_MINIDSP_INTERP){
+	interp  = (interp_i&0x0F);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return interp;}
+
+      void setIDACValue(uint8_t p){interp = p&0x0F;}
+      uint8_t getIDACValue(){return interp;}
+};
+//Page 0 / Registers 18 - 24: Reserved Register - 0x00 / 0x12
+
+//Page 0 / Registers 25: Clock Setting Register 10, Multiplexers - 0x00 / 0x19
+class P0R25_t{
+    const static int Address = 25;
+    CDIV_CLKIN_t cdiv_clk_in:3;
+  public:
+    P0R25_t(CDIV_CLKIN_t cdiv_in=DEFAULT_CDIV_CLKIN): cdiv_clk_in(cdiv_in){}
+
+    P0R25_t(uint8_t reg){
+      cdiv_clk_in = (CDIV_CLKIN_t)(reg&0x03);
+    }
+
+    uint8_t GetAddress(){return Address;}
+    uint8_t toByte(){return cdiv_clk_in;}
+
+    void setCDIVClk(CDIV_CLKIN_t clk){cdiv_clk_in=clk;}
+    CDIV_CLKIN_t getCDIVClk(){return cdiv_clk_in;}
+};
+
+//Page 0 / Registers 26: Clock Setting Register 11, CLKOUT M divider value - 0x00 / 0x1A
+class P0R26_t{
+      const static int Address = 26;
+      POWER_STATE_t clkout_mdiv_power:1;
+      uint8_t clkout_mdiv:7;
+    public:
+      P0R26_t(uint8_t clkout_i= DEFAULT_CLKOUT_MDIV_VALUE,
+	      POWER_STATE_t clkout_mdiv_power_i = DEFAULT_CLKOUT_MDIV_POWER){
+	clkout_mdiv  = (clkout_i&0x7F);
+	clkout_mdiv_power = clkout_mdiv_power_i;
+      }
+
+      P0R26_t(uint8_t reg){
+	clkout_mdiv  = (reg&0x7F);
+	clkout_mdiv_power = (POWER_STATE_t)((reg&0x80)>>7);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return clkout_mdiv|(clkout_mdiv_power<<7);}
+
+      void setCLKoutMdivPower(POWER_STATE_t p){clkout_mdiv_power = p;}
+      POWER_STATE_t getCLKoutMdivPower(){return clkout_mdiv_power;}
+
+      void setCLKoutMdivValue(uint8_t p){clkout_mdiv = p&0x7F;}
+      uint8_t getCLKoutMdivValue(){return clkout_mdiv;}
+};
+//Page 0 / Register 27: Audio Interface Setting Register 1 - 0x00 / 0x1B
+class P0R27_t{
+      const static int Address = 27;
+
+      INTERFACE_t interface:2;
+      WORD_LENGTH_t wordlength:2;
+      DIRECTION_T bclk_dir:1;
+      DIRECTION_T wclk_dir:1;
+
+    public:
+      P0R27_t(INTERFACE_t interface_i = DEFAULT_AUDIO_INTERFACE,
+	      WORD_LENGTH_t wordlength_i = DEFAULT_WORD_LENGTH,
+	      DIRECTION_T bclk_dir_i = DEFAULT_BCLK_DIR,
+	      DIRECTION_T wclk_dir_i = DEFAULT_WCLK_DIR):
+		interface(interface_i),wordlength(wordlength_i),
+		bclk_dir(bclk_dir_i),wclk_dir(wclk_dir_i){}
+
+      P0R27_t(uint8_t reg){
+	wclk_dir = (reg&0x04)>>2;
+	bclk_dir = (reg&0x08)>>3;
+	wordlength = (reg&0x30)>>4;
+	interface = (reg&0xC0)>>6;
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (interface<<6)|(wordlength<<4)|(bclk_dir<<3)|(wclk_dir<<2);}
+
+      void setInterface(INTERFACE_t p){interface = p;}
+      INTERFACE_t getInterface(){return interface;}
+
+      void setWordLength(WORD_LENGTH_t p){wordlength = p;}
+      WORD_LENGTH_t getWordLength(){return wordlength;}
+
+      void setBclkDir(DIRECTION_T p){bclk_dir = p;}
+      DIRECTION_T getBclkDir(){return bclk_dir;}
+
+      void setWclkDir(DIRECTION_T p){wclk_dir = p;}
+      DIRECTION_T getWclkDir(){return wclk_dir;}
+};
+//Page 0 / Register 28: Audio Interface Setting Register 2, Data offset setting - 0x00 / 0x1C
+//Page 0 / Register 29: Audio Interface Setting Register 3 - 0x00 / 0x1D
+//Page 0 / Register 30: Clock Setting Register 12, BCLK N Divider- 0x00 / 0x1E
+//Page 0 / Register 31: Audio Interface Setting Register 4, Secondary Audio Interface - 0x00 / 0x1F
+//Page 0 / Register 32: Audio Interface Setting Register 5 - 0x00 / 0x20
+//Page 0 / Register 33: Audio Interface Setting Register 6 - 0x00 / 0x21
+//Page 0 / Register 34: Digital Interface Misc. Setting Register - 0x00 / 0x22
+//Page 0 / Register 35 - 36 Reserved- 0x00 / 0x23 - 0x24
+//Page 0 / Register 37: DAC Flag Register 1 - 0x00 / 0x25
+//Page 0 / Register 38: DAC Flag Register 2- 0x00 / 0x26
+
+
 
 class FyberLabs_TAS2521 {
 
   const uint8_t _i2c_address;
+  uint8_t _page;
   void switchPage(uint8_t page);
   uint8_t read8(uint8_t reg);
   void write8(uint8_t reg, uint8_t data);
-  uint8_t _page;
 public:
   	FyberLabs_TAS2521(uint8_t addr=0x18):_i2c_address(addr){};
   	uint8_t GetAddress(void){return _i2c_address;}

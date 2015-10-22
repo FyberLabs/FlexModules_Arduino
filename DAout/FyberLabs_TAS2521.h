@@ -1,3 +1,4 @@
+//
 //TODO make class methods based on usage examples in http://www.ti.com/lit/ug/slau456/slau456.pdf
 
 //The TAS2521 contains several pages of 8-bit registers, and each page can contain up to 128 registers.
@@ -113,16 +114,16 @@ enum BIT_POLARITY_t{
   INVERTED = 1
 };
 
-enum SEC_BIT_CLK_MUX_t{
-  GPIO = 0,
-  SCLK = 1,
-  MISO = 2,
-  DOUT = 3
+enum SEC_CLK_MUX_t{
+  CLK_MUX_GPIO = 0,
+  CLK_MUX_SCLK = 1,
+  CLK_MUX_MISO = 2,
+  CLK_MUX_DOUT = 3
 };
 
 enum DATA_IN_MUX_t{
-  GPIO = 0,
-  SCLK = 1,
+  DATA_IN_MUX_GPIO = 0,
+  DATA_IN_MUX_SCLK = 1,
 };
 
 //--------------------------- default configuration------------------------------
@@ -170,12 +171,24 @@ const POWER_STATE_t	DEFAULT_PRIM_WCLK_BCLK_POWER = POWER_UP;
 const BDIV_CLKIN_t	DEFAULT_BDIV_CLKIN = DAC_CLK;
 //Page 0 / Register 30: Clock Setting Register 12, BCLK N Divider- 0x00 / 0x1E
 const POWER_STATE_t	DEFAULT_BCLK_NDIV_POWER	= POWER_DOWN;
-const uint8_t		DEFAULR_BCLK_NDIV_VALUE = 1;
+const uint8_t		DEFAULT_BCLK_NDIV_VALUE = 1;
 //Page 0 / Register 31: Audio Interface Setting Register 4, Secondary Audio Interface - 0x00 / 0x1F
-
-
-
-
+const SEC_CLK_MUX_t	DEFAULT_SEC_BIT_CLK_MUX	= CLK_MUX_GPIO;
+const SEC_CLK_MUX_t	DEFAULT_SEC_WRD_CLK_MUX	= CLK_MUX_GPIO;
+const DATA_IN_MUX_t	DEFAULT_SEC_DATA_IN_MUX = DATA_IN_MUX_GPIO;
+//Page 0 / Register 32: Audio Interface Setting Register 5 - 0x00 / 0x20
+const bool		DEFAULT_BIT_CLK_CTRL = 0;
+const bool		DEFAULT_WRD_CLK_CTRL = 0;
+const bool		DEFAULT_DATA_IN_CTRL = 0;
+//Page 0 / Register 33: Audio Interface Setting Register 6 - 0x00 / 0x21
+const bool		DEFAULT_BCLK_OUT_CTRL = 0;
+const bool		DEFAULT_SEC_BIT_CLK_OUT_CTRL = 0;
+const uint8_t		DEFAULT_WCLK_OUT_CTRL = 0;
+const uint8_t		DEFAULT_SEC_WRD_CLK_OUT_CTRL = 0;
+const bool 		DEFAULT_PRIM_DATA_OUT_CTRL = 0;
+const bool 		DEFAULT_SEC_DATA_OUT_CTRL = 0;
+//Page 0 / Register 34: Digital Interface Misc. Setting Register - 0x00 / 0x22
+const bool		DEFAULT_I2C_CALL_ADDR_CONF = 0;
 
 
 //--------------------------register definition--------------------------------
@@ -535,10 +548,10 @@ class P0R27_t{
 		bclk_dir(bclk_dir_i),wclk_dir(wclk_dir_i){}
 
       P0R27_t(uint8_t reg){
-	wclk_dir = (reg&0x04)>>2;
-	bclk_dir = (reg&0x08)>>3;
-	wordlength = (reg&0x30)>>4;
-	interface = (reg&0xC0)>>6;
+	wclk_dir = (DIRECTION_T)((reg&0x04)>>2);
+	bclk_dir = (DIRECTION_T)((reg&0x08)>>3);
+	wordlength = (WORD_LENGTH_t)((reg&0x30)>>4);
+	interface = (INTERFACE_t)((reg&0xC0)>>6);
       }
 
       uint8_t GetAddress(){return Address;}
@@ -558,15 +571,371 @@ class P0R27_t{
       DIRECTION_T getWclkDir(){return wclk_dir;}
 };
 //Page 0 / Register 28: Audio Interface Setting Register 2, Data offset setting - 0x00 / 0x1C
+class P0R28_t{
+      const static int Address = 28;
+      uint8_t offset;
+    public:
+      P0R28_t(uint8_t reg=DEFAULT_DATA_OFFSET):offset(reg){}
+
+      uint8_t GetAddress(){return Address;}
+      uint8_t toByte(){return offset;}
+
+      void setOffset(uint8_t p){offset = p;}
+      uint8_t getOffset(){return offset;}
+};
 //Page 0 / Register 29: Audio Interface Setting Register 3 - 0x00 / 0x1D
+class P0R29_t{
+      const static int Address = 29;
+
+      BIT_POLARITY_t ClockPolarity:1;
+      POWER_STATE_t bclk_wlck_power:1;
+      BDIV_CLKIN_t bdiv_clkin:2;
+
+    public:
+      P0R29_t(BIT_POLARITY_t ClockPolarity_i = DEFAULT_CLK_POLARITY,
+	      POWER_STATE_t bclk_wlck_power_i = DEFAULT_PRIM_WCLK_BCLK_POWER,
+	      BDIV_CLKIN_t bdiv_clkin_i = DEFAULT_BDIV_CLKIN):
+		ClockPolarity(ClockPolarity_i),
+		bclk_wlck_power(bclk_wlck_power_i),
+		bdiv_clkin(bdiv_clkin_i){}
+
+      P0R29_t(uint8_t reg){
+	ClockPolarity = (BIT_POLARITY_t)((reg&0x08)>>3);
+	bclk_wlck_power = (POWER_STATE_t)((reg&0x04)>>2);
+	bdiv_clkin = (BDIV_CLKIN_t)(reg&0x03);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (ClockPolarity<<3)|(bclk_wlck_power<<2)|(bdiv_clkin);}
+
+      void setAudioBitClockPolarity(BIT_POLARITY_t p){ClockPolarity = p;}
+      BIT_POLARITY_t getAudioBitClockPolarity(){return ClockPolarity;}
+
+      void setPrimaryBCLK_WCLKPower(POWER_STATE_t p){bclk_wlck_power = p;}
+      POWER_STATE_t getPrimaryBCLK_WCLKPower(){return bclk_wlck_power;}
+
+      void setBDIVCLKINMultiplexer(BDIV_CLKIN_t p){bdiv_clkin = p;}
+      BDIV_CLKIN_t getBDIVCLKINMultiplexer(){return bdiv_clkin;}
+};
 //Page 0 / Register 30: Clock Setting Register 12, BCLK N Divider- 0x00 / 0x1E
+class P0R30_t{
+      const static int Address = 30;
+      POWER_STATE_t bclk_n_div_power:1;
+      uint8_t bclk_n_div_value:7;
+
+    public:
+      P0R30_t(POWER_STATE_t bclk_n_div_power_i = DEFAULT_BCLK_NDIV_POWER,
+	      uint8_t bclk_n_div_value_i = DEFAULT_BCLK_NDIV_VALUE):
+		bclk_n_div_power(bclk_n_div_power_i),
+		bclk_n_div_value(bclk_n_div_value_i){}
+
+      P0R30_t(uint8_t reg){
+	bclk_n_div_power = (POWER_STATE_t)((reg&0x80)>>7);
+	bclk_n_div_value = (uint8_t)((reg&0x7F));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (bclk_n_div_power<<7)|bclk_n_div_value;}
+
+      void seBclkNDIVValue(uint8_t p){bclk_n_div_value = p;}
+      uint8_t geBclkNDIVValue(){return bclk_n_div_value;}
+
+      void seBclkNDIVPower(POWER_STATE_t p){bclk_n_div_power = p;}
+      POWER_STATE_t geBclkNDIVPower(){return bclk_n_div_power;}
+};
 //Page 0 / Register 31: Audio Interface Setting Register 4, Secondary Audio Interface - 0x00 / 0x1F
+class P0R31_t{
+      const static int Address = 31;
+      SEC_CLK_MUX_t sec_bit_clk_mux:2;
+      SEC_CLK_MUX_t sec_wrd_clk_mux:2;
+      DATA_IN_MUX_t sec_data_in_mux:1;
+    public:
+      P0R31_t(SEC_CLK_MUX_t sec_bit_clk_mux_i = DEFAULT_SEC_BIT_CLK_MUX,
+	      SEC_CLK_MUX_t sec_wrd_clk_mux_i = DEFAULT_SEC_WRD_CLK_MUX,
+	      DATA_IN_MUX_t sec_data_in_mux_i = DEFAULT_SEC_DATA_IN_MUX):
+		sec_bit_clk_mux(sec_bit_clk_mux_i),
+		sec_wrd_clk_mux(sec_wrd_clk_mux_i),
+		sec_data_in_mux(sec_data_in_mux_i){}
+
+      P0R31_t(uint8_t reg){
+	sec_bit_clk_mux = (SEC_CLK_MUX_t)((reg&0x60)>>5);
+	sec_wrd_clk_mux = (SEC_CLK_MUX_t)((reg&0x18)>>3);
+	sec_data_in_mux = (DATA_IN_MUX_t)(reg&0x01);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (sec_bit_clk_mux<<5)|(sec_wrd_clk_mux<<3)|sec_data_in_mux;}
+
+      void setBitClkMux(SEC_CLK_MUX_t p){sec_bit_clk_mux = p;}
+      SEC_CLK_MUX_t geBitClkMux(){return sec_bit_clk_mux;}
+
+      void setWrdClkMux(SEC_CLK_MUX_t p){sec_wrd_clk_mux = p;}
+      SEC_CLK_MUX_t geWrdClkMux(){return sec_wrd_clk_mux;}
+
+      void setDataInMux(DATA_IN_MUX_t p){sec_data_in_mux = p;}
+      DATA_IN_MUX_t getDataInMux(){return sec_data_in_mux;}
+};
 //Page 0 / Register 32: Audio Interface Setting Register 5 - 0x00 / 0x20
+class P0R32_t{
+      const static int Address = 32;
+      bool bit_clk_ctrl;
+      bool wrd_clk_ctrl;
+      bool data_in_ctrl;
+    public:
+      P0R32_t(bool bit_clk_ctrl_i = DEFAULT_BIT_CLK_CTRL,
+	      bool wrd_clk_ctrl_i = DEFAULT_WRD_CLK_CTRL,
+	      bool data_in_ctrl_i = DEFAULT_DATA_IN_CTRL):
+		bit_clk_ctrl(bit_clk_ctrl_i),
+		wrd_clk_ctrl(wrd_clk_ctrl_i),
+		data_in_ctrl(data_in_ctrl_i){}
+
+      P0R32_t(uint8_t reg){
+	bit_clk_ctrl = ((reg&0x08)>>3);
+	wrd_clk_ctrl = ((reg&0x04)>>2);
+	data_in_ctrl = (reg&0x01);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (bit_clk_ctrl<<3)|(wrd_clk_ctrl<<2)|data_in_ctrl;}
+
+      void setBitClkCtrl(bool p){bit_clk_ctrl = p;}
+      bool geBitClkCtrl(){return bit_clk_ctrl;}
+
+      void setWrdClkCtrl(bool p){wrd_clk_ctrl = p;}
+      bool geWrdClkCtrl(){return wrd_clk_ctrl;}
+
+      void setDataInCtrl(bool p){data_in_ctrl = p;}
+      bool getDataInCtrl(){return data_in_ctrl;}
+};
 //Page 0 / Register 33: Audio Interface Setting Register 6 - 0x00 / 0x21
+class P0R33_t{
+      const static int Address = 33;
+
+      bool bclk_out_ctrl;
+      bool sec_bit_clk_out_ctrl;
+      uint8_t wclk_out_ctrl:2;
+      uint8_t sec_wrd_clk_out_ctrl:2;
+      bool pri_data_out_ctrl;
+      bool sec_data_out_ctrl;
+
+    public:
+      P0R33_t(bool bclk_out_ctrl_i = DEFAULT_BCLK_OUT_CTRL,
+	      bool sec_bit_clk_out_ctrl_i = DEFAULT_BIT_CLK_CTRL,
+	      uint8_t wclk_out_ctrl_i = DEFAULT_WCLK_OUT_CTRL,
+	      uint8_t sec_wrd_clk_out_ctrl_i = DEFAULT_SEC_WRD_CLK_OUT_CTRL,
+	      bool pri_data_out_ctrl_i = DEFAULT_PRIM_DATA_OUT_CTRL,
+	      bool sec_data_out_ctrl_i = DEFAULT_SEC_DATA_OUT_CTRL):
+		bclk_out_ctrl(bclk_out_ctrl_i),
+		sec_bit_clk_out_ctrl(sec_bit_clk_out_ctrl_i),
+		wclk_out_ctrl(wclk_out_ctrl_i),
+		sec_wrd_clk_out_ctrl(sec_wrd_clk_out_ctrl_i),
+		pri_data_out_ctrl(pri_data_out_ctrl_i),
+		sec_data_out_ctrl(sec_data_out_ctrl_i){}
+
+      P0R33_t(uint8_t reg){
+	bclk_out_ctrl = ((reg&0x80)>>7);
+	sec_bit_clk_out_ctrl = ((reg&0x40)>>6);
+	wclk_out_ctrl = ((reg&0x30)>>4);
+	sec_wrd_clk_out_ctrl = ((reg&0x0C)>>2);
+	pri_data_out_ctrl = ((reg&0x2)>>1);
+	sec_data_out_ctrl = ((reg&0x01));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (bclk_out_ctrl<<7)|(sec_bit_clk_out_ctrl<<6)|(wclk_out_ctrl<<4)|
+			      (sec_wrd_clk_out_ctrl<<2)|(pri_data_out_ctrl<<1)|sec_data_out_ctrl;}
+
+      void setBclkOutCtrl(bool p){bclk_out_ctrl = p;}
+      bool getBclkOutCtrl(){return bclk_out_ctrl;}
+
+      void setSecBitClkOutCtrl(bool p){sec_bit_clk_out_ctrl = p;}
+      bool getSecBitClkOutCtrl(){return sec_bit_clk_out_ctrl;}
+
+      void setWclkOutCtrl(uint8_t p){wclk_out_ctrl = p;}
+      uint8_t getWclkOutCtrl(){return wclk_out_ctrl;}
+
+      void setWrdClkOutCtrl(uint8_t p){sec_wrd_clk_out_ctrl = p;}
+      uint8_t getWrdClkOutCtrl(){return sec_wrd_clk_out_ctrl;}
+
+      void setPriDataOutCtrl(bool p){pri_data_out_ctrl = p;}
+      bool getPriDataOutCtrl(){return pri_data_out_ctrl;}
+
+      void setSecDataOutCtrl(bool p){sec_data_out_ctrl = p;}
+      bool getSecDataOutCtrl(){return sec_data_out_ctrl;}
+};
+
 //Page 0 / Register 34: Digital Interface Misc. Setting Register - 0x00 / 0x22
+class P0R34_t{
+      const static int Address = 34;
+
+      bool i2c_call_addr;
+
+    public:
+      P0R34_t(bool i2c_call_addr_i = DEFAULT_I2C_CALL_ADDR_CONF):i2c_call_addr(i2c_call_addr_i){}
+
+      P0R34_t(uint8_t reg){ i2c_call_addr = ((reg&0x20)>>5);}
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (i2c_call_addr<<5);}
+
+      void setI2CCallAddr(bool p){i2c_call_addr = p;}
+      bool getI2CCallAddr(){return i2c_call_addr;}
+};
+
 //Page 0 / Register 35 - 36 Reserved- 0x00 / 0x23 - 0x24
+
 //Page 0 / Register 37: DAC Flag Register 1 - 0x00 / 0x25
+class P0R37_t{
+      const static int Address = 37;
+
+      POWER_STATE_t dac_pwr;
+      POWER_STATE_t hpout_pwr;
+    public:
+      P0R37_t(uint8_t reg){
+	dac_pwr = (POWER_STATE_t)((reg&0x80)>>7);
+	hpout_pwr = (POWER_STATE_t)((reg&0x20)>>5);}
+
+      uint8_t GetAddress(){return Address;}
+
+      POWER_STATE_t getDacPowerState(){return dac_pwr;}
+      POWER_STATE_t getHpoutPowerState(){return hpout_pwr;}
+};
+
 //Page 0 / Register 38: DAC Flag Register 2- 0x00 / 0x26
+class P0R38_t{
+      const static int Address = 38;
+
+      bool dac_pga_stat;
+    public:
+      P0R38_t(uint8_t reg){dac_pga_stat = ((reg&0x10)>>4);}
+
+      uint8_t GetAddress(){return Address;}
+
+      bool getPGAStat(){return dac_pga_stat;}
+};
+
+//Page 0 / Registers 42: Sticky Flag Register 1- 0x00 / 0x2A
+class P0R42_t{
+      const static int Address = 42;
+
+      bool dac_overflow;
+      bool shifter_overflow;
+    public:
+      P0R42_t(uint8_t reg){
+	dac_overflow = ((reg&0x80)>>7);
+	shifter_overflow = ((reg&0x20)>>5);}
+
+      uint8_t GetAddress(){return Address;}
+
+      bool getDacOverflow(){return dac_overflow;}
+      bool getShifterOveflow(){return shifter_overflow;}
+};
+
+//Page 0 / Registers 43: Interrupt Flags Register 1 - 0x00 / 0x2B
+class P0R43_t{
+      const static int Address = 43;
+
+      bool dac_overflow;
+      bool shifter_overflow;
+    public:
+      P0R43_t(uint8_t reg){
+	dac_overflow = ((reg&0x80)>>7);
+	shifter_overflow = ((reg&0x20)>>5);}
+
+      uint8_t GetAddress(){return Address;}
+
+      bool getDacOverflow(){return dac_overflow;}
+      bool getShifterOveflow(){return shifter_overflow;}
+};
+
+//Page 0 / Register 44: Sticky Flag Register 2 - 0x00 / 0x2C
+class P0R44_t{
+      const static int Address = 44;
+
+      bool hpout_over_current;
+      bool minidsp_std_int;
+      bool minidsp_aux_int;
+    public:
+      P0R44_t(uint8_t reg){
+	hpout_over_current = ((reg&0x80)>>7);
+	minidsp_std_int = ((reg&0x02)>>1);
+	minidsp_aux_int = ((reg&0x01));}
+
+      uint8_t GetAddress(){return Address;}
+
+      bool getHpoutOverCurrent(){return hpout_over_current;}
+      bool getMinDspStdInt(){return minidsp_std_int;}
+      bool getMinDspAuxInt(){return minidsp_aux_int;}
+};
+//Page 0 / Register 46: Interrupt Flag Register 2 - 0x00 / 0x2E
+class P0R46_t{
+      const static int Address = 46;
+
+      bool hpout_over_current;
+      bool minidsp_std_int;
+      bool minidsp_aux_int;
+    public:
+      P0R46_t(uint8_t reg){
+	hpout_over_current = ((reg&0x80)>>7);
+	minidsp_std_int = ((reg&0x02)>>1);
+	minidsp_aux_int = ((reg&0x01));}
+
+      uint8_t GetAddress(){return Address;}
+
+      bool getHpoutOverCurrent(){return hpout_over_current;}
+      bool getMinDspStdInt(){return minidsp_std_int;}
+      bool getMinDspAuxInt(){return minidsp_aux_int;}
+};
+//Page 0 / Register 48: INT1 Control Register - 0x00 / 0x30
+
+//Page 0 / Register 49: INT2 Interrupt Control Register - 0x00 / 0x31
+//Page 0 / Register 52: GPIO/DOUT Control Register - 0x00 / 0x34
+//Page 0 / Register 53: DOUT Function Control Register - 0x00 / 0x35
+//Page 0 / Register 54: DIN Function Control Register - 0x00 / 0x36
+//Page 0 / Register 55: MISO Function Control Register - 0x00 / 0x37
+//Page 0 / Register 56: SCLK/DMDIN2 Function Control Register- 0x00 / 0x38
+//Page 0 / Register 60: DAC Instruction Set - 0x00 / 0x3C
+//Page 0 / Register 62: miniDSP_D Configuration Register - 0x00 / 0x3E
+//Page 0 / Register 63: DAC Channel Setup Register 1 - 0x00 / 0x3F
+//Page 0 / Register 64: DAC Channel Setup Register 2 - 0x00 / 0x40
+//Page 0 / Register 65: DAC Channel Digital Volume Control Register - 0x00 / 0x41
+
+
+//Page 1 / Registers 1: REF, POR and LDO BGAP Control Register - 0x01 / 0x01
+//Page 1 / Register 2: LDO Control Register - 0x01 / 0x02
+//Page 1 / Playback Configuration Register 1 - 0x01 / 0x03
+//Page 1 / Register 8: DAC PGA Control Register- 0x01 / 0x08
+//Page 1 / Register 9: Output Drivers, AINL, AINR, Control Register - 0x01 / 0x09
+//Page 1 / Register 10: Common Mode Control Register - 0x01 / 0x0A
+//Page 1 / Register 11: HP Over Current Protection Configuration Register - 0x01 / 0x0B
+//Page 1 / Register 12: HP Routing Selection Register - 0x01 / 0x0C
+//Page 1 / Register 16: HP Driver Gain Setting Register - 0x01 / 0x10
+//Page 1 / Registers 20: Headphone Driver Startup Control Register - 0x01 / 0x14
+//Page 1 / Register 22: HP Volume Control Register - 0x01 / 0x16
+//Page 1 / Register 24: AINL Volume Control Register - 0x01 / 0x18
+//Page 1 / Register 25: AINR Volume Control Register - 0x01 / 0x19
+//Page 1 / Register 45: Speaker Amplifier Control 1 - 0x01 / 0x2D
+//Page 1 / Register 46: Speaker Volume Control 1 - 0x01 / 0x2E
+//Page 1 / Register 48: Speaker Amplifier Volume Control 2 - 0x01 / 0x30
+//Page 1 / Register 63: DAC Analog Gain Control Flag Register - 0x01 / 0x3F
+//Page 1 / Register 122: Reference Power Up Delay - 0x01 / 0x7A
+
+
+//Page 44 / Register 0: Page Select Register - 0x2C / 0x00
+//Page 44 / Register 1: DAC Adaptive Filter Configuration Register - 0x2C / 0x01
+//Page 44 / Register 8 - 127: DAC Coefficient Buffer-A C(0:29) - 0x2C / 0x08 - 0x7F
+//Page 45 - 52 / Register 0: Page Select Register - 0x2D - 0x34 / 0x00
+//Page 62 - 70 / Register 8 -127: DAC Coefficients Buffer-B C(0:255) - 0x3E - 0x46 / 0x08 - 0x7F
+//Page 152 - 169 / Register 8 - 127: DAC Instruction Registers - 0x98 - 0xA9 / 0x08 - 0x7F
+
+
+
 
 
 

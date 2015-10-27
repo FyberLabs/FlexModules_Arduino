@@ -126,6 +126,73 @@ enum DATA_IN_MUX_t{
   DATA_IN_MUX_SCLK = 1,
 };
 
+enum DOUT_MUX_CTRL_t{
+  DOUT_DISABLED = 0,
+  DOUT_PRIM_DOUT = 1,
+  DOUT_GP_OUT = 2,
+  DOUT_CLKOUT = 3,
+  DOUT_INT1 = 4,
+  DOUT_INT2 = 5,
+  DOUT_SEC_BCLK = 6,
+  DOUT_SEC_WCLK = 7,
+};
+
+enum DIN_FUNC_CTRL_t{
+  DIN_DISABLED = 0,
+  DIN_PRIM_DATA_IN = 1,
+  DIN_GP_CLK_IN = 1,
+  DIN_GP_IN = 2,
+};
+
+enum MISO_FUNC_CTRL_t{
+  MISO_DISABLED = 0,
+  MISO_SPI_DOUT =1, //MISO is used for data output in SPI interface, is disabled for I2C interface
+  MISO_GPIO = 2, //MISO is General Purpose Output
+  MISO_CLKOUT = 3, //MISO is CLKOUT output
+  MISO_INT1_OUT = 4, //MISO is INT1 output
+  MISO_INT2_OUT = 5, //MISO is INT2 output
+  MISO_SEC_DATA_OUT = 8, //MISO is Secondary Data Output for Audio Interface
+  MISO_SEC_BIT_CLK = 9, //MISO is Secondary Bit Clock for Audio Interface
+  MISO_SEC_WRD_CLK = 10, //MISO is Secondary Word Clock for Audio Interface
+};
+
+enum SCLK_FUNC_CTRL_t{
+  SCLK_DISABLED = 0,//SCLK pin is disabled
+  SCLK_SPI_CLK = 1, //SCLK pin is enabled for SPI clock in SPI Interface mode or when in I2C Interface
+		    //enabled for Secondary Data Input or Secondary Bit Clock Input or Secondary Word Clock.
+  SCLK_GPIO = 2, // SCLK is enabled as General Purpose Input
+};
+
+enum DAC_INST_t{
+  MINIDSP = 0,
+  PRB_P1 = 1,
+  PRB_P2 = 2,
+  PRB_P3 = 3,
+};
+
+enum DAC_DATA_PATH_t{
+  DATA_DISABLED = 0,
+  DATA_FROM_LEFT = 1, //01: DAC data is picked from Left Channel Audio Interface Data
+  DATA_FROM_RIGHT = 2, //10: DAC data is picked from Right Channel Audio Interface Data
+  DATA_FROM_MONO = 3, //11: DAC data is picked from Mono Mix of Left and Right Channel Audio Interface Data
+};
+
+enum VOLUME_SOFT_STEP_t{
+  SOFT_STEP1 = 0, //00: Soft-Stepping is 1 step per 1 DAC Word Clock
+  SOFT_STEP2 = 1, //01: Soft-Stepping is 1 step per 2 DAC Word Clocks
+  SOFT_STEP_DISABLE = 2, //10: Soft-Stepping is disabled
+};
+
+enum DAC_AUTO_MUTE_t{
+  AUTO_MUTE_DISABLED = 0,
+  AUTO_MUTE_100DC = 1,//001: DAC is auto muted if input data is DC for more than 100 consecutive inputs
+  AUTO_MUTE_200DC = 2,//010: DAC is auto muted if input data is DC for more than 200 consecutive inputs
+  AUTO_MUTE_400DC0 = 3,//11: DAC is auto muted if input data is DC for more than 400 consecutive inputs
+  AUTO_MUTE_800DC = 4,//100: DAC is auto muted if input data is DC for more than 800 consecutive inputs
+  AUTO_MUTE_1600DC = 5,//101: DAC is auto muted if input data is DC for more than 1600 consecutive inputs
+  AUTO_MUTE_3200DC = 6,//110: DAC is auto muted if input data is DC for more than 3200 consecutive inputs
+  AUTO_MUTE_6400DC = 7,//111: DAC is auto muted if input data is DC for more than 6400 consecutive inputs
+};
 //--------------------------- default configuration------------------------------
 //Page 0 / Register 4: Clock Setting Register 1, Multiplexers - 0x00 / 0x04
 const PLL_RANGE_t 	DEFAULT_PLL_RANGE = PLL_RANGE_LOW;
@@ -189,8 +256,42 @@ const bool 		DEFAULT_PRIM_DATA_OUT_CTRL = 0;
 const bool 		DEFAULT_SEC_DATA_OUT_CTRL = 0;
 //Page 0 / Register 34: Digital Interface Misc. Setting Register - 0x00 / 0x22
 const bool		DEFAULT_I2C_CALL_ADDR_CONF = 0;
-
-
+// Page 0 / Register 48: INT1 Control Register - 0x00 / 0x30
+const bool 		DEFAULT_OVER_CURRENT_INT1_EN = false;
+const bool 		DEFAULT_MINIDPS_OVERFLOW_INT1_EN = false;
+const bool 		DEFAULT_INT1_PULSE_CTRL = false;
+//Page 0 / Register 49: INT2 Interrupt Control Register - 0x00 / 0x31
+const bool 		DEFAULT_OVER_CURRENT_INT2_EN = false;
+const bool 		DEFAULT_MINIDPS_OVERFLOW_INT2_EN = false;
+const bool 		DEFAULT_INT2_PULSE_CTRL = false;
+//Page 0 / Register 52: GPIO/DOUT Control Register - 0x00 / 0x34
+const uint8_t 		DEFAULT_GPIO_CTRL = 0;
+//Page 0 / Register 53: DOUT Function Control Register - 0x00 / 0x35
+const bool		DEFAULT_DOUT_BUS_KEEPER_EN = false;
+const DOUT_MUX_CTRL_t	DEFAULT_DOUT_MUX_CTRL = DOUT_PRIM_DOUT;
+const bool		DEFAULT_DOUT_GPIO_VAL = false;
+//Page 0 / Register 54: DIN Function Control Register - 0x00 / 0x36
+const DIN_FUNC_CTRL_t	DEFAULT_DIN_FUNC = DIN_PRIM_DATA_IN;
+//Page 0 / Register 55: MISO Function Control Register - 0x00 / 0x37
+const MISO_FUNC_CTRL_t	DEFAULT_MISO_FUNC = MISO_SPI_DOUT;
+const bool		DEFAULT_MISO_GPIO_VAL = false;
+//Page 0 / Register 56: SCLK/DMDIN2 Function Control Register- 0x00 / 0x38
+const SCLK_FUNC_CTRL_t	DEFAULT_SCLK_FUNC = SCLK_SPI_CLK;
+//Page 0 / Register 60: DAC Instruction Set - 0x00 / 0x3C
+const DAC_INST_t	DEFAULT_DAC_INSTRUCIOTN = PRB_P1;
+//Page 0 / Register 62: miniDSP_D Configuration Register - 0x00 / 0x3E
+const bool		DEFAULT_MINIDSP_AUX_BIT_A = false;
+const bool		DEFAULT_MINIDSP_AUX_BIT_B = false;
+const bool		DEFAULT_MINIDSP_RESET_INST_COUNTER = 0;
+//Page 0 / Register 63: DAC Channel Setup Register 1 - 0x00 / 0x3F
+const POWER_STATE_t	DEFAULT_DAC_CHAN_POWER = POWER_DOWN;
+const DAC_DATA_PATH_t	DEFAULT_DAC_DATA_PATH = DATA_FROM_LEFT;
+const VOLUME_SOFT_STEP_t DEFAULT_SOFT_STEP = SOFT_STEP1;
+//Page 0 / Register 64: DAC Channel Setup Register 2 - 0x00 / 0x40
+const DAC_AUTO_MUTE_t	DEFAULT_AUTO_MUTE = AUTO_MUTE_DISABLED;
+const bool 		DEFAULT_AUTO_MUTE_EN = true;
+//Page 0 / Register 65: DAC Channel Digital Volume Control Register - 0x00 / 0x41
+const int		DEFAULT_DAC_CHAN_VOLUME = 0;//volume in dB -63.5 to 24 dB
 //--------------------------register definition--------------------------------
 
 //Page 0 / Register 4: Clock Setting Register 1, Multiplexers - 0x00 / 0x04
@@ -893,7 +994,30 @@ class P0R46_t{
       bool getMinDspAuxInt(){return minidsp_aux_int;}
 };
 //Page 0 / Register 48: INT1 Control Register - 0x00 / 0x30
+class P0R48_t{
+      const static int Address = 48;
 
+      bool over_current_int_en;
+      bool minidsp_overflow_int_en;
+      bool int1_pulse_ctrl;
+
+    public:
+      P0R48_t(bool over_current_int_en_i = DEFAULT_OVER_CURRENT_INT_EN,
+	      bool minidsp_overflow_int_en_i = DEFAULT_MINIDPS_OVERFLOW_EN,
+	      bool int1_pulse_ctrl_i = DEFAULT_INT_PULSE_CTRL,
+	      ):over_current_int_en(over_current_int_en_i),
+	      minidsp_overflow_int_en(minidsp_overflow_int_en_i),
+	      int1_pulse_ctrl(int1_pulse_ctrl_i){}
+
+      P0R48_t(uint8_t reg){ i2c_call_addr = ((reg&0x20)>>5);}
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (i2c_call_addr<<5);}
+
+      void setI2CCallAddr(bool p){i2c_call_addr = p;}
+      bool getI2CCallAddr(){return i2c_call_addr;}
+};
 //Page 0 / Register 49: INT2 Interrupt Control Register - 0x00 / 0x31
 //Page 0 / Register 52: GPIO/DOUT Control Register - 0x00 / 0x34
 //Page 0 / Register 53: DOUT Function Control Register - 0x00 / 0x35

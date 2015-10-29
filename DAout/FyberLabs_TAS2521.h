@@ -258,14 +258,15 @@ const bool 		DEFAULT_SEC_DATA_OUT_CTRL = 0;
 const bool		DEFAULT_I2C_CALL_ADDR_CONF = 0;
 // Page 0 / Register 48: INT1 Control Register - 0x00 / 0x30
 const bool 		DEFAULT_OVER_CURRENT_INT1_EN = false;
-const bool 		DEFAULT_MINIDPS_OVERFLOW_INT1_EN = false;
+const bool 		DEFAULT_MINIDSP_OVERFLOW_INT1_EN = false;
 const bool 		DEFAULT_INT1_PULSE_CTRL = false;
 //Page 0 / Register 49: INT2 Interrupt Control Register - 0x00 / 0x31
 const bool 		DEFAULT_OVER_CURRENT_INT2_EN = false;
-const bool 		DEFAULT_MINIDPS_OVERFLOW_INT2_EN = false;
+const bool 		DEFAULT_MINIDSP_OVERFLOW_INT2_EN = false;
 const bool 		DEFAULT_INT2_PULSE_CTRL = false;
 //Page 0 / Register 52: GPIO/DOUT Control Register - 0x00 / 0x34
 const uint8_t 		DEFAULT_GPIO_CTRL = 0;
+const bool		DEFAULT_GPIO_OUT_STATE = 0;
 //Page 0 / Register 53: DOUT Function Control Register - 0x00 / 0x35
 const bool		DEFAULT_DOUT_BUS_KEEPER_EN = false;
 const DOUT_MUX_CTRL_t	DEFAULT_DOUT_MUX_CTRL = DOUT_PRIM_DOUT;
@@ -291,7 +292,7 @@ const VOLUME_SOFT_STEP_t DEFAULT_SOFT_STEP = SOFT_STEP1;
 const DAC_AUTO_MUTE_t	DEFAULT_AUTO_MUTE = AUTO_MUTE_DISABLED;
 const bool 		DEFAULT_AUTO_MUTE_EN = true;
 //Page 0 / Register 65: DAC Channel Digital Volume Control Register - 0x00 / 0x41
-const int		DEFAULT_DAC_CHAN_VOLUME = 0;//volume in dB -63.5 to 24 dB
+const uint8_t		DEFAULT_DAC_CHAN_VOLUME = 0;
 //--------------------------register definition--------------------------------
 
 //Page 0 / Register 4: Clock Setting Register 1, Multiplexers - 0x00 / 0x04
@@ -1002,34 +1003,353 @@ class P0R48_t{
       bool int1_pulse_ctrl;
 
     public:
-      P0R48_t(bool over_current_int_en_i = DEFAULT_OVER_CURRENT_INT_EN,
-	      bool minidsp_overflow_int_en_i = DEFAULT_MINIDPS_OVERFLOW_EN,
-	      bool int1_pulse_ctrl_i = DEFAULT_INT_PULSE_CTRL,
+      P0R48_t(bool over_current_int_en_i = DEFAULT_OVER_CURRENT_INT1_EN,
+	      bool minidsp_overflow_int_en_i = DEFAULT_MINIDSP_OVERFLOW_INT1_EN,
+	      bool int1_pulse_ctrl_i = DEFAULT_INT1_PULSE_CTRL
 	      ):over_current_int_en(over_current_int_en_i),
 	      minidsp_overflow_int_en(minidsp_overflow_int_en_i),
 	      int1_pulse_ctrl(int1_pulse_ctrl_i){}
 
-      P0R48_t(uint8_t reg){ i2c_call_addr = ((reg&0x20)>>5);}
+      P0R48_t(uint8_t reg){
+	over_current_int_en = ((reg&0x08)>>3);
+	minidsp_overflow_int_en = ((reg&0x04)>>2);
+	int1_pulse_ctrl = ((reg&0x01));
+      }
 
       uint8_t GetAddress(){return Address;}
 
-      uint8_t toByte(){return (i2c_call_addr<<5);}
+      uint8_t toByte(){return (over_current_int_en<<3)|(minidsp_overflow_int_en<<2)|(int1_pulse_ctrl);}
 
-      void setI2CCallAddr(bool p){i2c_call_addr = p;}
-      bool getI2CCallAddr(){return i2c_call_addr;}
+      void setOverCurrentIntEn(bool p){over_current_int_en = p;}
+      bool getOverCurrentIntEn(){return over_current_int_en;}
+
+      void setOverflowIntEn(bool p){minidsp_overflow_int_en = p;}
+      bool getOverflowIntEn(){return minidsp_overflow_int_en;}
+
+      void setPulseCtrl(bool p){int1_pulse_ctrl = p;}
+      bool getPulseCtrl(){return int1_pulse_ctrl;}
 };
-//Page 0 / Register 49: INT2 Interrupt Control Register - 0x00 / 0x31
-//Page 0 / Register 52: GPIO/DOUT Control Register - 0x00 / 0x34
-//Page 0 / Register 53: DOUT Function Control Register - 0x00 / 0x35
-//Page 0 / Register 54: DIN Function Control Register - 0x00 / 0x36
-//Page 0 / Register 55: MISO Function Control Register - 0x00 / 0x37
-//Page 0 / Register 56: SCLK/DMDIN2 Function Control Register- 0x00 / 0x38
-//Page 0 / Register 60: DAC Instruction Set - 0x00 / 0x3C
-//Page 0 / Register 62: miniDSP_D Configuration Register - 0x00 / 0x3E
-//Page 0 / Register 63: DAC Channel Setup Register 1 - 0x00 / 0x3F
-//Page 0 / Register 64: DAC Channel Setup Register 2 - 0x00 / 0x40
-//Page 0 / Register 65: DAC Channel Digital Volume Control Register - 0x00 / 0x41
 
+//Page 0 / Register 49: INT2 Interrupt Control Register - 0x00 / 0x31
+class P0R49_t{
+      const static int Address = 49;
+
+      bool over_current_int_en;
+      bool minidsp_overflow_int_en;
+      bool int1_pulse_ctrl;
+
+    public:
+      P0R49_t(bool over_current_int_en_i = DEFAULT_OVER_CURRENT_INT2_EN,
+	      bool minidsp_overflow_int_en_i = DEFAULT_MINIDSP_OVERFLOW_INT2_EN,
+	      bool int1_pulse_ctrl_i = DEFAULT_INT2_PULSE_CTRL
+	      ):over_current_int_en(over_current_int_en_i),
+	      minidsp_overflow_int_en(minidsp_overflow_int_en_i),
+	      int1_pulse_ctrl(int1_pulse_ctrl_i){}
+
+      P0R49_t(uint8_t reg){
+	over_current_int_en = ((reg&0x08)>>3);
+	minidsp_overflow_int_en = ((reg&0x04)>>2);
+	int1_pulse_ctrl = ((reg&0x01));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (over_current_int_en<<3)|(minidsp_overflow_int_en<<2)|(int1_pulse_ctrl);}
+
+      void setOverCurrentIntEn(bool p){over_current_int_en = p;}
+      bool getOverCurrentIntEn(){return over_current_int_en;}
+
+      void setOverflowIntEn(bool p){minidsp_overflow_int_en = p;}
+      bool getOverflowIntEn(){return minidsp_overflow_int_en;}
+
+      void setPulseCtrl(bool p){int1_pulse_ctrl = p;}
+      bool getPulseCtrl(){return int1_pulse_ctrl;}
+};
+
+//Page 0 / Register 52: GPIO/DOUT Control Register - 0x00 / 0x34
+class P0R52_t{
+      const static int Address = 52;
+
+      uint8_t gpio_ctrl;
+      bool gpio_out_state;
+      bool gpio_in_state;
+    public:
+      P0R52_t(uint8_t gpio_ctrl_i = DEFAULT_GPIO_CTRL,
+	      bool gpio_state_i = DEFAULT_GPIO_OUT_STATE
+	      ):gpio_ctrl(gpio_ctrl_i),
+	      gpio_out_state(gpio_state_i),
+	      gpio_in_state(false){}
+
+      P0R52_t(uint8_t reg){
+	gpio_ctrl = ((reg&0x3C)>>2);
+	gpio_out_state = ((reg&0x01));
+	gpio_in_state = ((reg&0x02)>>1);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (gpio_ctrl<<2)|(gpio_out_state);}
+
+      void setGpioCtrl(uint8_t p){gpio_ctrl = p;}
+      uint8_t getGpioCtrl(){return gpio_ctrl;}
+
+      void setGpioOutState(bool p){gpio_out_state = p;}
+      bool getGpioOutState(){return gpio_out_state;}
+
+      bool getGpioInState(void){return gpio_in_state;}
+};
+
+//Page 0 / Register 53: DOUT Function Control Register - 0x00 / 0x35
+class P0R53_t{
+      const static int Address = 53;
+
+      bool bus_keeper_en;
+      DOUT_MUX_CTRL_t dout_mux_ctrl;
+      bool dout_gpio_state;
+    public:
+      P0R53_t(bool bus_keeper_en_i = DEFAULT_DOUT_BUS_KEEPER_EN,
+	      DOUT_MUX_CTRL_t dout_mux_ctrl_i = DEFAULT_DOUT_MUX_CTRL,
+	      bool dout_gpio_state_i = DEFAULT_DOUT_GPIO_VAL
+	      ):bus_keeper_en(bus_keeper_en_i),
+	      dout_mux_ctrl(dout_mux_ctrl_i),
+	      dout_gpio_state(dout_gpio_state_i){}
+
+      P0R53_t(uint8_t reg){
+	bus_keeper_en = ((reg&0x10)>>4);
+	dout_mux_ctrl = (DOUT_MUX_CTRL_t)((reg&0x0E)>>1);
+	dout_gpio_state = ((reg&0x01));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (bus_keeper_en<<4)|(dout_mux_ctrl<<1)|(dout_gpio_state);}
+
+      void setBusKeepEn(bool p){bus_keeper_en = p;}
+      bool getBusKeepEn(){return bus_keeper_en;}
+
+      void setDoutMuxCtrl(DOUT_MUX_CTRL_t p){dout_mux_ctrl = p;}
+      DOUT_MUX_CTRL_t getDoutMuxCtrl(){return dout_mux_ctrl;}
+
+      void setDoutGpio(bool p){dout_gpio_state = p;}
+      bool getDoutGpio(){return dout_gpio_state;}
+};
+
+//Page 0 / Register 54: DIN Function Control Register - 0x00 / 0x36
+class P0R54_t{
+      const static int Address = 54;
+
+      DIN_FUNC_CTRL_t din_func_ctrl;
+      bool din_gpio_state;
+    public:
+      P0R54_t(DIN_FUNC_CTRL_t din_func_ctrl_i = DEFAULT_DIN_FUNC
+	      ):din_func_ctrl(din_func_ctrl_i),
+	      din_gpio_state(0){}
+
+      P0R54_t(uint8_t reg){
+	din_func_ctrl = (DIN_FUNC_CTRL_t)((reg&0x06)>>1);
+	din_gpio_state = ((reg&0x01));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (din_func_ctrl<<1)|(din_gpio_state);}
+
+      void setDinFunc(DIN_FUNC_CTRL_t p){din_func_ctrl = p;}
+      DIN_FUNC_CTRL_t getDinFunc(){return din_func_ctrl;}
+
+      bool getDinGPIOState(){return din_gpio_state;}
+};
+
+//Page 0 / Register 55: MISO Function Control Register - 0x00 / 0x37
+class P0R55_t{
+      const static int Address = 55;
+
+      MISO_FUNC_CTRL_t miso_func_ctrl;
+      bool miso_gpio_state;
+    public:
+      P0R55_t(MISO_FUNC_CTRL_t miso_func_ctrl_i = DEFAULT_MISO_FUNC,
+	      bool miso_gpio_state_i = DEFAULT_MISO_GPIO_VAL
+	      ):miso_func_ctrl(miso_func_ctrl_i),
+	      miso_gpio_state(miso_gpio_state_i){}
+
+      P0R55_t(uint8_t reg){
+	miso_func_ctrl = (MISO_FUNC_CTRL_t)((reg&0x1E)>>1);
+	miso_gpio_state = ((reg&0x01));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (miso_func_ctrl<<1)|(miso_gpio_state);}
+
+      void setMisoFunc(MISO_FUNC_CTRL_t p){miso_func_ctrl = p;}
+      MISO_FUNC_CTRL_t getMisoFunc(){return miso_func_ctrl;}
+
+      void setMISOGPIOState(bool p){miso_gpio_state = p;}
+      bool getMISOGPIOState(){return miso_gpio_state;}
+};
+//Page 0 / Register 56: SCLK/DMDIN2 Function Control Register- 0x00 / 0x38
+class P0R56_t{
+      const static int Address = 56;
+
+      SCLK_FUNC_CTRL_t sclk_func_ctrl;
+      bool sclk_gpio_state;
+    public:
+      P0R56_t(SCLK_FUNC_CTRL_t sclk_func_ctrl_i = DEFAULT_SCLK_FUNC
+	      ):sclk_func_ctrl(sclk_func_ctrl_i),
+	      sclk_gpio_state(0){}
+
+      P0R56_t(uint8_t reg){
+	sclk_func_ctrl = (SCLK_FUNC_CTRL_t)((reg&0x1E)>>1);
+	sclk_gpio_state = ((reg&0x01));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (sclk_func_ctrl<<1)|(sclk_gpio_state);}
+
+      void setSclkFunc(SCLK_FUNC_CTRL_t p){sclk_func_ctrl = p;}
+      SCLK_FUNC_CTRL_t getSclkFunc(){return sclk_func_ctrl;}
+
+      bool getSclkGPIOState(){return sclk_gpio_state;}
+};
+
+//Page 0 / Register 60: DAC Instruction Set - 0x00 / 0x3C
+class P0R60_t{
+      const static int Address = 60;
+      DAC_INST_t dac_inst;
+
+    public:
+      P0R60_t(DAC_INST_t dac_inst_i = DEFAULT_DAC_INSTRUCIOTN):dac_inst(dac_inst_i){}
+
+      P0R60_t(uint8_t reg){dac_inst = (DAC_INST_t)((reg&0x1F));}
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (dac_inst);}
+
+      void setDacInstruction(DAC_INST_t p){dac_inst = p;}
+      DAC_INST_t getDacInstruction(){return dac_inst;}
+};
+
+//Page 0 / Register 62: miniDSP_D Configuration Register - 0x00 / 0x3E
+class P0R62_t{
+      const static int Address = 62;
+
+      bool dsp_aux_bit_a;
+      bool dsp_aux_bit_b;
+      bool dsp_reset_inst_cnt;
+    public:
+      P0R62_t(bool dsp_aux_bit_a_i = DEFAULT_MINIDSP_AUX_BIT_A,
+	      bool dsp_aux_bit_b_i = DEFAULT_MINIDSP_AUX_BIT_B,
+	      bool dsp_reset_inst_cnt_i = DEFAULT_MINIDSP_RESET_INST_COUNTER
+	      ):dsp_aux_bit_a(dsp_aux_bit_a_i),
+	      dsp_aux_bit_b(dsp_aux_bit_b_i),
+	      dsp_reset_inst_cnt(dsp_reset_inst_cnt_i){}
+
+      P0R62_t(uint8_t reg){
+	dsp_aux_bit_a = ((reg&0x04)>>2);
+	dsp_aux_bit_b = ((reg&0x02)>>1);
+	dsp_reset_inst_cnt = ((reg&0x01));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (dsp_aux_bit_a<<2)|(dsp_aux_bit_b<<1)|(dsp_reset_inst_cnt);}
+
+      void setAuxBitA(bool p){dsp_aux_bit_a = p;}
+      bool getAuxBitA(){return dsp_aux_bit_a;}
+
+      void setAuxBitB(bool p){dsp_aux_bit_b = p;}
+      bool getAuxBitB(){return dsp_aux_bit_b;}
+
+      void setResetInstCnt(bool p){dsp_reset_inst_cnt = p;}
+      bool getResetInstCnt(){return dsp_reset_inst_cnt;}
+};
+
+//Page 0 / Register 63: DAC Channel Setup Register 1 - 0x00 / 0x3F
+class P0R63_t{
+      const static int Address = 63;
+
+      POWER_STATE_t dac_pwr_ctrl;
+      DAC_DATA_PATH_t data_path;
+      uint8_t chan_col_ctrl:2;
+    public:
+      P0R63_t(POWER_STATE_t dac_pwr_ctrl_i = DEFAULT_DAC_CHAN_POWER,
+	      DAC_DATA_PATH_t data_path_i = DEFAULT_DAC_DATA_PATH,
+	      uint8_t chan_col_ctrl_i = DEFAULT_DAC_CHAN_VOLUME
+	      ):dac_pwr_ctrl(dac_pwr_ctrl_i),
+	      data_path(data_path_i),
+	      chan_col_ctrl(chan_col_ctrl_i){}
+
+      P0R63_t(uint8_t reg){
+	dac_pwr_ctrl = (POWER_STATE_t)((reg&0x80)>>7);
+	data_path = (DAC_DATA_PATH_t)((reg&0x30)>>4);
+	chan_col_ctrl = ((reg&0x03));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (dac_pwr_ctrl<<7)|(data_path<<4)|(chan_col_ctrl);}
+
+      void setDacChanPwr(POWER_STATE_t p){dac_pwr_ctrl = p;}
+      POWER_STATE_t getDacChanPwr(){return dac_pwr_ctrl;}
+
+      void setDacDataPath(DAC_DATA_PATH_t p){data_path = p;}
+      DAC_DATA_PATH_t getDacDataPath(){return data_path;}
+
+      void setDacChanVolume(uint8_t p){chan_col_ctrl = p&0x03;}
+      uint8_t getDacChanVolume(){return chan_col_ctrl;}
+};
+
+//Page 0 / Register 64: DAC Channel Setup Register 2 - 0x00 / 0x40
+class P0R64_t{
+      const static int Address = 64;
+
+      POWER_STATE_t dac_pwr_ctrl;
+      DAC_DATA_PATH_t data_path;
+      uint8_t chan_col_ctrl:2;
+    public:
+      P0R64_t(POWER_STATE_t dac_pwr_ctrl_i = DEFAULT_DAC_CHAN_POWER,
+	      DAC_DATA_PATH_t data_path_i = DEFAULT_DAC_DATA_PATH,
+	      uint8_t chan_col_ctrl_i = DEFAULT_DAC_CHAN_VOLUME
+	      ):dac_pwr_ctrl(dac_pwr_ctrl_i),
+	      data_path(data_path_i),
+	      chan_col_ctrl(chan_col_ctrl_i){}
+
+      P0R64_t(uint8_t reg){
+	dac_pwr_ctrl = (POWER_STATE_t)((reg&0x80)>>7);
+	data_path = (DAC_DATA_PATH_t)((reg&0x30)>>4);
+	chan_col_ctrl = ((reg&0x03));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (dac_pwr_ctrl<<7)|(data_path<<4)|(chan_col_ctrl);}
+
+      void setDacChanPwr(POWER_STATE_t p){dac_pwr_ctrl = p;}
+      POWER_STATE_t getDacChanPwr(){return dac_pwr_ctrl;}
+
+      void setDacDataPath(DAC_DATA_PATH_t p){data_path = p;}
+      DAC_DATA_PATH_t getDacDataPath(){return data_path;}
+
+      void setDacChanVolume(uint8_t p){chan_col_ctrl = p&0x03;}
+      uint8_t getDacChanVolume(){return chan_col_ctrl;}
+};
+
+//Page 0 / Register 65: DAC Channel Digital Volume Control Register - 0x00 / 0x41
+class P0R65_t{
+      const static int Address = 65;
+      uint8_t dac_chan_vol;
+    public:
+      P0R65_t(uint8_t dac_chan_vol_i = DEFAULT_DAC_CHAN_VOLUME):dac_chan_vol(dac_chan_vol_i){}
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return dac_chan_vol;}
+
+      void setDacChanVol(POWER_STATE_t p){dac_chan_vol = p;}
+      POWER_STATE_t getDacChanVol(){return dac_chan_vol;}
+};
 
 //Page 1 / Registers 1: REF, POR and LDO BGAP Control Register - 0x01 / 0x01
 //Page 1 / Register 2: LDO Control Register - 0x01 / 0x02

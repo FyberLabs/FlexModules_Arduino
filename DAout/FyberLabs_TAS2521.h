@@ -193,6 +193,106 @@ enum DAC_AUTO_MUTE_t{
   AUTO_MUTE_3200DC = 6,//110: DAC is auto muted if input data is DC for more than 3200 consecutive inputs
   AUTO_MUTE_6400DC = 7,//111: DAC is auto muted if input data is DC for more than 6400 consecutive inputs
 };
+
+enum AVDD_LDO_CTRL_t{
+  LDO_1_8V = 0,
+  LDO_1_6V = 1,
+  LDO_1_7V = 2,
+  LDO_1_5V = 3,
+};
+
+enum DAC_MODE_t{
+  LOW_POWER = 0,
+  HIGH_PERFORMANCE = 1
+};
+
+enum CHIP_COMMON_MODE_t{
+  COMMON_MODE_0_9V = 0,
+  COMMON_MODE_0_75V = 1,
+};
+
+enum HEADPHONE_DRIVE_ABILITY_t{
+  FULL_FRIVE = 0,
+  HALF_DRIVE = 1,
+};
+
+enum OVER_CURRENT_DETECTION_DEBOUNCE_t{
+  NO_DEBOUNCE = 0, //000: No debounce is used for Over Current detection
+  DEBOUNCE_8MS = 1, //001: Over Current detection is debounced by 8ms
+  DEBOUNCE_16MS = 2, //010: Over Current detection is debounce by 16ms
+  DEBOUNCE_32MS = 3, //011: Over Current detection is debounced by 32ms
+  DEBOUNCE_64MS = 4, //100: Over Current detection is debounced by 64ms
+  DEBOUNCE_128MS = 5, //101: Over Current detection is debounced by 128ms
+  DEBOUNCE_256MS = 6, //110: Over Current detection is debounced by 256ms
+  DEBOUNCE_512MS = 7, //111: Over Current detection is debounced by 512ms
+};
+
+enum OVER_CURRENT_CONDITION_t{
+  LIMIT_OUT_CURRENT = 0, //Output current will be limited if over current condition is detected
+  POWER_DOWN_DRIVER = 1 //Output driver will be powered down if over current condition is detected
+};
+
+enum ANALOG_ROUTING_t{
+  NO_ANALOG_ROUTING = 0, //0000: No analog routing to SPK driver and HP driver
+  AINR_TO_MIXER_P = 4, //0100: AINR routed to Mixer P
+  AIN_LR_TO_SPK = 6, //0110: AINL/R differential routed to SPK driver through Mixer A and Mixer B
+  AINL_TO_MIXA = 8, //1000: AINL routed to Mixer A
+  AIN_LR_TO_SPK_ = 9, //1001: AINL/R differential routed to SPK driver through Mixer A and Mixer B
+  AINL_AINR_TO_MIXA_HP = 12, //1100: AINL and AINR routed to Mixer A to HP driver
+};
+
+enum SOFT_ROUTING_STEP_TIME_t{
+  STEP_TIME_0MS = 0, //00: Soft-routing step time = 0ms
+  STEP_TIME_50MS = 1, //01: Soft-routing step time = 50ms
+  STEP_TIME_100MS = 2, //10: Soft-routing step time = 100ms
+  STEP_TIME_200MS = 3, //11: Soft-routing step time = 200ms
+};
+
+enum HP_AMP_SLOW_POWERUP_TIME_t{
+  SLOW_POWERUP_DISABLED = 0, //0000: Slow power up of headphone amp's is disabled
+  SLOW_POWERUP_0_5T = 1, //0001: Headphone amps power up slowly in 0.5 time constants
+  SLOW_POWERUP_0_625T = 2, //0010: Headphone amps power up slowly in 0.625 time constants
+  SLOW_POWERUP_0_725T = 3, //0011; Headphone amps power up slowly in 0.725 time constants
+  SLOW_POWERUP_0_875T= 4, //0100: Headphone amps power up slowly in 0.875 time constants
+  SLOW_POWERUP_1T= 5, //0101: Headphone amps power up slowly in 1.0 time constants
+  SLOW_POWERUP_2T= 6, //0110: Headphone amps power up slowly in 2.0 time constants
+  SLOW_POWERUP_3T= 7, //0111: Headphone amps power up slowly in 3.0 time constants
+  SLOW_POWERUP_4T= 8, //1000: Headphone amps power up slowly in 4.0 time constants
+  SLOW_POWERUP_5T= 9, //1001: Headphone amps power up slowly in 5.0 time constants
+  SLOW_POWERUP_6T= 10, //1010: Headphone amps power up slowly in 6.0 time constants
+  SLOW_POWERUP_7T= 11, //1011: Headphone amps power up slowly in 7.0 time constants
+  SLOW_POWERUP_8T= 12, //1100: Headphone amps power up slowly in 8.0 time constants
+  SLOW_POWERUP_16T= 13, //1101: Headphone amps power up slowly in 16.0 time constants ( do not use for Rchg=25K)
+  SLOW_POWERUP_32T= 14, //1110: Headphone amps power up slowly in 24.0 time constants (do not use for Rchg=25K)
+  SLOW_POWERUP_64T= 15, //1111: Headphone amps power up slowly in 32.0 time constants (do not use for Rchg=25K)
+};
+
+enum HP_AMP_POWERUP_RESISTOR_t{
+  RES_25K = 0, //00: Headphone amps power up time is determined with 25K resistance
+  RES_6K = 1, //01: Headphone amps power up time is determined with 6K resistance
+  RES_2K = 2, //10: Headphone amps power up time is determined with 2K resistance
+};
+
+enum SPK_AMP_VOL_t{
+  SPK_MUTED = 0, //000: SPK Driver is Muted (Default)
+  SPK_VOL_6DB = 0, //001: SPK Driver Volume = 6 dB
+  SPK_VOL_12DB = 0, //010: SPK Driver Volume = 12 dB
+  SPK_VOL_18DB = 0, //011: SPK Driver Volume = 18 dB
+  SPK_VOL_24DB = 0, //100: SPK Driver Volume = 24 dB
+  SPK_VOL_32DB = 0, //101: SPK Driver Volume = 32 dB
+};
+
+enum REF_PWRUP_DELAY_t{
+  REF_PWRUP_SLOW = 0 ,//000: Reference will power up slowly when analog blocks are powered up
+  REF_PWRUP_40MS = 1 ,//001: Reference will power up in 40ms when analog blocks are powered up
+  REF_PWRUP_80MS = 2 ,//010: Reference will power up in 80ms when analog blocks are powered up
+  REF_PWRUP_120MS = 3 ,//011: Reference will power up in 120ms when analog blocks are powered up
+  FORCE_REF_PWRUP_SLOW = 4 ,//100: Force power up of reference. Power up will be slow
+  FORCE_REF_PWRUP_40MS = 5 ,//101: Force power up of reference. Power up time will be 40ms
+  FORCE_REF_PWRUP_80MS = 6 ,//110: Force power up of reference. Power up time will be 80ms
+  FORCE_REF_PWRUP_120MS = 7 ,//111: Force power up of reference. Power up time will be 120ms
+};
+
 //--------------------------- default configuration------------------------------
 //Page 0 / Register 4: Clock Setting Register 1, Multiplexers - 0x00 / 0x04
 const PLL_RANGE_t 	DEFAULT_PLL_RANGE = PLL_RANGE_LOW;
@@ -293,6 +393,63 @@ const DAC_AUTO_MUTE_t	DEFAULT_AUTO_MUTE = AUTO_MUTE_DISABLED;
 const bool 		DEFAULT_AUTO_MUTE_EN = true;
 //Page 0 / Register 65: DAC Channel Digital Volume Control Register - 0x00 / 0x41
 const uint8_t		DEFAULT_DAC_CHAN_VOLUME = 0;
+
+//Page 1 / Registers 1: REF, POR and LDO BGAP Control Register - 0x01 / 0x01
+const POWER_STATE_t	DEFAULT_MAST_REF_CTRL = POWER_DOWN;
+const bool		DEFAULT_POR_PWR_CTRL = false;
+const POWER_STATE_t	DEFAULT_LDO_PWR_CTRL = POWER_DOWN;
+//Page 1 / Register 2: LDO Control Register - 0x01 / 0x02
+const AVDD_LDO_CTRL_t	DEFAULT_AVDD_LDO_CTRL = LDO_1_8V;
+const bool		DEFAULT_PLL_HP_LVL_SHIFT_PWR = false;
+//Page 1 / Register 3: Playback Configuration Register 1 - 0x01 / 0x03
+const DAC_MODE_t	DEFAULT_DAC_MODE = LOW_POWER;
+const uint8_t		DEFAULT_DAC_PTM_CTRL = 0;
+//Page 1 / Register 8: DAC PGA Control Register- 0x01 / 0x08
+const bool		DEFAULT_SOFT_STEPPING_ENABLE = false;
+const bool		DEFAULT_SOF_STEPPING_MODE = false;
+//Page 1 / Register 9: Output Drivers, AINL, AINR, Control Register - 0x01 / 0x09
+const POWER_STATE_t	DEFAULT_HPL_PWR = POWER_DOWN;
+const bool		DEFAULT_AINL_INPUT_EN = false;
+const bool		DEFAULT_AINR_INPUT_EN = false;
+//Page 1 / Register 10: Common Mode Control Register - 0x01 / 0x0A
+const CHIP_COMMON_MODE_t DEFAULT_CHIP_COMMON_MODE = COMMON_MODE_0_9V;
+const HEADPHONE_DRIVE_ABILITY_t DEFAULT_DRIVE_ABILITY = FULL_FRIVE;
+//Page 1 / Register 11: HP Over Current Protection Configuration Register - 0x01 / 0x0B
+const OVER_CURRENT_DETECTION_DEBOUNCE_t DEFAULT_OVER_CURRENT_DEBOUNCE = NO_DEBOUNCE;
+const OVER_CURRENT_CONDITION_t	DEFAULT_OVER_CURRENT_COND = LIMIT_OUT_CURRENT;
+//Page 1 / Register 12: HP Routing Selection Register - 0x01 / 0x0C
+const ANALOG_ROUTING_t DEFAULT_ANALOG_ROUTING = NO_ANALOG_ROUTING;
+const bool	DEFAULT_DAC_TO_HP_ROUTING = false;
+const bool	DEFAULT_CONNECT_MIX_P_TO_HP_ATTN = false;
+const bool	DEFAULT_ROUT_AINL_ATTN_TO_HP = false;
+const bool	DEFAULT_ROUT_AINR_ATTN_TO_HP = false;
+//Page 1 / Register 16: HP Driver Gain Setting Register - 0x01 / 0x10
+const bool	DEFAULT_MUTE_HP	= false;
+const uint8_t 	DEFAULT_HP_DRIVER_GAIN = 0;
+//Page 1 / Registers 20: Headphone Driver Startup Control Register - 0x01 / 0x14
+const SOFT_ROUTING_STEP_TIME_t	DEFAULT_SOFT_ROUT_STEP_TIME = STEP_TIME_0MS;
+const HP_AMP_SLOW_POWERUP_TIME_t DEFAULT_HP_SLOW_PWRUP = SLOW_POWERUP_DISABLED;
+const HP_AMP_POWERUP_RESISTOR_t  DEFAULT_HP_PWRUP_RES = RES_25K;
+//Page 1 / Register 22: HP Volume Control Register - 0x01 / 0x16
+const uint8_t	DEFAULT_HP_VOLUME = 0;
+//Page 1 / Register 24: AINL Volume Control Register - 0x01 / 0x18
+const bool 	DEFAULT_MIXER_P_M_FORCE_EN = false;
+const uint8_t	DEFAULT_AINL_VOLUME = 0;
+//Page 1 / Register 25: AINR Volume Control Register - 0x01 / 0x19
+const uint8_t	DEFAULT_AINR_VOLUME = 0;
+//Page 1 / Register 45: Speaker Amplifier Control 1 - 0x01 / 0x2D
+const POWER_STATE_t	DEFAULT_SPK_OUT_POWER = POWER_DOWN;
+//Page 1 / Register 46: Speaker Volume Control 1 - 0x01 / 0x2E
+const uint8_t DEFAULT_SPK_VOLUME = 0;
+//Page 1 / Register 48: Speaker Amplifier Volume Control 2 - 0x01 / 0x30
+const SPK_AMP_VOL_t DEFAULT_SPK_AMP_VOL = SPK_MUTED;
+//Page 1 / Register 122: Reference Power Up Delay - 0x01 / 0x7A
+const REF_PWRUP_DELAY_t DEFAULT_REF_PWRUP_DELAY = REF_PWRUP_SLOW;
+//Page 44 / Register 1: DAC Adaptive Filter Configuration Register - 0x2C / 0x01
+const bool DEFAULT_DAC_ADAP_FILT_EN = false;
+const bool DEFAULT_DAC_ADAP_FILT_BUF_SWITCH = false;//DAC Coefficient Buffers will not be switched at next frame boundary
+
+
 //--------------------------register definition--------------------------------
 
 //Page 0 / Register 4: Clock Setting Register 1, Multiplexers - 0x00 / 0x04
@@ -1347,36 +1504,514 @@ class P0R65_t{
 
       uint8_t toByte(){return dac_chan_vol;}
 
-      void setDacChanVol(POWER_STATE_t p){dac_chan_vol = p;}
-      POWER_STATE_t getDacChanVol(){return dac_chan_vol;}
+      void setDacChanVol(uint8_t p){dac_chan_vol = p;}
+      uint8_t getDacChanVol(){return dac_chan_vol;}
 };
 
+//////////////////////////////////////////////////////////////////
+//	Page 1: DAC Routing, Power-Controls and MISC Logic
+// 		Related Programmabilities
+//////////////////////////////////////////////////////////////////
+
 //Page 1 / Registers 1: REF, POR and LDO BGAP Control Register - 0x01 / 0x01
+class P1R1_t{
+      const static int Address = 1;
+      POWER_STATE_t mast_ref_ctrl;
+      bool	por_pwr_ctrl;
+      POWER_STATE_t ldo_pwr_ctrl;
+    public:
+      P1R1_t( POWER_STATE_t mast_ref_ctrl_i = DEFAULT_MAST_REF_CTRL,
+	      bool	por_pwr_ctrl_i = DEFAULT_POR_PWR_CTRL,
+	      POWER_STATE_t ldo_pwr_ctrl_i = DEFAULT_LDO_PWR_CTRL):
+	      mast_ref_ctrl(mast_ref_ctrl_i),
+	      por_pwr_ctrl(por_pwr_ctrl_i),
+	      ldo_pwr_ctrl(ldo_pwr_ctrl_i){}
+
+      P1R1_t(uint8_t reg){
+	mast_ref_ctrl = (POWER_STATE_t)((reg & 0x10)>>4);
+	por_pwr_ctrl = ((reg & 0x08)>>3);
+	ldo_pwr_ctrl = (POWER_STATE_t)((reg & 0x02)>>1);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (mast_ref_ctrl<<4)|(por_pwr_ctrl<<3)|(ldo_pwr_ctrl<<1);}
+
+      void setMastRefCtrl(POWER_STATE_t p){mast_ref_ctrl = p;}
+      POWER_STATE_t getMastRefCtrl(){return mast_ref_ctrl;}
+
+      void setPorPwrCtrl(bool p){por_pwr_ctrl = p;}
+      bool getPorPwrCtrl(){return por_pwr_ctrl;}
+
+      void setLdoPwrCtrl(POWER_STATE_t p){ldo_pwr_ctrl = p;}
+      POWER_STATE_t getLdoPwrCtrl(){return ldo_pwr_ctrl;}
+};
 //Page 1 / Register 2: LDO Control Register - 0x01 / 0x02
+class P1R2_t{
+      const static int Address = 2;
+      AVDD_LDO_CTRL_t nom_avdd_ldo_volt;
+      bool pll_hp_lvl_shift_pwr;
+      bool short_det;
+      bool ldo_sel;
+    public:
+      P1R2_t( AVDD_LDO_CTRL_t nom_avdd_ldo_volt_i = DEFAULT_AVDD_LDO_CTRL,
+	      bool pll_hp_lvl_shift_pwr_i = DEFAULT_PLL_HP_LVL_SHIFT_PWR):
+		nom_avdd_ldo_volt(nom_avdd_ldo_volt_i),
+		pll_hp_lvl_shift_pwr(pll_hp_lvl_shift_pwr_i),
+		short_det(false),
+		ldo_sel(false){}
+
+      P1R2_t(uint8_t reg){
+	nom_avdd_ldo_volt = (AVDD_LDO_CTRL_t)((reg & 0x30)>>4);
+	pll_hp_lvl_shift_pwr = ((reg & 0x08)>>3);
+	short_det = ((reg & 0x02)>>1);
+	ldo_sel = (reg & 0x01);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (nom_avdd_ldo_volt<<4)|(pll_hp_lvl_shift_pwr<<3);}
+
+      void setAvddLdoVoltage(AVDD_LDO_CTRL_t p){nom_avdd_ldo_volt = p;}
+      AVDD_LDO_CTRL_t getAvddLdoVoltage(){return nom_avdd_ldo_volt;}
+
+      void setLvlShiftPwr(bool p){pll_hp_lvl_shift_pwr = p;}
+      bool getLvlShiftPwr(){return pll_hp_lvl_shift_pwr;}
+
+      bool getAvddLdoShort(){return short_det;}
+      bool getLdoSelState(){return ldo_sel;}
+};
 //Page 1 / Playback Configuration Register 1 - 0x01 / 0x03
+class P1R3_t{
+      const static int Address = 3;
+      DAC_MODE_t dac_mode;
+      uint8_t dac_ptm;
+
+    public:
+      P1R3_t( DAC_MODE_t dac_mode_i = DEFAULT_DAC_MODE,
+	      uint8_t dac_ptm_i = DEFAULT_DAC_PTM_CTRL):
+		dac_mode(dac_mode_i),
+		dac_ptm(dac_ptm_i){}
+
+      P1R3_t(uint8_t reg){
+	dac_mode = (DAC_MODE_t)((reg & 0x20)>>5);
+	dac_ptm = ((reg & 0x1C)>>2);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (dac_mode<<5)|(dac_ptm<<2);}
+
+      void setDacMode(DAC_MODE_t p){dac_mode = p;}
+      DAC_MODE_t getDacMode(){return dac_mode;}
+
+      void setDacPtmCtrl(uint8_t p){dac_ptm = p;}
+      uint8_t geDacPtmCtrl(){return dac_ptm;}
+};
+
 //Page 1 / Register 8: DAC PGA Control Register- 0x01 / 0x08
+class P1R8_t{
+      const static int Address = 8;
+      bool soft_step_en;
+      bool soft_step_mode;
+
+    public:
+      P1R8_t( bool soft_step_en_i = DEFAULT_SOFT_STEPPING_ENABLE,
+	      bool soft_step_mode_i = DEFAULT_SOF_STEPPING_MODE):
+		soft_step_en(soft_step_en_i),
+		soft_step_mode(soft_step_mode_i){}
+
+      P1R8_t(uint8_t reg){
+	soft_step_en = ((reg & 0x80)>>7);
+	soft_step_mode = ((reg & 0x40)>>6);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (soft_step_en<<7)|(soft_step_mode<<6);}
+
+      void setSoftStepEn(bool p){soft_step_en = p;}
+      bool getSoftStepEn(){return soft_step_en;}
+
+      void setSoftStepMode(bool p){soft_step_mode = p;}
+      bool getSoftStepMode(){return soft_step_mode;}
+};
+
 //Page 1 / Register 9: Output Drivers, AINL, AINR, Control Register - 0x01 / 0x09
+class P1R9_t{
+      const static int Address = 9;
+      POWER_STATE_t hpl_pwr;
+      bool ainl_en;
+      bool ainr_en;
+
+    public:
+      P1R9_t( POWER_STATE_t hpl_pwr_i = DEFAULT_HPL_PWR,
+	      bool ainl_en_i = DEFAULT_AINL_INPUT_EN,
+	      bool ainr_en_i = DEFAULT_AINR_INPUT_EN):
+		hpl_pwr(hpl_pwr_i),
+		ainl_en(ainl_en_i),
+		ainr_en(ainr_en_i){}
+
+      P1R9_t(uint8_t reg){
+	hpl_pwr = (POWER_STATE_t)((reg & 0x20)>>5);
+	ainl_en = ((reg & 0x02)>>1);
+	ainr_en = ((reg & 0x01));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (hpl_pwr<<5)|(ainl_en<<1)|(ainr_en);}
+
+      void setHplPwr(POWER_STATE_t p){hpl_pwr = p;}
+      POWER_STATE_t getHplPwr(){return hpl_pwr;}
+
+      void setAinlEn(bool p){ainl_en = p;}
+      bool getAinlEn(){return ainl_en;}
+
+      void setAinrEn(bool p){ainr_en = p;}
+      bool getAinrEn(){return ainr_en;}
+};
+
 //Page 1 / Register 10: Common Mode Control Register - 0x01 / 0x0A
+class P1R10_t{
+      const static int Address = 10;
+      CHIP_COMMON_MODE_t comm_mode;
+      HEADPHONE_DRIVE_ABILITY_t hp_drive;
+
+    public:
+      P1R10_t( CHIP_COMMON_MODE_t comm_mode_i = DEFAULT_CHIP_COMMON_MODE,
+	       HEADPHONE_DRIVE_ABILITY_t hp_drive_i = DEFAULT_DRIVE_ABILITY):
+		 comm_mode(comm_mode_i),
+		hp_drive(hp_drive_i){}
+
+      P1R10_t(uint8_t reg){
+	comm_mode = (CHIP_COMMON_MODE_t)((reg & 0x40)>>6);
+	hp_drive = (HEADPHONE_DRIVE_ABILITY_t)((reg & 0x04)>>2);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (comm_mode<<6)|(hp_drive<<2);}
+
+      void setCommonMode(CHIP_COMMON_MODE_t p){comm_mode = p;}
+      CHIP_COMMON_MODE_t getCommonMode(){return comm_mode;}
+
+      void setHpDrive(HEADPHONE_DRIVE_ABILITY_t p){hp_drive = p;}
+      HEADPHONE_DRIVE_ABILITY_t getHpDrive(){return hp_drive;}
+};
+
 //Page 1 / Register 11: HP Over Current Protection Configuration Register - 0x01 / 0x0B
+class P1R11_t{
+      const static int Address = 11;
+      OVER_CURRENT_DETECTION_DEBOUNCE_t debounce;
+      OVER_CURRENT_CONDITION_t ovr_curr_cdt;
+    public:
+      P1R11_t( OVER_CURRENT_DETECTION_DEBOUNCE_t debounce_i = DEFAULT_OVER_CURRENT_DEBOUNCE,
+	       OVER_CURRENT_CONDITION_t ovr_curr_cdt_i = DEFAULT_OVER_CURRENT_COND):
+		 debounce(debounce_i),
+		 ovr_curr_cdt(ovr_curr_cdt_i){}
+
+      P1R11_t(uint8_t reg){
+	debounce = (OVER_CURRENT_DETECTION_DEBOUNCE_t)((reg & 0x0E)>>1);
+	ovr_curr_cdt = (OVER_CURRENT_CONDITION_t)((reg & 0x01));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return 0x10|(debounce<<1)|(ovr_curr_cdt);}
+
+      void setOvrCurrDebounce(OVER_CURRENT_DETECTION_DEBOUNCE_t p){debounce = p;}
+      OVER_CURRENT_DETECTION_DEBOUNCE_t getOvrCurrDebounce(){return debounce;}
+
+      void setOvrCurrCondition(OVER_CURRENT_CONDITION_t p){ovr_curr_cdt = p;}
+      OVER_CURRENT_CONDITION_t getOvrCurrCondition(){return ovr_curr_cdt;}
+};
+
 //Page 1 / Register 12: HP Routing Selection Register - 0x01 / 0x0C
+class P1R12_t{
+      const static int Address = 12;
+      ANALOG_ROUTING_t an_rout;
+      bool dac_out;
+      bool mixer_p;
+      bool ainl;
+      bool ainr;
+
+    public:
+      P1R12_t( ANALOG_ROUTING_t an_rout_i = DEFAULT_ANALOG_ROUTING,
+	       bool dac_out_i = DEFAULT_DAC_TO_HP_ROUTING,
+	       bool mixer_p_i = DEFAULT_CONNECT_MIX_P_TO_HP_ATTN,
+	       bool ainl_i = DEFAULT_ROUT_AINL_ATTN_TO_HP,
+	       bool ainr_i = DEFAULT_ROUT_AINR_ATTN_TO_HP):
+		 an_rout(an_rout_i),
+		 dac_out(dac_out_i),
+		 mixer_p(mixer_p_i),
+		 ainl(ainl_i),
+		 ainr(ainr_i){}
+
+      P1R12_t(uint8_t reg){
+	an_rout = (ANALOG_ROUTING_t)((reg & 0xF0)>>4);
+	dac_out = ((reg & 0x08)>>3);
+	mixer_p = ((reg & 0x04)>>2);
+	ainl = ((reg & 0x02)>>1);
+	ainr = ((reg & 0x01));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (an_rout<<4)|(dac_out<<3)|(mixer_p<<2)|(ainl<<1)|(ainr);}
+
+      void setAnalogRouting(ANALOG_ROUTING_t p){an_rout = p;}
+      ANALOG_ROUTING_t getAnalogRouting(){return an_rout;}
+
+      void setDacRout(bool p){dac_out = p;}
+      bool getDacRout(){return dac_out;}
+
+      void setMixerPtoHpAttn(bool p){mixer_p = p;}
+      bool getMixerPtoHpAttn(){return mixer_p;}
+
+      void setAinlAttn(bool p){ainl = p;}
+      bool getAinlAttn(){return ainl;}
+
+      void setAinrAttn(bool p){ainr = p;}
+      bool getAinrAttn(){return ainr;}
+};
+
 //Page 1 / Register 16: HP Driver Gain Setting Register - 0x01 / 0x10
+class P1R16_t{
+      const static int Address = 16;
+      bool hp_drv_mute;
+      uint8_t hp_drv_gain;
+
+    public:
+      P1R16_t( bool hp_drv_mute_i = DEFAULT_MUTE_HP,
+	       uint8_t hp_drv_gain_i = DEFAULT_HP_DRIVER_GAIN):
+		 hp_drv_mute(hp_drv_mute_i),
+		 hp_drv_gain(hp_drv_gain_i){}
+
+      P1R16_t(uint8_t reg){
+	hp_drv_mute = ((reg & 0x40)>>6);
+	hp_drv_gain = ((reg & 0x3F));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (hp_drv_mute<<6)|(hp_drv_gain);}
+
+      void setHpDrvMute(bool p){hp_drv_mute = p;}
+      bool getHpDrvMute(){return hp_drv_mute;}
+
+      void setHpDrvGain(uint8_t p){hp_drv_gain = p;}
+      uint8_t getHpDrvGain(){return hp_drv_gain;}
+};
+
 //Page 1 / Registers 20: Headphone Driver Startup Control Register - 0x01 / 0x14
+class P1R20_t{
+      const static int Address = 20;
+      SOFT_ROUTING_STEP_TIME_t soft_rout_step;
+      HP_AMP_SLOW_POWERUP_TIME_t slow_pwrup_time;
+      HP_AMP_POWERUP_RESISTOR_t pwrup_res;
+    public:
+      P1R20_t( SOFT_ROUTING_STEP_TIME_t soft_rout_step_i = DEFAULT_SOFT_ROUT_STEP_TIME,
+	       HP_AMP_SLOW_POWERUP_TIME_t slow_pwrup_time_i = DEFAULT_HP_SLOW_PWRUP,
+	       HP_AMP_POWERUP_RESISTOR_t pwrup_res_i = DEFAULT_HP_PWRUP_RES):
+		 soft_rout_step(soft_rout_step_i),
+		 slow_pwrup_time(slow_pwrup_time_i),
+		 pwrup_res(pwrup_res_i){}
+
+      P1R20_t(uint8_t reg){
+	soft_rout_step = (SOFT_ROUTING_STEP_TIME_t)((reg & 0xC0)>>6);
+	slow_pwrup_time = (HP_AMP_SLOW_POWERUP_TIME_t)((reg & 0x3C)>>2);
+	pwrup_res = (HP_AMP_POWERUP_RESISTOR_t)((reg & 0x03));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (soft_rout_step<<6)|(slow_pwrup_time<<2)|(pwrup_res);}
+
+      void setsoftRoutingStepTime(SOFT_ROUTING_STEP_TIME_t p){soft_rout_step = p;}
+      SOFT_ROUTING_STEP_TIME_t getsoftRoutingStepTime(){return soft_rout_step;}
+
+      void setSlowHpAmpPwrUp(HP_AMP_SLOW_POWERUP_TIME_t p){slow_pwrup_time = p;}
+      HP_AMP_SLOW_POWERUP_TIME_t getSlowHpAmpPwrUp(){return slow_pwrup_time;}
+
+      void setHpAmpPwrUpResistor(HP_AMP_POWERUP_RESISTOR_t p){pwrup_res = p;}
+      HP_AMP_POWERUP_RESISTOR_t getHpAmpPwrUpResistor(){return pwrup_res;}
+};
+
 //Page 1 / Register 22: HP Volume Control Register - 0x01 / 0x16
+class P1R22_t{
+      const static int Address = 22;
+      uint8_t volume;
+    public:
+      P1R22_t( uint8_t volume_i = DEFAULT_HP_VOLUME):volume(volume_i&0x7F){}
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return volume;}
+
+      void setVolume(uint8_t p){volume = p & 0x7F;}
+      uint8_t getVolume(){return volume;}
+};
+
 //Page 1 / Register 24: AINL Volume Control Register - 0x01 / 0x18
+class P1R24_t{
+      const static int Address = 24;
+      bool mixer_p_force_en;
+      uint8_t volume;
+    public:
+      P1R24_t( bool mixer_p_force_en_i = DEFAULT_MIXER_P_M_FORCE_EN,
+	       uint8_t volume_i = DEFAULT_AINL_VOLUME):
+		 mixer_p_force_en(mixer_p_force_en_i),
+		 volume(volume_i&0x7F){}
+
+      P1R24_t(uint8_t reg){
+	mixer_p_force_en = ((reg &0x80)>>7);
+	volume = (reg & 0x7F);
+      }
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (mixer_p_force_en<<7)|(volume);}
+
+      void setMixerPMForceEn(bool p){volume = p & 0x7F;}
+      bool getMixerPMForceEn(){return volume;}
+
+      void setVolume(uint8_t p){volume = p & 0x7F;}
+      uint8_t getVolume(){return volume;}
+};
 //Page 1 / Register 25: AINR Volume Control Register - 0x01 / 0x19
+class P1R25_t{
+      const static int Address = 25;
+      uint8_t volume;
+    public:
+      P1R25_t( uint8_t volume_i = DEFAULT_AINR_VOLUME): volume(volume_i&0x7F){}
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (volume);}
+
+      void setVolume(uint8_t p){volume = p & 0x7F;}
+      uint8_t getVolume(){return volume;}
+};
 //Page 1 / Register 45: Speaker Amplifier Control 1 - 0x01 / 0x2D
+class P1R45_t{
+      const static int Address = 45;
+      POWER_STATE_t spk_drv_pwr;
+    public:
+      P1R45_t( POWER_STATE_t spk_drv_pwr_i = DEFAULT_SPK_OUT_POWER): spk_drv_pwr(spk_drv_pwr_i){}
+      P1R45_t(int8_t reg)
+      {
+	spk_drv_pwr = (POWER_STATE_t)((reg&0x02)>>1);
+      }
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (spk_drv_pwr<<1);}
+
+      void setSpkDrvPwr(POWER_STATE_t p){spk_drv_pwr = p;}
+      POWER_STATE_t getSpkDrvPwr(){return spk_drv_pwr;}
+};
 //Page 1 / Register 46: Speaker Volume Control 1 - 0x01 / 0x2E
+class P1R46_t{
+      const static int Address = 46;
+      uint8_t volume;
+    public:
+      P1R46_t( uint8_t volume_i = DEFAULT_SPK_VOLUME): volume(volume_i&0x7F){}
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (volume);}
+
+      void setVolume(uint8_t p){volume = p & 0x7F;}
+      uint8_t getVolume(){return volume;}
+};
 //Page 1 / Register 48: Speaker Amplifier Volume Control 2 - 0x01 / 0x30
+class P1R48_t{
+      const static int Address = 48;
+      SPK_AMP_VOL_t volume;
+    public:
+      P1R48_t( SPK_AMP_VOL_t volume_i = DEFAULT_SPK_AMP_VOL): volume(volume_i){}
+      P1R48_t(int8_t reg){volume = (SPK_AMP_VOL_t)((reg&0x70)>>4);}
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (volume);}
+
+      void setVolume(SPK_AMP_VOL_t p){volume = p;}
+      SPK_AMP_VOL_t getVolume(){return volume;}
+};
+
 //Page 1 / Register 63: DAC Analog Gain Control Flag Register - 0x01 / 0x3F
+class P1R63_t{
+      const static int Address = 63;
+      bool hp_gain;
+      bool ain1l_mix;
+      bool left_mix;
+      bool right_mix;
+
+    public:
+      P1R63_t(int8_t reg){
+	hp_gain = (reg&0x80)>>7;
+	ain1l_mix = (reg&0x08)>>3;
+	left_mix = (reg&0x02)>>1;
+	right_mix = (reg&0x1);
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      bool getHPGainFlag(){return hp_gain;}
+      bool getAIN1LMixPGAFlag(){return ain1l_mix;}
+      bool getLeftMixerPGAFlag(){return left_mix;}
+      bool getRightMixerPGAFlag(){return right_mix;}
+};
 //Page 1 / Register 122: Reference Power Up Delay - 0x01 / 0x7A
+class P1R122_t{
+      const static int Address = 122;
+      REF_PWRUP_DELAY_t delay;
+    public:
+      P1R122_t( REF_PWRUP_DELAY_t delay_i = DEFAULT_REF_PWRUP_DELAY): delay(delay_i){}
+      P1R122_t(int8_t reg){delay = (REF_PWRUP_DELAY_t)((reg&0x07));}
 
+      uint8_t GetAddress(){return Address;}
 
-//Page 44 / Register 0: Page Select Register - 0x2C / 0x00
+      uint8_t toByte(){return (delay);}
+
+      void setPwrUpDelay(REF_PWRUP_DELAY_t p){delay = p;}
+      REF_PWRUP_DELAY_t getPwrUpDelay(){return delay;}
+};
+//////////////////////////////////////////////////////////////
+//	Page44: DAC Programmable Coefficients RAM
+//////////////////////////////////////////////////////////////
 //Page 44 / Register 1: DAC Adaptive Filter Configuration Register - 0x2C / 0x01
-//Page 44 / Register 8 - 127: DAC Coefficient Buffer-A C(0:29) - 0x2C / 0x08 - 0x7F
-//Page 45 - 52 / Register 0: Page Select Register - 0x2D - 0x34 / 0x00
-//Page 62 - 70 / Register 8 -127: DAC Coefficients Buffer-B C(0:255) - 0x3E - 0x46 / 0x08 - 0x7F
-//Page 152 - 169 / Register 8 - 127: DAC Instruction Registers - 0x98 - 0xA9 / 0x08 - 0x7F
+class P44R1_t{
+      const static int Address = 1;
+      bool dac_filt_ctrl;
+      bool dac_filt_buf_ctrl_flag;
+      bool dac_filt_buf;
+
+    public:
+      P44R1_t( bool dac_filt_ctrl_i = DEFAULT_DAC_ADAP_FILT_EN,
+	       bool dac_filt_buf_i = DEFAULT_DAC_ADAP_FILT_BUF_SWITCH):
+		 dac_filt_ctrl(dac_filt_ctrl_i),
+		 dac_filt_buf_ctrl_flag(false),
+		 dac_filt_buf(dac_filt_buf_i){}
+
+      P44R1_t(int8_t reg){
+	dac_filt_ctrl = ((reg&0x04)>>2);
+	dac_filt_buf_ctrl_flag = ((reg&0x02)>>1);
+	dac_filt_buf = ((reg&0x01));
+      }
+
+      uint8_t GetAddress(){return Address;}
+
+      uint8_t toByte(){return (dac_filt_ctrl<<2)|(dac_filt_buf);}
+
+      void setDacAdapFiltEn(bool p){dac_filt_ctrl = p;}
+      bool getDacAdapFiltEn(){return dac_filt_ctrl;}
+
+      bool getDacAdapFiltBufFlag(){return dac_filt_buf_ctrl_flag;}
+
+      void setDacAdapFiltBufSwitch(bool p){dac_filt_buf = p;}
+      bool getDacAdapFiltBufSwitch(){return dac_filt_buf;}
+};
 
 
 

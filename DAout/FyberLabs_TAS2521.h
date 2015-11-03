@@ -653,8 +653,8 @@ class P0R13_t{
 
       uint8_t toByte(){return dac_osr_msb;}
 
-      void setPLLDivD_MSB(uint8_t d){dac_osr_msb = d&0x03;}
-      uint8_t getPLLDivD_MSB(){return dac_osr_msb;}
+      void setDacOsrMsb(uint8_t d){dac_osr_msb = d&0x03;}
+      uint8_t getDacOsrMsb(){return dac_osr_msb;}
 };
 
 //Page 0 / Register 14: DAC OSR Setting Register 2, LSB Value - 0x00 / 0x0E
@@ -675,8 +675,8 @@ class P0R14_t{
 
       uint8_t toByte(){return dac_osr_lsb;}
 
-      void setPLLDivD_MSB(uint8_t d){dac_osr_lsb = d;}
-      uint8_t getPLLDivD_MSB(){return dac_osr_lsb;}
+      void setDacOsrLsb(uint8_t d){dac_osr_lsb = d;}
+      uint8_t getDacOsrLsb(){return dac_osr_lsb;}
 };
 
 //Note: This register should be written immediately after Page-0, Reg-13.
@@ -739,8 +739,8 @@ class P0R17_t{
 
       uint8_t toByte(){return interp;}
 
-      void setIDACValue(uint8_t p){interp = p&0x0F;}
-      uint8_t getIDACValue(){return interp;}
+      void setInterpFactor(uint8_t p){interp = p&0x0F;}
+      uint8_t getInterpFactor(){return interp;}
 };
 //Page 0 / Registers 18 - 24: Reserved Register - 0x00 / 0x12
 
@@ -847,12 +847,12 @@ class P0R29_t{
       const static int Address = 29;
 
       BIT_POLARITY_t ClockPolarity:1;
-      POWER_STATE_t bclk_wlck_power:1;
+      bool bclk_wlck_power:1;
       BDIV_CLKIN_t bdiv_clkin:2;
 
     public:
       P0R29_t(BIT_POLARITY_t ClockPolarity_i = DEFAULT_CLK_POLARITY,
-	      POWER_STATE_t bclk_wlck_power_i = DEFAULT_PRIM_WCLK_BCLK_POWER,
+	      bool bclk_wlck_power_i = DEFAULT_PRIM_WCLK_BCLK_POWER,
 	      BDIV_CLKIN_t bdiv_clkin_i = DEFAULT_BDIV_CLKIN):
 		ClockPolarity(ClockPolarity_i),
 		bclk_wlck_power(bclk_wlck_power_i),
@@ -860,7 +860,7 @@ class P0R29_t{
 
       P0R29_t(uint8_t reg){
 	ClockPolarity = (BIT_POLARITY_t)((reg&0x08)>>3);
-	bclk_wlck_power = (POWER_STATE_t)((reg&0x04)>>2);
+	bclk_wlck_power = ((reg&0x04)>>2);
 	bdiv_clkin = (BDIV_CLKIN_t)(reg&0x03);
       }
 
@@ -871,8 +871,8 @@ class P0R29_t{
       void setAudioBitClockPolarity(BIT_POLARITY_t p){ClockPolarity = p;}
       BIT_POLARITY_t getAudioBitClockPolarity(){return ClockPolarity;}
 
-      void setPrimaryBCLK_WCLKPower(POWER_STATE_t p){bclk_wlck_power = p;}
-      POWER_STATE_t getPrimaryBCLK_WCLKPower(){return bclk_wlck_power;}
+      void setPrimaryBCLK_WCLKPower(bool p){bclk_wlck_power = p;}
+      bool getPrimaryBCLK_WCLKPower(){return bclk_wlck_power;}
 
       void setBDIVCLKINMultiplexer(BDIV_CLKIN_t p){bdiv_clkin = p;}
       BDIV_CLKIN_t getBDIVCLKINMultiplexer(){return bdiv_clkin;}
@@ -2026,7 +2026,7 @@ class FyberLabs_TAS2521 {
   uint8_t read8(uint8_t reg);
   void write8(uint8_t reg, uint8_t data);
 public:
-  	FyberLabs_TAS2521(uint8_t addr=0x18):_i2c_address(addr){};
+  	FyberLabs_TAS2521(uint8_t addr=0x18):_i2c_address(addr),_page(0){};
   	uint8_t GetAddress(void){return _i2c_address;}
   	void begin(void);
   	void reset(void);
@@ -2061,7 +2061,7 @@ public:
 		110: PLL divider P = 6
 		111: PLL divider P = 7
   	*/
-  	void setPLLDividerP(uint8_t P);
+  	void setPLLDividerP(PLL_DIV_P_t P);
 
   	/*
   		0000: Reserved. Do not use
@@ -2072,7 +2072,7 @@ public:
 		...
 		0101...0111: Reserved. Do not use
   	*/
-  	void setPLLDividerR(uint8_t R);
+  	void setPLLDividerR(PLL_MULT_R_t R);
 
   	/*
   		PLL divider J value
@@ -2203,7 +2203,7 @@ public:
 		100: CDIV_CLKIN = DAC_CLK
 		101: CDIV_CLKIN = DAC_MOD_CLK
   	*/
-  	void setCDIV_CLKIN(uint8_t clkin);
+  	void setCDIV_CLKIN(CDIV_CLKIN_t clkin);
 
 	  void setCLKOUTMPowerDown(void);
   	void setCLKOUTMPowerUp(void);
@@ -2227,7 +2227,7 @@ public:
   		10: Audio Interface = RJF
   		11: Audio Interface = LJF
   	*/
-  	void setAudioInterfaceSelect(uint8_t interface);
+  	void setAudioInterfaceSelect(INTERFACE_t interface);
   	/*
   		Audio Data Word length
 		00: Data Word length = 16 bits
@@ -2235,7 +2235,7 @@ public:
 		10: Data Word length = 24 bits
 		11: Data Word length = 32 bits
   	*/
-  	void setAudioDateWordLength(uint8_t wordlength);
+  	void setAudioDataWordLength(WORD_LENGTH_t wordlength);
   	void setAudioBCLKin(void);
   	void setAudioBCLKout(void);
   	void setAudioWCLKin(void);
@@ -2279,7 +2279,7 @@ public:
   		10: Secondary Bit Clock = MISO
   		11: Secondary Bit Clock = DOUT
   	*/
-  	void setAudioSecondaryBCLK(uint8_t clk);
+  	void setAudioSecondaryBCLK(SEC_CLK_MUX_t clk);
   	/*
   		Secondary Word Clock Multiplexer
   		00: Secondary Word Clock = GPIO
@@ -2287,13 +2287,13 @@ public:
   		10: Secondary Word Clock = MISO
   		11: Secondary Word Clock = DOUT
   	*/
-  	void setAudioSecondaryWCLK(uint8_t clk);
+  	void setAudioSecondaryWCLK(SEC_CLK_MUX_t clk);
   	/*
   		Secondary Data Input Multiplexer
   		0: Secondary Data Input = GPIO
   		1: Secondary Data Input = SCLK
   	*/
-  	void setAudioSecondaryMuxInput(uint8_t input);
+  	void setAudioSecondaryMuxInput(DATA_IN_MUX_t input);
 
   	void setAudioInterfaceUsePrimaryBCLK(void);
   	void setAudioInterfaceUseSecondaryBCLK(void);
@@ -2302,20 +2302,20 @@ public:
   	void setAudioInterfaceUsePrimaryDIN(void);
   	void setAudioInterfaceUseSecondaryDIN(void);
 
-  	void setAudioInterfaceBCLKPrimaryOutputPrimary(void);
-  	void setAudioInterfaceBCLKPrimaryOutputSecondary(void);
-	  void setAudioInterfaceBCLKSecondaryOutputPrimary(void);
-  	void setAudioInterfaceBCLKSecondaryOutputSecondary(void);
+  	void setAudioInterfaceBCLKOut_GeneratedPrimaryBitClock(void);
+  	void setAudioInterfaceBCLKOut_SecondaryBitClockInput(void);
+	  void setAudioInterfaceSecondaryBitClockOut_BCLKInput(void);
+  	void setAudioInterfaceSecondaryBitClockOut_GeneratedPrimaryBitClock(void);
 
-   	void setAudioInterfaceWCLKPrimaryOutputPrimary(void);
-  	void setAudioInterfaceWCLKPrimaryOutputSecondary(void);
-	  void setAudioInterfaceWCLKSecondaryOutputPrimary(void);
-  	void setAudioInterfaceWCLKSecondaryOutputSecondary(void);
+   	void setAudioInterfaceWCLKOut_GeneratedDAC_FS(void);
+  	void setAudioInterfaceWCLKOut_SecWrdClkIn(void);
+	  void setAudioInterfaceSecondaryWCLKOut_WCLKIn(void);
+  	void setAudioInterfaceSecondaryWCLKOut_GeneratedDAC_FS(void);
 
-  	void setAudioInterfaceDOUTPrimaryOutputPrimary(void);
-  	void setAudioInterfaceDOUTPrimaryOutputSecondary(void);
-  	void setAudioInterfaceDOUTSecondaryOutputPrimary(void);
-  	void setAudioInterfaceDOUTSecondaryOutputSecondary(void);
+  	void setAudioInterfacePrimaryDOUTOutput_SerialInterface(void);
+  	void setAudioInterfacePrimaryDOUTOutput_LoopBack(void);
+  	void setAudioInterfaceSecondaryDOUTOutput_LoopBack(void);
+  	void setAudioInterfaceSecondaryDOUTOutput_SerialInterface(void);
 
   	void I2CGeneralCallIgnored(void);
   	void I2CGeneralCallAccepted(void);
@@ -2324,8 +2324,10 @@ public:
   	bool getHPOUTPower(void);
 
   	bool getDACPGA(void);
+  	bool getDACOverflowSticky(void);
+  	bool getminiDSP_DBarrelShifterOverflowSticky(void);
   	bool getDACOverflow(void);
-  	bool getminiDSP_DOverflow(void);
+  	bool getminiDSP_DBarrelShifterOverflow(void);
   	bool getHPOUTOverCurrentSticky(void);
   	bool getminiDSP_DStdInterruptSticky(void);
   	bool getminiDSP_DAuxInterruptSticky(void);
@@ -2344,6 +2346,10 @@ public:
   	bool getINT1PulseControl(void);
   	void setINT1PulseControlSingle(void);
   	void setINT1PulseControlMultiple(void);
+
+  	bool getINT2HPOUTOverCurrent(void);
+	void setINT2HPOUTOverCurrentOn(void);
+	void setINT2HPOUTOverCurrentOff(void);
 
    	bool getINT2miniDSP_DInterrupt(void);
   	void setINT2miniDSP_DInterruptOn(void);

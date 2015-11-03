@@ -107,7 +107,7 @@ namespace TAS2521{
     if(_page !=0)
       switchPage(0);
 
-    P0R4_t P0R4(read8(4));
+    P0R4_t P0R4(read8(P0R4.GetAddress()));
     if(P0R4.getCodecClk()!=clk)
     {
       P0R4.setCodecClk(clk);
@@ -116,35 +116,56 @@ namespace TAS2521{
   }
 
   void FyberLabs_TAS2521::setPLLPowerDown(void) {
+    if(_page !=0)
+      switchPage(0);
 
+    P0R5_t P0R5(read8(P0R5.GetAddress()));
+    P0R5.setPLLPower(POWER_DOWN);
+    write8(P0R5.GetAddress(),P0R5.toByte());
   }
-  void FyberLabs_TAS2521::setPLLPowerUp(void) {
 
+  void FyberLabs_TAS2521::setPLLPowerUp(void) {
+    if(_page !=0)
+      switchPage(0);
+
+    P0R5_t P0R5(read8(P0R5.GetAddress()));
+    P0R5.setPLLPower(POWER_UP);
+    write8(P0R5.GetAddress(),P0R5.toByte());
   }
 
   /*
-	  000: PLL divider P = 8
-	  001: PLL divider P = 1
-	  010: PLL divider P = 2
-	  ...
+  000: PLL divider P = 8
+  001: PLL divider P = 1
+  010: PLL divider P = 2
+  ...
   110: PLL divider P = 6
   111: PLL divider P = 7
   */
-  void FyberLabs_TAS2521::setPLLDividerP(uint8_t P) {
+  void FyberLabs_TAS2521::setPLLDividerP(PLL_DIV_P_t P) {
+    if(_page !=0)
+      switchPage(0);
 
+    P0R5_t P0R5(read8(P0R5.GetAddress()));
+    P0R5.setPLLDivP(P);
+    write8(P0R5.GetAddress(),P0R5.toByte());
   }
 
   /*
-	  0000: Reserved. Do not use
-	  0001: PLL multiplier R = 1
-	  0010: PLL multiplier R = 2
-	  0011: PLL multipler R = 3
-	  0100: PLL multipler R = 4
+  0000: Reserved. Do not use
+  0001: PLL multiplier R = 1
+  0010: PLL multiplier R = 2
+  0011: PLL multipler R = 3
+  0100: PLL multipler R = 4
   ...
   0101...0111: Reserved. Do not use
   */
-  void FyberLabs_TAS2521::setPLLDividerR(uint8_t R) {
+  void FyberLabs_TAS2521::setPLLDividerR(PLL_MULT_R_t R) {
+    if(_page !=0)
+      switchPage(0);
 
+    P0R5_t P0R5(read8(P0R5.GetAddress()));
+    P0R5.setPLLMultR(R);
+    write8(P0R5.GetAddress(),P0R5.toByte());
   }
 
   /*
@@ -156,7 +177,11 @@ namespace TAS2521{
   11 1111: J = 63
   */
   void FyberLabs_TAS2521::setPLLDividerJ(uint8_t J) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R6_t P0R6(read8(P0R6.GetAddress()));
+    P0R6.setPLLDivJ(J);
+    write8(P0R6.GetAddress(),P0R6.toByte());
   }
 
   /*
@@ -171,7 +196,11 @@ namespace TAS2521{
   Note: This register will be updated only when the Page-0, Reg-8 is written immediately after Page-0, Reg-7.
   */
   void FyberLabs_TAS2521::setPLLDividerDMSB(uint8_t DMSB) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R7_t P0R7(read8(P0R7.GetAddress()));
+    P0R7.setPLLDivD_MSB(DMSB);
+    write8(P0R7.GetAddress(),P0R7.toByte());
   }
 
   /*
@@ -186,14 +215,27 @@ namespace TAS2521{
   Note: Page-0, Reg-8 should be written immediately after Page-0, Reg-7.
   */
   void FyberLabs_TAS2521::setPLLDividerDLSB(uint8_t DLSB) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R8_t P0R8(read8(P0R8.GetAddress()));
+    P0R8.setPLLDivD_LSB(DLSB);
+    write8(P0R8.GetAddress(),P0R8.toByte());
   }
 
   void FyberLabs_TAS2521::setNDACPowerDown(void) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R11_t P0R11(read8(P0R11.GetAddress()));
+    P0R11.setNDACPower(POWER_DOWN);
+    write8(P0R11.GetAddress(),P0R11.toByte());
   }
-  void FyberLabs_TAS2521::setNDACPowerUp(void) {
 
+  void FyberLabs_TAS2521::setNDACPowerUp(void) {
+    if(_page !=0)
+      switchPage(0);
+    P0R11_t P0R11(read8(P0R11.GetAddress()));
+    P0R11.setNDACPower(POWER_UP);
+    write8(P0R11.GetAddress(),P0R11.toByte());
   }
   /*
 	  NDAC Value
@@ -206,14 +248,26 @@ namespace TAS2521{
   Note: Please check the clock frequency requirements in the Overview section.
   */
   void FyberLabs_TAS2521::setNDACCLK(uint8_t clk) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R11_t P0R11(read8(P0R11.GetAddress()));
+    P0R11.setNDACValue(clk);
+    write8(P0R11.GetAddress(),P0R11.toByte());
   }
 
   void FyberLabs_TAS2521::setMDACPowerDown(void) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R12_t P0R12(read8(P0R12.GetAddress()));
+    P0R12.setMDACPower(POWER_DOWN);
+    write8(P0R12.GetAddress(),P0R12.toByte());
   }
   void FyberLabs_TAS2521::setMDACPowerUp(void) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R12_t P0R12(read8(P0R12.GetAddress()));
+    P0R12.setMDACPower(POWER_UP);
+    write8(P0R12.GetAddress(),P0R12.toByte());
   }
   /*
 	  MDAC Value
@@ -226,7 +280,11 @@ namespace TAS2521{
   Note: Please check the clock frequency requirements in the Overview section.
   */
   void FyberLabs_TAS2521::setMDACCLK(uint8_t clk) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R12_t P0R12(read8(P0R12.GetAddress()));
+    P0R12.setMDACValue(clk);
+    write8(P0R12.GetAddress(),P0R12.toByte());
   }
 
   /*
@@ -241,7 +299,11 @@ namespace TAS2521{
   Note: This register is updated when Page-0, Reg-14 is written to immediately after Page-0, Reg-13.
   */
   void FyberLabs_TAS2521::setDACOSRMSB(uint8_t DOSRMSB) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R13_t P0R13(read8(P0R13.GetAddress()));
+    P0R13.setDacOsrMsb(DOSRMSB);
+    write8(P0R13.GetAddress(),P0R13.toByte());
   }
 
   /*
@@ -256,7 +318,11 @@ namespace TAS2521{
   Note: This register should be written immediately after Page-0, Reg-13.
   */
   void FyberLabs_TAS2521::setDACOSRLSB(uint8_t DOSRLSB) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R14_t P0R14(read8(P0R14.GetAddress()));
+    P0R14.setDacOsrLsb(DOSRLSB);
+    write8(P0R14.GetAddress(),P0R14.toByte());
   }
 
   /*
@@ -271,7 +337,11 @@ namespace TAS2521{
   Note: Page-0, Reg-15 takes effect after programming Page-0, Reg-16 in the immediate next control command.
   */
   void FyberLabs_TAS2521::setminiDSP_DMSB(uint8_t IDACMSB) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R15_t P0R15(read8(P0R15.GetAddress()));
+    P0R15.setIDACValue(IDACMSB);
+    write8(P0R15.GetAddress(),P0R15.toByte());
   }
   /*
 	  miniDSP_D IDAC (7:0) setting. Use when miniDSP_D is in use for signal processing (page 0,Reg 60) miniDSP_D IDAC(14:0)
@@ -281,7 +351,11 @@ namespace TAS2521{
   Note: IDAC should be a integral multiple of INTERP ( Page-0, Reg-17, D3-D0 ) Note: Page-0, Reg-16 should be programmed immediately after Page-0, Reg-15.
   */
   void FyberLabs_TAS2521::setminiDSP_DLSB(uint8_t IDACLSB) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R16_t P0R16(read8(P0R16.GetAddress()));
+    P0R16.setIDACValue(IDACLSB);
+    write8(P0R16.GetAddress(),P0R16.toByte());
   }
 
   /*
@@ -292,7 +366,11 @@ namespace TAS2521{
   1110: Interpolation factor in miniDSP_D(INTERP) = 14
   */
   void FyberLabs_TAS2521::setminiDSP_DIntFactor(uint8_t IntFactor) {
-
+    if(_page !=0)
+      switchPage(0);
+    P0R17_t P0R17(read8(P0R17.GetAddress()));
+    P0R17.setInterpFactor(IntFactor);
+    write8(P0R17.GetAddress(),P0R17.toByte());
   }
 
 /*
@@ -304,15 +382,27 @@ namespace TAS2521{
 100: CDIV_CLKIN = DAC_CLK
 101: CDIV_CLKIN = DAC_MOD_CLK
 */
-void FyberLabs_TAS2521::setCDIV_CLKIN(uint8_t clkin) {
-
+void FyberLabs_TAS2521::setCDIV_CLKIN(CDIV_CLKIN_t clkin) {
+  if(_page !=0)
+    switchPage(0);
+  P0R25_t P0R25(read8(P0R25.GetAddress()));
+  P0R25.setCDIVClk(clkin);
+  write8(P0R25.GetAddress(),P0R25.toByte());
 }
 
 void FyberLabs_TAS2521::setCLKOUTMPowerDown(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R26_t P0R26(read8(P0R26.GetAddress()));
+  P0R26.setCLKoutMdivPower(POWER_DOWN);
+  write8(P0R26.GetAddress(),P0R26.toByte());
 }
 void FyberLabs_TAS2521::setCLKOUTMPowerUp(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R26_t P0R26(read8(P0R26.GetAddress()));
+  P0R26.setCLKoutMdivPower(POWER_UP);
+  write8(P0R26.GetAddress(),P0R26.toByte());
 }
 
 /*
@@ -326,7 +416,11 @@ void FyberLabs_TAS2521::setCLKOUTMPowerUp(void) {
 Note: Check the clock frequency requirements in the application overview section.
 */
 void FyberLabs_TAS2521::setCLKOUTMDivider(uint8_t divider) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R26_t P0R26(read8(P0R26.GetAddress()));
+  P0R26.setCLKoutMdivValue(divider);
+  write8(P0R26.GetAddress(),P0R26.toByte());
 }
 
 /*
@@ -336,8 +430,12 @@ void FyberLabs_TAS2521::setCLKOUTMDivider(uint8_t divider) {
 	10: Audio Interface = RJF
 	11: Audio Interface = LJF
 */
-void FyberLabs_TAS2521::setAudioInterfaceSelect(uint8_t interface) {
-
+void FyberLabs_TAS2521::setAudioInterfaceSelect(INTERFACE_t interface) {
+  if(_page !=0)
+    switchPage(0);
+  P0R27_t P0R27(read8(P0R27.GetAddress()));
+  P0R27.setInterface(interface);
+  write8(P0R27.GetAddress(),P0R27.toByte());
 }
 /*
 	Audio Data Word length
@@ -346,20 +444,41 @@ void FyberLabs_TAS2521::setAudioInterfaceSelect(uint8_t interface) {
 10: Data Word length = 24 bits
 11: Data Word length = 32 bits
 */
-void FyberLabs_TAS2521::setAudioDateWordLength(uint8_t wordlength) {
-
+void FyberLabs_TAS2521::setAudioDataWordLength(WORD_LENGTH_t wordlength) {
+  if(_page !=0)
+    switchPage(0);
+  P0R27_t P0R27(read8(P0R27.GetAddress()));
+  P0R27.setWordLength(wordlength);
+  write8(P0R27.GetAddress(),P0R27.toByte());
 }
 void FyberLabs_TAS2521::setAudioBCLKin(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R27_t P0R27(read8(P0R27.GetAddress()));
+  P0R27.setBclkDir(IN);
+  write8(P0R27.GetAddress(),P0R27.toByte());
 }
-void FyberLabs_TAS2521::setAudioBCLKout(void) {
 
+void FyberLabs_TAS2521::setAudioBCLKout(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R27_t P0R27(read8(P0R27.GetAddress()));
+  P0R27.setBclkDir(OUT);
+  write8(P0R27.GetAddress(),P0R27.toByte());
 }
 void FyberLabs_TAS2521::setAudioWCLKin(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R27_t P0R27(read8(P0R27.GetAddress()));
+  P0R27.setWclkDir(IN);
+  write8(P0R27.GetAddress(),P0R27.toByte());
 }
 void FyberLabs_TAS2521::FyberLabs_TAS2521::setAudioWCLKout(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R27_t P0R27(read8(P0R27.GetAddress()));
+  P0R27.setWclkDir(OUT);
+  write8(P0R27.GetAddress(),P0R27.toByte());
 }
 
 /*
@@ -371,35 +490,71 @@ void FyberLabs_TAS2521::FyberLabs_TAS2521::setAudioWCLKout(void) {
 1111 1111: Data Offset = 255 BCLK's
 */
 void FyberLabs_TAS2521::setAudioBCLKDataOffset(uint8_t offset) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R28_t P0R28(read8(P0R28.GetAddress()));
+  P0R28.setOffset(offset);
+  write8(P0R28.GetAddress(),P0R28.toByte());
 }
 
 void FyberLabs_TAS2521::FyberLabs_TAS2521::setAudioBCLKPolarityDefault(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R29_t P0R29(read8(P0R29.GetAddress()));
+  P0R29.setAudioBitClockPolarity(DEFAULT);
+  write8(P0R29.GetAddress(),P0R29.toByte());
 }
 void FyberLabs_TAS2521::setAudioBCLKPolarityInverted(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R29_t P0R29(read8(P0R29.GetAddress()));
+  P0R29.setAudioBitClockPolarity(INVERTED);
+  write8(P0R29.GetAddress(),P0R29.toByte());
 }
 
 void FyberLabs_TAS2521::setAudioBWCLKPowerAlways(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R29_t P0R29(read8(P0R29.GetAddress()));
+  P0R29.setPrimaryBCLK_WCLKPower(false);
+  write8(P0R29.GetAddress(),P0R29.toByte());
 }
 void FyberLabs_TAS2521::setAudioBWCLKPowerCodec(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R29_t P0R29(read8(P0R29.GetAddress()));
+  P0R29.setPrimaryBCLK_WCLKPower(true);
+  write8(P0R29.GetAddress(),P0R29.toByte());
 }
 
 void FyberLabs_TAS2521::setAudioBDIV_CLKINDAC(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R29_t P0R29(read8(P0R29.GetAddress()));
+  P0R29.setBDIVCLKINMultiplexer(DAC_CLK);
+  write8(P0R29.GetAddress(),P0R29.toByte());
 }
 void FyberLabs_TAS2521::setAudioBDIV_CLKINDAC_MOD(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R29_t P0R29(read8(P0R29.GetAddress()));
+  P0R29.setBDIVCLKINMultiplexer(DAC_MOD_CLK);
+  write8(P0R29.GetAddress(),P0R29.toByte());
 }
 
 void FyberLabs_TAS2521::setAudioBCLKNDividerPowerUp(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R30_t P0R30(read8(P0R30.GetAddress()));
+  P0R30.seBclkNDIVPower(POWER_UP);
+  write8(P0R30.GetAddress(),P0R30.toByte());
 }
 void FyberLabs_TAS2521::setAudioBCLKNDividerPowerDown(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R30_t P0R30(read8(P0R30.GetAddress()));
+  P0R30.seBclkNDIVPower(POWER_DOWN);
+  write8(P0R30.GetAddress(),P0R30.toByte());
 }
 /*
 	BCLK N Divider value
@@ -410,7 +565,11 @@ void FyberLabs_TAS2521::setAudioBCLKNDividerPowerDown(void) {
 111 1111: BCLK divider N = 127
 */
 void FyberLabs_TAS2521::setAudioBCLKNDivider(uint8_t divider) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R30_t P0R30(read8(P0R30.GetAddress()));
+  P0R30.seBclkNDIVValue(divider);
+  write8(P0R30.GetAddress(),P0R30.toByte());
 }
 
 /*
@@ -420,8 +579,12 @@ void FyberLabs_TAS2521::setAudioBCLKNDivider(uint8_t divider) {
 	10: Secondary Bit Clock = MISO
 	11: Secondary Bit Clock = DOUT
 */
-void FyberLabs_TAS2521::setAudioSecondaryBCLK(uint8_t clk) {
-
+void FyberLabs_TAS2521::setAudioSecondaryBCLK(SEC_CLK_MUX_t clk) {
+  if(_page !=0)
+    switchPage(0);
+  P0R31_t P0R31(read8(P0R31.GetAddress()));
+  P0R31.setBitClkMux(clk);
+  write8(P0R31.GetAddress(),P0R31.toByte());
 }
 /*
 	Secondary Word Clock Multiplexer
@@ -430,168 +593,406 @@ void FyberLabs_TAS2521::setAudioSecondaryBCLK(uint8_t clk) {
 	10: Secondary Word Clock = MISO
 	11: Secondary Word Clock = DOUT
 */
-void FyberLabs_TAS2521::setAudioSecondaryWCLK(uint8_t clk) {
-
+void FyberLabs_TAS2521::setAudioSecondaryWCLK(SEC_CLK_MUX_t clk) {
+  if(_page !=0)
+    switchPage(0);
+  P0R31_t P0R31(read8(P0R31.GetAddress()));
+  P0R31.setWrdClkMux(clk);
+  write8(P0R31.GetAddress(),P0R31.toByte());
 }
 /*
 	Secondary Data Input Multiplexer
 	0: Secondary Data Input = GPIO
 	1: Secondary Data Input = SCLK
 */
-void FyberLabs_TAS2521::setAudioSecondaryMuxInput(uint8_t input) {
-
+void FyberLabs_TAS2521::setAudioSecondaryMuxInput(DATA_IN_MUX_t input) {
+  if(_page !=0)
+    switchPage(0);
+  P0R31_t P0R31(read8(P0R31.GetAddress()));
+  P0R31.setDataInMux(input);
+  write8(P0R31.GetAddress(),P0R31.toByte());
 }
-/*
-void FyberLabs_TAS2521::setAudioInterfaceUsePrimaryBCLK(void) {
 
+void FyberLabs_TAS2521::setAudioInterfaceUsePrimaryBCLK(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R32_t P0R32(read8(P0R32.GetAddress()));
+  P0R32.setBitClkCtrl(0);
+  write8(P0R32.GetAddress(),P0R32.toByte());
 }
 void FyberLabs_TAS2521::setAudioInterfaceUseSecondaryBCLK(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R32_t P0R32(read8(P0R32.GetAddress()));
+  P0R32.setBitClkCtrl(1);
+  write8(P0R32.GetAddress(),P0R32.toByte());
 }
 void FyberLabs_TAS2521::setAudioInterfaceUsePrimaryWCLK(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R32_t P0R32(read8(P0R32.GetAddress()));
+  P0R32.setWrdClkCtrl(0);
+  write8(P0R32.GetAddress(),P0R32.toByte());
 }
 void FyberLabs_TAS2521::setAudioInterfaceUseSecondaryWCLK(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R32_t P0R32(read8(P0R32.GetAddress()));
+  P0R32.setWrdClkCtrl(1);
+  write8(P0R32.GetAddress(),P0R32.toByte());
 }
 void FyberLabs_TAS2521::setAudioInterfaceUsePrimaryDIN(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R32_t P0R32(read8(P0R32.GetAddress()));
+  P0R32.setDataInCtrl(0);
+  write8(P0R32.GetAddress(),P0R32.toByte());
 }
 void FyberLabs_TAS2521::setAudioInterfaceUseSecondaryDIN(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R32_t P0R32(read8(P0R32.GetAddress()));
+  P0R32.setDataInCtrl(1);
+  write8(P0R32.GetAddress(),P0R32.toByte());
 }
 
-void FyberLabs_TAS2521::setAudioInterfaceBCLKPrimaryOutputPrimary(void) {
-
-}
-void FyberLabs_TAS2521::setAudioInterfaceBCLKPrimaryOutputSecondary(void) {
-
-}
-void FyberLabs_TAS2521::setAudioInterfaceBCLKSecondaryOutputPrimary(void) {
-
-}
-void FyberLabs_TAS2521::setAudioInterfaceBCLKSecondaryOutputSecondary(void) {
-
+void FyberLabs_TAS2521::setAudioInterfaceBCLKOut_GeneratedPrimaryBitClock(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R33_t P0R33(read8(P0R33.GetAddress()));
+  P0R33.setBclkOutCtrl(0);
+  write8(P0R33.GetAddress(),P0R33.toByte());
 }
 
-	void FyberLabs_TAS2521::setAudioInterfaceWCLKPrimaryOutputPrimary(void) {
-
-}
-void FyberLabs_TAS2521::setAudioInterfaceWCLKPrimaryOutputSecondary(void) {
-
-}
-void FyberLabs_TAS2521::setAudioInterfaceWCLKSecondaryOutputPrimary(void) {
-
-}
-void FyberLabs_TAS2521::setAudioInterfaceWCLKSecondaryOutputSecondary(void) {
-
+void FyberLabs_TAS2521::setAudioInterfaceBCLKOut_SecondaryBitClockInput(void) {
+  if(_page !=0)
+    switchPage(1);
+  P0R33_t P0R33(read8(P0R33.GetAddress()));
+  P0R33.setBclkOutCtrl(1);
+  write8(P0R33.GetAddress(),P0R33.toByte());
 }
 
-void FyberLabs_TAS2521::setAudioInterfaceDOUTPrimaryOutputPrimary(void) {
-
+void FyberLabs_TAS2521::setAudioInterfaceSecondaryBitClockOut_BCLKInput(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R33_t P0R33(read8(P0R33.GetAddress()));
+  P0R33.setSecBitClkOutCtrl(0);
+  write8(P0R33.GetAddress(),P0R33.toByte());
 }
-void FyberLabs_TAS2521::setAudioInterfaceDOUTPrimaryOutputSecondary(void) {
 
+void FyberLabs_TAS2521::setAudioInterfaceSecondaryBitClockOut_GeneratedPrimaryBitClock(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R33_t P0R33(read8(P0R33.GetAddress()));
+  P0R33.setSecBitClkOutCtrl(1);
+  write8(P0R33.GetAddress(),P0R33.toByte());
 }
-void FyberLabs_TAS2521::setAudioInterfaceDOUTSecondaryOutputPrimary(void) {
 
+void FyberLabs_TAS2521::setAudioInterfaceWCLKOut_GeneratedDAC_FS(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R33_t P0R33(read8(P0R33.GetAddress()));
+  P0R33.setWclkOutCtrl(0);
+  write8(P0R33.GetAddress(),P0R33.toByte());
 }
-void FyberLabs_TAS2521::setAudioInterfaceDOUTSecondaryOutputSecondary(void) {
 
+void FyberLabs_TAS2521::setAudioInterfaceWCLKOut_SecWrdClkIn(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R33_t P0R33(read8(P0R33.GetAddress()));
+  P0R33.setWclkOutCtrl(2);
+  write8(P0R33.GetAddress(),P0R33.toByte());
+}
+
+void FyberLabs_TAS2521::setAudioInterfaceSecondaryWCLKOut_WCLKIn(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R33_t P0R33(read8(P0R33.GetAddress()));
+  P0R33.setWrdClkOutCtrl(0);
+  write8(P0R33.GetAddress(),P0R33.toByte());
+}
+void FyberLabs_TAS2521::setAudioInterfaceSecondaryWCLKOut_GeneratedDAC_FS(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R33_t P0R33(read8(P0R33.GetAddress()));
+  P0R33.setWrdClkOutCtrl(1);
+  write8(P0R33.GetAddress(),P0R33.toByte());
+}
+
+void FyberLabs_TAS2521::setAudioInterfacePrimaryDOUTOutput_SerialInterface(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R33_t P0R33(read8(P0R33.GetAddress()));
+  P0R33.setPriDataOutCtrl(0);
+  write8(P0R33.GetAddress(),P0R33.toByte());
+}
+
+void FyberLabs_TAS2521::setAudioInterfacePrimaryDOUTOutput_LoopBack(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R33_t P0R33(read8(P0R33.GetAddress()));
+  P0R33.setPriDataOutCtrl(1);
+  write8(P0R33.GetAddress(),P0R33.toByte());
+}
+
+void FyberLabs_TAS2521::setAudioInterfaceSecondaryDOUTOutput_LoopBack(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R33_t P0R33(read8(P0R33.GetAddress()));
+  P0R33.setSecDataOutCtrl(0);
+  write8(P0R33.GetAddress(),P0R33.toByte());
+}
+void FyberLabs_TAS2521::setAudioInterfaceSecondaryDOUTOutput_SerialInterface(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R33_t P0R33(read8(P0R33.GetAddress()));
+  P0R33.setSecDataOutCtrl(1);
+  write8(P0R33.GetAddress(),P0R33.toByte());
 }
 
 void FyberLabs_TAS2521::I2CGeneralCallIgnored(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R34_t P0R34(read8(P0R34.GetAddress()));
+  P0R34.setI2CCallAddr(0);
+  write8(P0R34.GetAddress(),P0R34.toByte());
 }
 void FyberLabs_TAS2521::I2CGeneralCallAccepted(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R34_t P0R34(read8(P0R34.GetAddress()));
+  P0R34.setI2CCallAddr(1);
+  write8(P0R34.GetAddress(),P0R34.toByte());
 }
 
 bool FyberLabs_TAS2521::getDACPower(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R37_t P0R37(read8(P0R37.GetAddress()));
+  return P0R37.getDacPowerState();
 }
-bool FyberLabs_TAS2521::getHPOUTPower(void) {
 
+bool FyberLabs_TAS2521::getHPOUTPower(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R37_t P0R37(read8(P0R37.GetAddress()));
+  return P0R37.getHpoutPowerState();
 }
 
 bool FyberLabs_TAS2521::getDACPGA(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R38_t P0R38(read8(P0R38.GetAddress()));
+  return P0R38.getPGAStat();
 }
+
+bool FyberLabs_TAS2521::getDACOverflowSticky(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R42_t P0R42(read8(P0R42.GetAddress()));
+  return P0R42.getDacOverflow();
+}
+
+bool FyberLabs_TAS2521::getminiDSP_DBarrelShifterOverflowSticky(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R42_t P0R42(read8(P0R42.GetAddress()));
+  return P0R42.getShifterOveflow();
+}
+
 bool FyberLabs_TAS2521::getDACOverflow(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R43_t P0R43(read8(P0R43.GetAddress()));
+  return P0R43.getDacOverflow();
 }
-bool FyberLabs_TAS2521::getminiDSP_DOverflow(void) {
 
+bool FyberLabs_TAS2521::getminiDSP_DBarrelShifterOverflow(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R43_t P0R43(read8(P0R43.GetAddress()));
+  return P0R43.getShifterOveflow();
 }
+
 bool FyberLabs_TAS2521::getHPOUTOverCurrentSticky(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R44_t P0R44(read8(P0R44.GetAddress()));
+  return P0R44.getHpoutOverCurrent();
 }
+
 bool FyberLabs_TAS2521::getminiDSP_DStdInterruptSticky(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R44_t P0R44(read8(P0R44.GetAddress()));
+  return P0R44.getMinDspStdInt();
 }
+
 bool FyberLabs_TAS2521::getminiDSP_DAuxInterruptSticky(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R44_t P0R44(read8(P0R44.GetAddress()));
+  return P0R44.getMinDspAuxInt();
 }
+
 bool FyberLabs_TAS2521::getHPOUTOverCurrent(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R46_t P0R46(read8(P0R46.GetAddress()));
+  return P0R46.getHpoutOverCurrent();
 }
+
 bool FyberLabs_TAS2521::getminiDSP_DStdInterrupt(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R46_t P0R46(read8(P0R46.GetAddress()));
+  return P0R46.getMinDspStdInt();
 }
-bool FyberLabs_TAS2521::getminiDSP_DAuxInterrupt(void) {
 
+bool FyberLabs_TAS2521::getminiDSP_DAuxInterrupt(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R46_t P0R46(read8(P0R46.GetAddress()));
+  return P0R46.getMinDspAuxInt();
 }
 
 bool FyberLabs_TAS2521::getINT1HPOUTOverCurrent(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R48_t P0R48(read8(P0R48.GetAddress()));
+  return P0R48.getOverCurrentIntEn();
 }
+
+
 void FyberLabs_TAS2521::setINT1HPOUTOverCurrentOn(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R48_t P0R48(read8(P0R48.GetAddress()));
+  P0R48.setOverCurrentIntEn(1);
+  write8(P0R48.GetAddress(),P0R48.toByte());
 }
-void FyberLabs_TAS2521::setINT1HPOUTOverCurrentOff(void) {
 
+void FyberLabs_TAS2521::setINT1HPOUTOverCurrentOff(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R48_t P0R48(read8(P0R48.GetAddress()));
+  P0R48.setOverCurrentIntEn(0);
+  write8(P0R48.GetAddress(),P0R48.toByte());
 }
 
 bool FyberLabs_TAS2521::FyberLabs_TAS2521::getINT1miniDSP_DInterrupt(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R48_t P0R48(read8(P0R48.GetAddress()));
+  return P0R48.getOverflowIntEn();
 }
+
 void FyberLabs_TAS2521::setINT1miniDSP_DInterruptOn(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R48_t P0R48(read8(P0R48.GetAddress()));
+  P0R48.setOverflowIntEn(1);
+  write8(P0R48.GetAddress(),P0R48.toByte());
 }
-void FyberLabs_TAS2521::setINT1miniDSP_DInterruptOff(void) {
 
+void FyberLabs_TAS2521::setINT1miniDSP_DInterruptOff(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R48_t P0R48(read8(P0R48.GetAddress()));
+  P0R48.setOverflowIntEn(0);
+  write8(P0R48.GetAddress(),P0R48.toByte());
 }
 
 bool FyberLabs_TAS2521::getINT1PulseControl(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R48_t P0R48(read8(P0R48.GetAddress()));
+  return P0R48.getPulseCtrl();
 }
+
 void FyberLabs_TAS2521::setINT1PulseControlSingle(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R48_t P0R48(read8(P0R48.GetAddress()));
+  P0R48.setPulseCtrl(0);
+  write8(P0R48.GetAddress(),P0R48.toByte());
 }
+
 void FyberLabs_TAS2521::setINT1PulseControlMultiple(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R48_t P0R48(read8(P0R48.GetAddress()));
+  P0R48.setPulseCtrl(1);
+  write8(P0R48.GetAddress(),P0R48.toByte());
 }
 
-	bool FyberLabs_TAS2521::getINT2miniDSP_DInterrupt(void) {
+bool FyberLabs_TAS2521::getINT2HPOUTOverCurrent(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R49_t P0R49(read8(P0R49.GetAddress()));
+  return P0R49.getOverCurrentIntEn();
+}
 
+
+void FyberLabs_TAS2521::setINT2HPOUTOverCurrentOn(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R49_t P0R49(read8(P0R49.GetAddress()));
+  P0R49.setOverCurrentIntEn(1);
+  write8(P0R49.GetAddress(),P0R49.toByte());
+}
+
+void FyberLabs_TAS2521::setINT2HPOUTOverCurrentOff(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R49_t P0R49(read8(P0R49.GetAddress()));
+  P0R49.setOverCurrentIntEn(0);
+  write8(P0R49.GetAddress(),P0R49.toByte());
+}
+
+bool FyberLabs_TAS2521::getINT2miniDSP_DInterrupt(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R49_t P0R49(read8(P0R49.GetAddress()));
+  return P0R49.getOverflowIntEn();
 }
 void FyberLabs_TAS2521::setINT2miniDSP_DInterruptOn(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R49_t P0R49(read8(P0R49.GetAddress()));
+  P0R49.setOverflowIntEn(1);
+  write8(P0R49.GetAddress(),P0R49.toByte());
 }
-void FyberLabs_TAS2521::setINT2miniDSP_DInterruptOff(void) {
 
+void FyberLabs_TAS2521::setINT2miniDSP_DInterruptOff(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R49_t P0R49(read8(P0R49.GetAddress()));
+  P0R49.setOverflowIntEn(0);
+  write8(P0R49.GetAddress(),P0R49.toByte());
 }
 
 bool FyberLabs_TAS2521::getINT2PulseControl(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R49_t P0R49(read8(P0R49.GetAddress()));
+  return P0R49.getPulseCtrl();
 }
 void FyberLabs_TAS2521::setINT2PulseControlSingle(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R49_t P0R49(read8(P0R49.GetAddress()));
+  P0R49.setPulseCtrl(0);
+  write8(P0R49.GetAddress(),P0R49.toByte());
 }
 void FyberLabs_TAS2521::setINT2PulseControlMultiple(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R49_t P0R49(read8(P0R49.GetAddress()));
+  P0R49.setPulseCtrl(1);
+  write8(P0R49.GetAddress(),P0R49.toByte());
 }
-*/
+
 /*
 	GPIO Control
 0000: GPIO input/output disabled.

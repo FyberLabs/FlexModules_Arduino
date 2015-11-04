@@ -32,7 +32,7 @@ namespace TAS2521{
     Wire.write(reg);
     Wire.endTransmission();
     Wire.requestFrom((uint8_t)_i2c_address, (uint8_t)1);
-    return Wire.read();;
+    return Wire.read();
   }
 
   void FyberLabs_TAS2521::write8(uint8_t reg, uint8_t data) {
@@ -225,9 +225,9 @@ namespace TAS2521{
   void FyberLabs_TAS2521::setNDACPowerDown(void) {
     if(_page !=0)
       switchPage(0);
-    P0R11_t P0R11(read8(P0R11.GetAddress()));
-    P0R11.setNDACPower(POWER_DOWN);
-    write8(P0R11.GetAddress(),P0R11.toByte());
+    P0R11_t reg(read8(reg.GetAddress()));
+    reg.setNDACPower(POWER_DOWN);
+    write8(reg.GetAddress(),reg.toByte());
   }
 
   void FyberLabs_TAS2521::setNDACPowerUp(void) {
@@ -1011,20 +1011,50 @@ void FyberLabs_TAS2521::setINT2PulseControlMultiple(void) {
 1111: Reserved. Do not use.
 */
 void FyberLabs_TAS2521::setGPIOControl(uint8_t control) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R52_t reg(read8(reg.GetAddress()));
+  reg.setGpioCtrl(control);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setGPIOOutZero(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R52_t reg(read8(reg.GetAddress()));
+  reg.setGpioOutState(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
-void FyberLabs_TAS2521::setGPIOOutOne(void) {
 
+void FyberLabs_TAS2521::setGPIOOutOne(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R52_t reg(read8(reg.GetAddress()));
+  reg.setGpioOutState(true);
+  write8(reg.GetAddress(),reg.toByte());
+}
+
+bool FyberLabs_TAS2521::GetGPIOInState(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R52_t reg(read8(reg.GetAddress()));
+  return reg.getGpioInState();
 }
 
 void FyberLabs_TAS2521::setDOUTBusKeeperEnabled(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R53_t reg(read8(reg.GetAddress()));
+  reg.setBusKeepEn(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
-void FyberLabs_TAS2521::setDOUTBusKeeperDisabled(void) {
 
+void FyberLabs_TAS2521::setDOUTBusKeeperDisabled(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R53_t reg(read8(reg.GetAddress()));
+  reg.setBusKeepEn(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
 /*
 	DOUT MUX Control
@@ -1036,93 +1066,153 @@ void FyberLabs_TAS2521::setDOUTBusKeeperDisabled(void) {
 110: DOUT is Secondary BCLK
 111: DOUT is Secondary WCLK
 */
-void FyberLabs_TAS2521::setDOUTMuxControl(uint8_t mux) {
-
-}
-void FyberLabs_TAS2521::setDOUTIsGPIO(void) {
-
-}
-void FyberLabs_TAS2521::setDOUTNotGPIO(void) {
-
+void FyberLabs_TAS2521::setDOUTMuxControl(DOUT_MUX_CTRL_t mux) {
+  if(_page !=0)
+    switchPage(0);
+  P0R53_t reg(read8(reg.GetAddress()));
+  reg.setDoutMuxCtrl(mux);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
-/*
-	DIN function control
-00: DIN pin is disabled
-01: DIN is enabled for Primary Data Input or General Purpose Clock input 10: DIN is used as General Purpose Input
-11: Reserved. Do not use
-*/
-/*
-void FyberLabs_TAS2521::setDINFunctionControl(uint8_t control) {
-
+void FyberLabs_TAS2521::setDOUTGPIOHigh(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R53_t reg(read8(reg.GetAddress()));
+  reg.setDoutGpio(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
+void FyberLabs_TAS2521::setDOUTGPIOLow(void) {
+  if(_page !=0)
+    switchPage(0);
+  P0R53_t reg(read8(reg.GetAddress()));
+  reg.setDoutGpio(false);
+  write8(reg.GetAddress(),reg.toByte());
+}
+
+//DIN function control
+//00: DIN pin is disabled
+//01: DIN is enabled for Primary Data Input or General Purpose Clock input 10: DIN is used as General Purpose Input
+//11: Reserved. Do not use
+void FyberLabs_TAS2521::setDINFunctionControl(DIN_FUNC_CTRL_t control) {
+  if(_page !=0)
+    switchPage(0);
+  P0R54_t reg(read8(reg.GetAddress()));
+  reg.setDinFunc(control);
+  write8(reg.GetAddress(),reg.toByte());
+}
+
 bool FyberLabs_TAS2521::getDINGPIOInput(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R54_t reg(read8(reg.GetAddress()));
+  return reg.getDinGPIOState();
 }
-*/
-/*
-	MISO function control
-0000: MISO buffer disabled
-0001: MISO is used for data output in SPI interface, is disabled for I2C interface 0010: MISO is General Purpose Output
-0011: MISO is CLKOUT output
-0100: MISO is INT1 output
-0101: MISO is INT2 output
-0110: Reserved
-0111: Reserved
-1000: MISO is Secondary Data Output for Audio Interface
-1001: MISO is Secondary Bit Clock for Audio Interface
-1010: MISO is Secondary Word Clock for Audio Interface
-1011-1111: Reserved. Do not use
-*/
-void FyberLabs_TAS2521::setMISOFunctionControl(uint8_t control) {
 
+//MISO function control
+//0000: MISO buffer disabled
+//0001: MISO is used for data output in SPI interface, is disabled for I2C interface 0010: MISO is General Purpose Output
+//0011: MISO is CLKOUT output
+//0100: MISO is INT1 output
+//0101: MISO is INT2 output
+//0110: Reserved
+//0111: Reserved
+//1000: MISO is Secondary Data Output for Audio Interface
+//1001: MISO is Secondary Bit Clock for Audio Interface
+//1010: MISO is Secondary Word Clock for Audio Interface
+//1011-1111: Reserved. Do not use
+void FyberLabs_TAS2521::setMISOFunctionControl(MISO_FUNC_CTRL_t control) {
+  if(_page !=0)
+    switchPage(0);
+  P0R55_t reg(read8(reg.GetAddress()));
+  reg.setMisoFunc(control);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setMISOGPIOOutput(bool bit) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R55_t reg(read8(reg.GetAddress()));
+  reg.setMISOGPIOState(bit);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 /*
-	SCLK function control
+SCLK function control
 00: SCLK pin is disabled
 01: SCLK pin is enabled for SPI clock in SPI Interface mode or when in I2C Interface enabled for Secondary Data Input or Secondary Bit Clock Input or Secondary Word Clock. 10: SCLK is enabled as General Purpose Input
 11: Reserved. Do not use
 */
-void FyberLabs_TAS2521::setSCLKFunctionControl(uint8_t control) {
-
+void FyberLabs_TAS2521::setSCLKFunctionControl(SCLK_FUNC_CTRL_t control) {
+  if(_page !=0)
+    switchPage(0);
+  P0R56_t reg(read8(reg.GetAddress()));
+  reg.setSclkFunc(control);
+  write8(reg.GetAddress(),reg.toByte());
 }
-/*
+
 bool FyberLabs_TAS2521::getSCLKGPIOInput(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R56_t reg(read8(reg.GetAddress()));
+  return reg.getSclkGPIOState();
 }
-*/
+
 /*
 	0 0000: The miniDSP_D will be used for signal processing 0 0001: DAC Signal Processing Block PRB_P1
 0 0010: DAC Signal Processing Block PRB_P2
 0 0011: DAC Signal Processing Block PRB_P3
 0 0100-1 1111: Reserved. Do not use
 */
-void FyberLabs_TAS2521::setDACInstructionSet(uint8_t) {
-
+void FyberLabs_TAS2521::setDACInstructionSet(DAC_INST_t ins) {
+  if(_page !=0)
+    switchPage(0);
+  P0R60_t reg(read8(reg.GetAddress()));
+  reg.setDacInstruction(ins);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 void FyberLabs_TAS2521::setminiDSP_DConfigurationBitA(bool bit) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R62_t reg(read8(reg.GetAddress()));
+  reg.setAuxBitA(bit);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setminiDSP_DConfigurationBitB(bool bit) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R62_t reg(read8(reg.GetAddress()));
+  reg.setAuxBitB(bit);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setminiDSP_DConfigurationResetCounter(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R62_t reg(read8(reg.GetAddress()));
+  reg.setResetInstCnt(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setminiDSP_DConfigurationNoResetCounter(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R62_t reg(read8(reg.GetAddress()));
+  reg.setResetInstCnt(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 void FyberLabs_TAS2521::setDACChannelSetupPowerUp(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R63_t reg(read8(reg.GetAddress()));
+  reg.setDacChanPwr(POWER_UP);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setDACChannelSetupPowerDown(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R63_t reg(read8(reg.GetAddress()));
+  reg.setDacChanPwr(POWER_DOWN);
+  write8(reg.GetAddress(),reg.toByte());
 }
 /*
 	DAC Data path Control
@@ -1131,8 +1221,12 @@ void FyberLabs_TAS2521::setDACChannelSetupPowerDown(void) {
 10: DAC data is picked from Right Channel Audio Interface Data
 11: DAC data is picked from Mono Mix of Left and Right Channel Audio Interface Data
 */
-void FyberLabs_TAS2521::setDACChannelSetupDataPath(uint8_t path) {
-
+void FyberLabs_TAS2521::setDACChannelSetupDataPath(DAC_DATA_PATH_t path) {
+  if(_page !=0)
+    switchPage(0);
+  P0R63_t reg(read8(reg.GetAddress()));
+  reg.setDacDataPath(path);
+  write8(reg.GetAddress(),reg.toByte());
 }
 /*
 	DAC Channel Volume Control's Soft-Step control
@@ -1142,7 +1236,11 @@ void FyberLabs_TAS2521::setDACChannelSetupDataPath(uint8_t path) {
 11: Reserved. Do not use
 */
 void FyberLabs_TAS2521::setDACChannelVolumeControl(uint8_t volume) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R63_t reg(read8(reg.GetAddress()));
+  reg.setDacChanVolume(volume);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 /*
@@ -1156,14 +1254,26 @@ void FyberLabs_TAS2521::setDACChannelVolumeControl(uint8_t volume) {
 	110: DAC is auto muted if input data is DC for more than 3200 consecutive inputs
 	111: DAC is auto muted if input data is DC for more than 6400 consecutive inputs
 */
-void FyberLabs_TAS2521::setDACChannelAutoMuteControl(uint8_t mute) {
-
+void FyberLabs_TAS2521::setDACChannelAutoMuteControl(DAC_AUTO_MUTE_t mute) {
+  if(_page !=0)
+    switchPage(0);
+  P0R64_t reg(read8(reg.GetAddress()));
+  reg.setDacAutoMuteCtrl(mute);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setDACChannelMute(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R64_t reg(read8(reg.GetAddress()));
+  reg.setDacChanMuteCtrl(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setDACChannelUnmute(void) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R64_t reg(read8(reg.GetAddress()));
+  reg.setDacChanMuteCtrl(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
 /*
 	DAC Channel Digital Volume Control Setting
@@ -1180,31 +1290,59 @@ void FyberLabs_TAS2521::setDACChannelUnmute(void) {
 	1000 0000: Reserved. Do not use"
 */
 void FyberLabs_TAS2521::setDACChannelDigitalVolumeControl(uint8_t volume) {
-
+  if(_page !=0)
+    switchPage(0);
+  P0R65_t reg(read8(reg.GetAddress()));
+  reg.setDacChanVol(volume);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 //Page1
 void FyberLabs_TAS2521::setPage(uint8_t page) {
-
+  switchPage(page);
 }
 
 void FyberLabs_TAS2521::setMasterReferencePowerUp(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R1_t reg(read8(reg.GetAddress()));
+  reg.setMastRefCtrl(POWER_UP);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setMasterReferencePowerDown(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R1_t reg(read8(reg.GetAddress()));
+  reg.setMastRefCtrl(POWER_DOWN);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setPORPowerUp(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R1_t reg(read8(reg.GetAddress()));
+  reg.setPorPwrCtrl(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setPORPowerDown(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R1_t reg(read8(reg.GetAddress()));
+  reg.setPorPwrCtrl(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setLDOBandGapPowerUp(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R1_t reg(read8(reg.GetAddress()));
+  reg.setLdoPwrCtrl(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setLDOBandGapPowerDown(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R1_t reg(read8(reg.GetAddress()));
+  reg.setLdoPwrCtrl(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 /*
@@ -1214,33 +1352,57 @@ void FyberLabs_TAS2521::setLDOBandGapPowerDown(void) {
 	10: AVDD LDO output is nominally 1.7V
 	11: AVDD LDO output is nominally 1.5V
 */
-void FyberLabs_TAS2521::setLDOControl(uint8_t voltage) {
-
+void FyberLabs_TAS2521::setLDOControl(AVDD_LDO_CTRL_t voltage) {
+  if(_page !=1)
+    switchPage(1);
+  P1R2_t reg(read8(reg.GetAddress()));
+  reg.setAvddLdoVoltage(voltage);
+  write8(reg.GetAddress(),reg.toByte());
 }
-void FyberLabs_TAS2521::setLDOPLLHPPowerUp(void) {
 
+void FyberLabs_TAS2521::setLDOPLLHPPowerUp(void) {
+  if(_page !=1)
+    switchPage(1);
+  P1R2_t reg(read8(reg.GetAddress()));
+  reg.setLvlShiftPwr(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setLDOPLLHPPowerDown(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R2_t reg(read8(reg.GetAddress()));
+  reg.setLvlShiftPwr(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
-void FyberLabs_TAS2521::setLDOShortCircuitDetectionOn(void) {
 
+bool FyberLabs_TAS2521::getLDOShortCircuitDetection(void) {
+  if(_page !=1)
+    switchPage(1);
+  P1R2_t reg(read8(reg.GetAddress()));
+  return reg.getAvddLdoShort();
 }
-void FyberLabs_TAS2521::setLDOShortCircuitDetectionOff(void) {
 
-}
-void FyberLabs_TAS2521::setLDOSelectLow(void) {
-
-}
-void FyberLabs_TAS2521::setLDOSelectHigh(void) {
-
+bool FyberLabs_TAS2521::getLDOSelect(void) {
+  if(_page !=1)
+    switchPage(1);
+  P1R2_t reg(read8(reg.GetAddress()));
+  return reg.getLdoSelState();
 }
 
 void FyberLabs_TAS2521::setPlaybackConfigurationDACLowPower(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R3_t reg(read8(reg.GetAddress()));
+  reg.setDacMode(LOW_POWER);
+  write8(reg.GetAddress(),reg.toByte());
 }
-void FyberLabs_TAS2521::setPlaybackConfigurationDACHighPerformance(void) {
 
+void FyberLabs_TAS2521::setPlaybackConfigurationDACHighPerformance(void) {
+  if(_page !=1)
+    switchPage(1);
+  P1R3_t reg(read8(reg.GetAddress()));
+  reg.setDacMode(HIGH_PERFORMANCE);
+  write8(reg.GetAddress(),reg.toByte());
 }
 /*
 	DAC PTM Control
@@ -1250,52 +1412,121 @@ void FyberLabs_TAS2521::setPlaybackConfigurationDACHighPerformance(void) {
 	011-111: Reserved. Do not use
 */
 void FyberLabs_TAS2521::setPlaybackConfigurationDACPTMControl(uint8_t control) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R3_t reg(read8(reg.GetAddress()));
+  reg.setDacPtmCtrl(control);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 void FyberLabs_TAS2521::setDACPGAControlSoftSteppingOn(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R8_t reg(read8(reg.GetAddress()));
+  reg.setSoftStepEn(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setDACPGAControlSoftSteppingOff(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R8_t reg(read8(reg.GetAddress()));
+  reg.setSoftStepEn(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setDACPGAControlSoftSteppingNormal(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R8_t reg(read8(reg.GetAddress()));
+  reg.setSoftStepMode(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
-void FyberLabs_TAS2521::setDACPGAControlSoftSteppingDouble(void) {
 
+void FyberLabs_TAS2521::setDACPGAControlSoftSteppingDouble(void) {
+  if(_page !=1)
+    switchPage(1);
+  P1R8_t reg(read8(reg.GetAddress()));
+  reg.setSoftStepMode(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 void FyberLabs_TAS2521::setOutputHPLPowerUp(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R9_t reg(read8(reg.GetAddress()));
+  reg.setHplPwr(POWER_UP);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setOutputHPLPowerDown(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R9_t reg(read8(reg.GetAddress()));
+  reg.setHplPwr(POWER_DOWN);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setAINLInputOn(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R9_t reg(read8(reg.GetAddress()));
+  reg.setAinlEn(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setAINLInputOff(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R9_t reg(read8(reg.GetAddress()));
+  reg.setAinlEn(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
-void FyberLabs_TAS2521::setAINRInputOn(void) {
 
+void FyberLabs_TAS2521::setAINRInputOn(void) {
+  if(_page !=1)
+    switchPage(1);
+  P1R9_t reg(read8(reg.GetAddress()));
+  reg.setAinrEn(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setAINRInputOff(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R9_t reg(read8(reg.GetAddress()));
+  reg.setAinrEn(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 void FyberLabs_TAS2521::setFullChipCommonMode09V(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R10_t reg(read8(reg.GetAddress()));
+  reg.setCommonMode(COMMON_MODE_0_9V);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setFullChipCommonMode075V(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R10_t reg(read8(reg.GetAddress()));
+  reg.setCommonMode(COMMON_MODE_0_75V);
+  write8(reg.GetAddress(),reg.toByte());
 }
-void FyberLabs_TAS2521::setHPOUTFullDrive(void) {
 
+void FyberLabs_TAS2521::setHPOUTFullDrive(void) {
+  if(_page !=1)
+    switchPage(1);
+  P1R10_t reg(read8(reg.GetAddress()));
+  reg.setHpDrive(FULL_DRIVE);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setHPOUTHalfDrive(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R10_t reg(read8(reg.GetAddress()));
+  reg.setHpDrive(HALF_DRIVE);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 /*
@@ -1308,14 +1539,28 @@ void FyberLabs_TAS2521::setHPOUTHalfDrive(void) {
 	110: Over Current detection is debounced by 256ms
 	111: Over Current detection is debounced by 512ms
 */
-void setHPOUTOverCurrentDebounce(uint8_t debounce) {
-
+void FyberLabs_TAS2521::setHPOUTOverCurrentDebounce(OVER_CURRENT_DETECTION_DEBOUNCE_t debounce) {
+  if(_page !=1)
+    switchPage(1);
+  P1R11_t reg(read8(reg.GetAddress()));
+  reg.setOvrCurrDebounce(debounce);
+  write8(reg.GetAddress(),reg.toByte());
 }
-void setHPOUTOverCurrentLimiting(void) {
 
+void FyberLabs_TAS2521::setHPOUTOverCurrentLimiting(void) {
+  if(_page !=1)
+    switchPage(1);
+  P1R11_t reg(read8(reg.GetAddress()));
+  reg.setOvrCurrCondition(LIMIT_OUT_CURRENT);
+  write8(reg.GetAddress(),reg.toByte());
 }
-void setHPOUTOverCurrentPowerOff(void) {
 
+void FyberLabs_TAS2521::setHPOUTOverCurrentPowerOff(void) {
+  if(_page !=1)
+    switchPage(1);
+  P1R11_t reg(read8(reg.GetAddress()));
+  reg.setOvrCurrCondition(POWER_DOWN_DRIVER);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 /*
@@ -1329,39 +1574,90 @@ void setHPOUTOverCurrentPowerOff(void) {
 	1100: AINL and AINR routed to Mixer A to HP driver
 	1101 - 1111: Do not use
 */
-void FyberLabs_TAS2521::setHPOUTRouting(uint8_t routing) {
-
+void FyberLabs_TAS2521::setHPOUTRouting(ANALOG_ROUTING_t routing) {
+  if(_page !=1)
+    switchPage(1);
+  P1R12_t reg(read8(reg.GetAddress()));
+  reg.setAnalogRouting(routing);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setHPOUTDACRoutedDirect(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R12_t reg(read8(reg.GetAddress()));
+  reg.setDacRout(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
-void FyberLabs_TAS2521::setHPOUTDACRoutedIndirect(void) {
 
+void FyberLabs_TAS2521::FyberLabs_TAS2521::setHPOUTDACRoutedIndirect(void) {
+  if(_page !=1)
+    switchPage(1);
+  P1R12_t reg(read8(reg.GetAddress()));
+  reg.setDacRout(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setHPOUTMixerPAttenuator(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R12_t reg(read8(reg.GetAddress()));
+  reg.setMixerPtoHpAttn(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setHPOUTMixerPNotAttentuator(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R12_t reg(read8(reg.GetAddress()));
+  reg.setMixerPtoHpAttn(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setHPOUTAINLAttenuator(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R12_t reg(read8(reg.GetAddress()));
+  reg.setAinlAttn(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
+
 void FyberLabs_TAS2521::setHPOUTAINLNotAttenuator(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R12_t reg(read8(reg.GetAddress()));
+  reg.setAinlAttn(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
-void FyberLabs_TAS2521::setHPOUTAINRAttenuator(void) {
 
+void FyberLabs_TAS2521::setHPOUTAINRAttenuator(void) {
+  if(_page !=1)
+    switchPage(1);
+  P1R12_t reg(read8(reg.GetAddress()));
+  reg.setAinrAttn(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setHPOUTAINRNotAttenuator(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R12_t reg(read8(reg.GetAddress()));
+  reg.setAinrAttn(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 void FyberLabs_TAS2521::setHPOUTDriverMuted(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R16_t reg(read8(reg.GetAddress()));
+  reg.setHpDrvMute(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setHPOUTDriverUnmuted(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R16_t reg(read8(reg.GetAddress()));
+  reg.setHpDrvMute(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
 /*
 	10 0000 - 11 1001: Reserved. Do not use
@@ -1388,7 +1684,11 @@ void FyberLabs_TAS2521::setHPOUTDriverUnmuted(void) {
 	00 1110 - 01 1111: Reserved. Do not use
 */
 void FyberLabs_TAS2521::setHPOUTDriverGain(uint8_t gain) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R16_t reg(read8(reg.GetAddress()));
+  reg.setHpDrvGain(gain);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 /*
@@ -1397,8 +1697,12 @@ void FyberLabs_TAS2521::setHPOUTDriverGain(uint8_t gain) {
 	10: Soft-routing step time = 100ms
 	11: Soft-routing step time = 200ms
 */
-void FyberLabs_TAS2521::setHPOOUTDriverStartupSoftRoutingStepTime(uint8_t time) {
-
+void FyberLabs_TAS2521::setHPOOUTDriverStartupSoftRoutingStepTime(SOFT_ROUTING_STEP_TIME_t time) {
+  if(_page !=1)
+    switchPage(1);
+  P1R20_t reg(read8(reg.GetAddress()));
+  reg.setsoftRoutingStepTime(time);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 /*
@@ -1422,8 +1726,12 @@ void FyberLabs_TAS2521::setHPOOUTDriverStartupSoftRoutingStepTime(uint8_t time) 
 	1111: Headphone amps power up slowly in 32.0 time constants (do not use for Rchg=25K)
 	Note: Time constants assume 47μF decoupling cap
 */
-void FyberLabs_TAS2521::setHPOUTDriverStartupPowerUpTime(uint8_t time) {
-
+void FyberLabs_TAS2521::setHPOUTDriverStartupPowerUpTime(HP_AMP_SLOW_POWERUP_TIME_t time) {
+  if(_page !=1)
+    switchPage(1);
+  P1R20_t reg(read8(reg.GetAddress()));
+  reg.setSlowHpAmpPwrUp(time);
+  write8(reg.GetAddress(),reg.toByte());
 }
 /*
 	00: Headphone amps power up time is determined with 25K resistance
@@ -1431,8 +1739,12 @@ void FyberLabs_TAS2521::setHPOUTDriverStartupPowerUpTime(uint8_t time) {
 	10: Headphone amps power up time is determined with 2K resistance
 	11: Reserved. Do not use
 */
-void FyberLabs_TAS2521::setHPOUTDriverResistance(uint8_t resistance) {
-
+void FyberLabs_TAS2521::setHPOUTDriverResistance(HP_AMP_POWERUP_RESISTOR_t resistance) {
+  if(_page !=1)
+    switchPage(1);
+  P1R20_t reg(read8(reg.GetAddress()));
+  reg.setHpAmpPwrUpResistor(resistance);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 /*
@@ -1459,15 +1771,27 @@ void FyberLabs_TAS2521::setHPOUTDriverResistance(uint8_t resistance) {
 	111 0110-111 1111: Reserved. Do not use
 */
 void FyberLabs_TAS2521::setHPOUTVolume(uint8_t volume) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R22_t reg(read8(reg.GetAddress()));
+  reg.setVolume(volume);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 //See note
 void FyberLabs_TAS2521::setAINLRMixerPandMixerMForceOn(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R24_t reg(read8(reg.GetAddress()));
+  reg.setMixerPMForceEn(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setAINLRMixerPandMixerMUnforcedOn(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R24_t reg(read8(reg.GetAddress()));
+  reg.setMixerPMForceEn(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
 /*
 	000 0000: Volume Control = 0.0dB
@@ -1493,7 +1817,11 @@ void FyberLabs_TAS2521::setAINLRMixerPandMixerMUnforcedOn(void) {
 	111 0110-111 1111: Reserved. Do not use
 */
 void FyberLabs_TAS2521::setAINLVolume(uint8_t volume) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R24_t reg(read8(reg.GetAddress()));
+  reg.setVolume(volume);
+  write8(reg.GetAddress(),reg.toByte());
 }
 /*
 	000 0000: Volume Control = 0.0dB
@@ -1519,14 +1847,26 @@ void FyberLabs_TAS2521::setAINLVolume(uint8_t volume) {
 	111 0110-111 1111: Reserved. Do not use
 */
 void FyberLabs_TAS2521::setAINRVolume(uint8_t volume) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R25_t reg(read8(reg.GetAddress()));
+  reg.setVolume(volume);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 void FyberLabs_TAS2521::setSpeakerDriverPowerUp(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R45_t reg(read8(reg.GetAddress()));
+  reg.setSpkDrvPwr(POWER_UP);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setSpeakerDriverPowerDown(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R45_t reg(read8(reg.GetAddress()));
+  reg.setSpkDrvPwr(POWER_DOWN);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 /*
@@ -1553,7 +1893,11 @@ void FyberLabs_TAS2521::setSpeakerDriverPowerDown(void) {
 	*111 1111: Volume Control = Mute
 */
 void FyberLabs_TAS2521::setSpeakerVolume(uint8_t volume) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R46_t reg(read8(reg.GetAddress()));
+  reg.setVolume(volume);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 /*
@@ -1566,23 +1910,42 @@ void FyberLabs_TAS2521::setSpeakerVolume(uint8_t volume) {
 	101: SPK Driver Volume = 32 dB
 	110 - 111: Reserved
 */
-void FyberLabs_TAS2521::setSpeakerAmplifierVolume(uint8_t volume) {
-
+void FyberLabs_TAS2521::setSpeakerAmplifierVolume(SPK_AMP_VOL_t volume) {
+  if(_page !=1)
+    switchPage(1);
+  P1R48_t reg(read8(reg.GetAddress()));
+  reg.setVolume(volume);
+  write8(reg.GetAddress(),reg.toByte());
 }
-/*
+
 bool FyberLabs_TAS2521::getHPOUTAppliedGain(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R63_t reg(read8(reg.GetAddress()));
+  return reg.getHPGainFlag();
 }
+
 bool FyberLabs_TAS2521::getAINLMixPGAHPOUTAppliedGain(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R63_t reg(read8(reg.GetAddress()));
+  return reg.getAIN1LMixAppliedGainFlag();
 }
+
 bool FyberLabs_TAS2521::getAINLMixPGAAppliedVolume(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R63_t reg(read8(reg.GetAddress()));
+  return reg.getLeftMixerVolFlag();
 }
+
 bool FyberLabs_TAS2521::getAINRMixPGAAppliedVolume(void) {
-
+  if(_page !=1)
+    switchPage(1);
+  P1R63_t reg(read8(reg.GetAddress()));
+  return reg.getRightMixerVolFlag();
 }
-*/
+
 /*
 	Reference Power Up configuration
 	000: Reference will power up slowly when analog blocks are powered up
@@ -1594,79 +1957,171 @@ bool FyberLabs_TAS2521::getAINRMixPGAAppliedVolume(void) {
 	110: Force power up of reference. Power up time will be 80ms
 	111: Force power up of reference. Power up time will be 120ms
 */
-void FyberLabs_TAS2521::setReferencePowerUpDelay(uint8_t delay) {
-
-}
-/*
-//Page 44 / Register 0: Page Select Register - 0x2C / 0x00
-//Page 45 - 52 / Register 0: Page Select Register - 0x2D - 0x34 / 0x00
-//9 Pages DAC coeff A
-//256 coeffs x 24bits
-//30 coeffs per page
-//4 reg per coeff
-void FyberLabs_TAS2521::setDACProgrammableCoefficientsPageA(uint8_t page) {
-
+void FyberLabs_TAS2521::setReferencePowerUpDelay(REF_PWRUP_DELAY_t delay) {
+  if(_page !=1)
+    switchPage(1);
+  P1R122_t reg(read8(reg.GetAddress()));
+  reg.setPwrUpDelay(delay);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 void FyberLabs_TAS2521::setDACAdaptiveFilterOn(void) {
-
+  if(_page !=44)
+    switchPage(44);
+  P44R1_t reg(read8(reg.GetAddress()));
+  reg.setDacAdapFiltEn(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setDACAdaptiveFilterOff(void) {
-
+  if(_page !=44)
+    switchPage(44);
+  P44R1_t reg(read8(reg.GetAddress()));
+  reg.setDacAdapFiltEn(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
-uint8_t FyberLabs_TAS2521::getDACAdaptiveFilterControlFlag(void) {
 
+bool FyberLabs_TAS2521::getDACAdaptiveFilterControlFlag(void) {
+  if(_page !=44)
+    switchPage(44);
+  P44R1_t reg(read8(reg.GetAddress()));
+  return reg.getDacAdapFiltBufFlag();
 }
 void FyberLabs_TAS2521::setDACAdaptiveFilterSwitch(void) {
-
+  if(_page !=44)
+    switchPage(44);
+  P44R1_t reg(read8(reg.GetAddress()));
+  reg.setDacAdapFiltBufSwitch(true);
+  write8(reg.GetAddress(),reg.toByte());
 }
 void FyberLabs_TAS2521::setDACAdaptiveFilterNotSwitch(void) {
-
+  if(_page !=44)
+    switchPage(44);
+  P44R1_t reg(read8(reg.GetAddress()));
+  reg.setDacAdapFiltBufSwitch(false);
+  write8(reg.GetAddress(),reg.toByte());
 }
 
 //Page 44 / Register 8 - 127: DAC Coefficient Buffer-A C(0:29) - 0x2C / 0x08 - 0x7F
 //Page 45 - 52 / Register 8 - 127: DAC Coefficients Buffer-A C(30:255) - 0x2D - 0x34 / 0x08 -0x7F
-void FyberLabs_TAS2521::setDACCoefficientBufferA(uint8_t reg, uint8_t value) {
+void FyberLabs_TAS2521::setDACCoefficientBufferA(uint8_t coeff, uint32_t value) {
+  uint8_t b1,b2,b3,page,reg;
 
+  b3=(value&0x00FF0000)>>16;
+  b2=(value&0x0000FF00)>>8;
+  b1=(value&0x000000FF);
+
+  page= 44+(coeff/30);
+  reg=8+(coeff%30)*4;
+  if(_page !=page)
+      switchPage(page);
+
+  Wire.beginTransmission(_i2c_address);
+  Wire.write(reg);
+  Wire.write(b3);
+  Wire.write(b2);
+  Wire.write(b1);
+  Wire.endTransmission();
 }
-uint8_t FyberLabs_TAS2521::getDACCoefficientBufferA(uint8_t reg) {
 
+uint32_t FyberLabs_TAS2521::getDACCoefficientBufferA(uint8_t coeff) {
+  uint8_t b1,b2,b3,page,reg;
+
+  page= 44+(coeff/30);
+  reg=8+(coeff%30)*4;
+  if(_page !=page)
+      switchPage(page);
+
+  Wire.beginTransmission(_i2c_address);
+  Wire.write(reg);
+  Wire.endTransmission();
+  Wire.requestFrom((uint8_t)_i2c_address, (uint8_t)3);
+  b3=Wire.read();
+  b2=Wire.read();
+  b1=Wire.read();
+
+  return (b3<<2)|(b2<<1)|(b1);
 }
 
-//Page 62 - 70 / Register 0: Page Select Register - 0x3E - 0x46 / 0x00
-//9 Pages DAC coeff B
-//256 coeffs x 24bits
-//30 coeffs per page
-//4 reg per coeff
-void FyberLabs_TAS2521::setDACProgrammableCoefficientsPageB(uint8_t page) {
-
-}
 
 //Page 62 - 70 / Register 8 -127: DAC Coefficients Buffer-B C(0:255) - 0x3E - 0x46 / 0x08 - 0x7F
-void FyberLabs_TAS2521::setDACCoefficientBufferB(uint8_t reg, uint8_t value) {
+void FyberLabs_TAS2521::setDACCoefficientBufferB(uint8_t coeff, uint8_t value) {
+  uint8_t b1,b2,b3,page,reg;
 
+  b3=(value&0x00FF0000)>>16;
+  b2=(value&0x0000FF00)>>8;
+  b1=(value&0x000000FF);
+
+  page= 62+(coeff/30);
+  reg=8+(coeff%30)*4;
+  if(_page !=page)
+      switchPage(page);
+
+  Wire.beginTransmission(_i2c_address);
+  Wire.write(reg);
+  Wire.write(b3);
+  Wire.write(b2);
+  Wire.write(b1);
+  Wire.endTransmission();
 }
-uint8_t FyberLabs_TAS2521::getDACCoefficientBufferB(uint8_t reg) {
 
-}
+uint32_t FyberLabs_TAS2521::getDACCoefficientBufferB(uint8_t coeff) {
+  uint8_t b1,b2,b3,page,reg;
 
-//Page 152 - 169 / Register 0: Page Select Register - 0x98 - 0xA9 / 0x00
-//18 Pages DAC Inst
-//1024 coeffs x 24bits
-//30 insts per page
-//4 reg per coeff
-void FyberLabs_TAS2521::setDACminiDSPInstructionPage(uint8_t page) {
+  page= 44+(coeff/30);
+  reg=8+(coeff%30)*4;
+  if(_page !=page)
+      switchPage(page);
 
+  Wire.beginTransmission(_i2c_address);
+  Wire.write(reg);
+  Wire.endTransmission();
+  Wire.requestFrom((uint8_t)_i2c_address, (uint8_t)3);
+  b3=Wire.read();
+  b2=Wire.read();
+  b1=Wire.read();
+
+  return (b3<<2)|(b2<<1)|(b1);
 }
 
 //Page 152 - 169 / Register 8 - 127: DAC Instruction Registers - 0x98 - 0xA9 / 0x08 - 0x7F
-void FyberLabs_TAS2521::setDACminiDSPInstruction(uint8_t reg, uint8_t value) {
+void FyberLabs_TAS2521::setDACminiDSPInstruction(uint8_t Inst, uint32_t value) {
+  uint8_t b1,b2,b3,page,reg;
 
+  b3=(value&0x00FF0000)>>16;
+  b2=(value&0x0000FF00)>>8;
+  b1=(value&0x000000FF);
+
+  page= 62+(Inst/30);
+  reg=8+(Inst%30)*4;
+  if(_page !=page)
+      switchPage(page);
+
+  Wire.beginTransmission(_i2c_address);
+  Wire.write(reg);
+  Wire.write(b3);
+  Wire.write(b2);
+  Wire.write(b1);
+  Wire.endTransmission();
 }
-uint8_t FyberLabs_TAS2521::getDACminiDSPInstruction(uint8_t reg) {
 
+uint32_t FyberLabs_TAS2521::getDACminiDSPInstruction(uint8_t Inst) {
+  uint8_t b1,b2,b3,page,reg;
+
+  page= 152+(Inst/30);
+  reg=8+(Inst%30)*4;
+  if(_page !=page)
+      switchPage(page);
+
+  Wire.beginTransmission(_i2c_address);
+  Wire.write(reg);
+  Wire.endTransmission();
+  Wire.requestFrom((uint8_t)_i2c_address, (uint8_t)3);
+  b3=Wire.read();
+  b2=Wire.read();
+  b1=Wire.read();
+
+  return (b3<<2)|(b2<<1)|(b1);
 }
 
-*/
 
 }

@@ -212,7 +212,7 @@ enum CHIP_COMMON_MODE_t{
 };
 
 enum HEADPHONE_DRIVE_ABILITY_t{
-  FULL_FRIVE = 0,
+  FULL_DRIVE = 0,
   HALF_DRIVE = 1,
 };
 
@@ -397,7 +397,7 @@ const uint8_t		DEFAULT_DAC_CHAN_VOLUME = 0;
 //Page 1 / Registers 1: REF, POR and LDO BGAP Control Register - 0x01 / 0x01
 const POWER_STATE_t	DEFAULT_MAST_REF_CTRL = POWER_DOWN;
 const bool		DEFAULT_POR_PWR_CTRL = false;
-const POWER_STATE_t	DEFAULT_LDO_PWR_CTRL = POWER_DOWN;
+const bool		DEFAULT_LDO_PWR_CTRL = false;
 //Page 1 / Register 2: LDO Control Register - 0x01 / 0x02
 const AVDD_LDO_CTRL_t	DEFAULT_AVDD_LDO_CTRL = LDO_1_8V;
 const bool		DEFAULT_PLL_HP_LVL_SHIFT_PWR = false;
@@ -413,7 +413,7 @@ const bool		DEFAULT_AINL_INPUT_EN = false;
 const bool		DEFAULT_AINR_INPUT_EN = false;
 //Page 1 / Register 10: Common Mode Control Register - 0x01 / 0x0A
 const CHIP_COMMON_MODE_t DEFAULT_CHIP_COMMON_MODE = COMMON_MODE_0_9V;
-const HEADPHONE_DRIVE_ABILITY_t DEFAULT_DRIVE_ABILITY = FULL_FRIVE;
+const HEADPHONE_DRIVE_ABILITY_t DEFAULT_DRIVE_ABILITY = FULL_DRIVE;
 //Page 1 / Register 11: HP Over Current Protection Configuration Register - 0x01 / 0x0B
 const OVER_CURRENT_DETECTION_DEBOUNCE_t DEFAULT_OVER_CURRENT_DEBOUNCE = NO_DEBOUNCE;
 const OVER_CURRENT_CONDITION_t	DEFAULT_OVER_CURRENT_COND = LIMIT_OUT_CURRENT;
@@ -587,10 +587,9 @@ class P0R11_t{
       POWER_STATE_t ndac_power:1;
       uint8_t ndac:7;
     public:
-      P0R11_t(uint8_t ndac_i= DEFAULT_NDAC_VALUE,POWER_STATE_t ndac_power_i = DEFAULT_NDAC_POWER){
-	ndac  = (ndac_i&0x7F);
-	ndac_power = ndac_power_i;
-      }
+      P0R11_t(POWER_STATE_t ndac_power_i = DEFAULT_NDAC_POWER,
+	      uint8_t ndac_i= DEFAULT_NDAC_VALUE):
+		ndac_power(ndac_power_i),ndac((ndac_i&0x7F)){}
 
       P0R11_t(uint8_t reg){
       	ndac  = (reg&0x7F);
@@ -614,10 +613,9 @@ class P0R12_t{
       POWER_STATE_t mdac_power:1;
       uint8_t mdac:7;
     public:
-      P0R12_t(uint8_t mdac_i= DEFAULT_MDAC_VALUE,POWER_STATE_t mdac_power_i = DEFAULT_MDAC_POWER){
-	mdac  = (mdac_i&0x7F);
-	mdac_power = mdac_power_i;
-      }
+      P0R12_t(POWER_STATE_t mdac_power_i = DEFAULT_MDAC_POWER,
+	      uint8_t mdac_i= DEFAULT_MDAC_VALUE):
+		mdac_power(mdac_power_i),mdac((mdac_i&0x7F)){}
 
       P0R12_t(uint8_t reg){
 	mdac  = (reg&0x7F);
@@ -768,11 +766,10 @@ class P0R26_t{
       POWER_STATE_t clkout_mdiv_power:1;
       uint8_t clkout_mdiv:7;
     public:
-      P0R26_t(uint8_t clkout_i= DEFAULT_CLKOUT_MDIV_VALUE,
-	      POWER_STATE_t clkout_mdiv_power_i = DEFAULT_CLKOUT_MDIV_POWER){
-	clkout_mdiv  = (clkout_i&0x7F);
-	clkout_mdiv_power = clkout_mdiv_power_i;
-      }
+      P0R26_t(POWER_STATE_t clkout_mdiv_power_i = DEFAULT_CLKOUT_MDIV_POWER,
+	      uint8_t clkout_i= DEFAULT_CLKOUT_MDIV_VALUE):
+	      clkout_mdiv_power(clkout_mdiv_power_i),
+	      clkout_mdiv(clkout_i&0x7F){}
 
       P0R26_t(uint8_t reg){
 	clkout_mdiv  = (reg&0x7F);
@@ -1231,10 +1228,8 @@ class P0R52_t{
       bool gpio_out_state;
       bool gpio_in_state;
     public:
-      P0R52_t(uint8_t gpio_ctrl_i = DEFAULT_GPIO_CTRL,
-	      bool gpio_state_i = DEFAULT_GPIO_OUT_STATE
-	      ):gpio_ctrl(gpio_ctrl_i),
-	      gpio_out_state(gpio_state_i),
+      P0R52_t():gpio_ctrl(DEFAULT_GPIO_CTRL),
+	      gpio_out_state(DEFAULT_GPIO_OUT_STATE),
 	      gpio_in_state(false){}
 
       P0R52_t(uint8_t reg){
@@ -1462,35 +1457,29 @@ class P0R63_t{
 class P0R64_t{
       const static int Address = 64;
 
-      POWER_STATE_t dac_pwr_ctrl;
-      DAC_DATA_PATH_t data_path;
-      uint8_t chan_col_ctrl:2;
+      DAC_AUTO_MUTE_t auto_mute;
+      bool  channel_mute;
+
     public:
-      P0R64_t(POWER_STATE_t dac_pwr_ctrl_i = DEFAULT_DAC_CHAN_POWER,
-	      DAC_DATA_PATH_t data_path_i = DEFAULT_DAC_DATA_PATH,
-	      uint8_t chan_col_ctrl_i = DEFAULT_DAC_CHAN_VOLUME
-	      ):dac_pwr_ctrl(dac_pwr_ctrl_i),
-	      data_path(data_path_i),
-	      chan_col_ctrl(chan_col_ctrl_i){}
+      P0R64_t(DAC_AUTO_MUTE_t auto_mute_i = DEFAULT_AUTO_MUTE,
+	      bool channel_mute_i = DEFAULT_AUTO_MUTE_EN):
+		auto_mute(auto_mute_i),
+		channel_mute(channel_mute_i){}
 
       P0R64_t(uint8_t reg){
-	dac_pwr_ctrl = (POWER_STATE_t)((reg&0x80)>>7);
-	data_path = (DAC_DATA_PATH_t)((reg&0x30)>>4);
-	chan_col_ctrl = ((reg&0x03));
+	auto_mute = (DAC_AUTO_MUTE_t)((reg&0x70)>>4);
+	channel_mute = ((reg&0x08)>>3);
       }
 
       uint8_t GetAddress(){return Address;}
 
-      uint8_t toByte(){return (dac_pwr_ctrl<<7)|(data_path<<4)|(chan_col_ctrl);}
+      uint8_t toByte(){return 0x40|(auto_mute<<4)|(channel_mute<<3);}
 
-      void setDacChanPwr(POWER_STATE_t p){dac_pwr_ctrl = p;}
-      POWER_STATE_t getDacChanPwr(){return dac_pwr_ctrl;}
+      void setDacAutoMuteCtrl(DAC_AUTO_MUTE_t p){auto_mute = p;}
+      DAC_AUTO_MUTE_t getDacAutoMuteCtrl(){return auto_mute;}
 
-      void setDacDataPath(DAC_DATA_PATH_t p){data_path = p;}
-      DAC_DATA_PATH_t getDacDataPath(){return data_path;}
-
-      void setDacChanVolume(uint8_t p){chan_col_ctrl = p&0x03;}
-      uint8_t getDacChanVolume(){return chan_col_ctrl;}
+      void setDacChanMuteCtrl(bool p){channel_mute = p;}
+      bool getDacChanMuteCtrl(){return channel_mute;}
 };
 
 //Page 0 / Register 65: DAC Channel Digital Volume Control Register - 0x00 / 0x41
@@ -1518,11 +1507,11 @@ class P1R1_t{
       const static int Address = 1;
       POWER_STATE_t mast_ref_ctrl;
       bool	por_pwr_ctrl;
-      POWER_STATE_t ldo_pwr_ctrl;
+      bool ldo_pwr_ctrl;
     public:
       P1R1_t( POWER_STATE_t mast_ref_ctrl_i = DEFAULT_MAST_REF_CTRL,
 	      bool	por_pwr_ctrl_i = DEFAULT_POR_PWR_CTRL,
-	      POWER_STATE_t ldo_pwr_ctrl_i = DEFAULT_LDO_PWR_CTRL):
+	      bool ldo_pwr_ctrl_i = DEFAULT_LDO_PWR_CTRL):
 	      mast_ref_ctrl(mast_ref_ctrl_i),
 	      por_pwr_ctrl(por_pwr_ctrl_i),
 	      ldo_pwr_ctrl(ldo_pwr_ctrl_i){}
@@ -1530,7 +1519,7 @@ class P1R1_t{
       P1R1_t(uint8_t reg){
 	mast_ref_ctrl = (POWER_STATE_t)((reg & 0x10)>>4);
 	por_pwr_ctrl = ((reg & 0x08)>>3);
-	ldo_pwr_ctrl = (POWER_STATE_t)((reg & 0x02)>>1);
+	ldo_pwr_ctrl = ((reg & 0x02)>>1);
       }
 
       uint8_t GetAddress(){return Address;}
@@ -1543,8 +1532,8 @@ class P1R1_t{
       void setPorPwrCtrl(bool p){por_pwr_ctrl = p;}
       bool getPorPwrCtrl(){return por_pwr_ctrl;}
 
-      void setLdoPwrCtrl(POWER_STATE_t p){ldo_pwr_ctrl = p;}
-      POWER_STATE_t getLdoPwrCtrl(){return ldo_pwr_ctrl;}
+      void setLdoPwrCtrl(bool p){ldo_pwr_ctrl = p;}
+      bool getLdoPwrCtrl(){return ldo_pwr_ctrl;}
 };
 //Page 1 / Register 2: LDO Control Register - 0x01 / 0x02
 class P1R2_t{
@@ -1943,24 +1932,24 @@ class P1R48_t{
 class P1R63_t{
       const static int Address = 63;
       bool hp_gain;
-      bool ain1l_mix;
-      bool left_mix;
-      bool right_mix;
+      bool ain1l_mix_applied_gain;
+      bool left_mix_vol;
+      bool right_mix_vol;
 
     public:
       P1R63_t(int8_t reg){
 	hp_gain = (reg&0x80)>>7;
-	ain1l_mix = (reg&0x08)>>3;
-	left_mix = (reg&0x02)>>1;
-	right_mix = (reg&0x1);
+	ain1l_mix_applied_gain = (reg&0x08)>>3;
+	left_mix_vol = (reg&0x02)>>1;
+	right_mix_vol = (reg&0x1);
       }
 
       uint8_t GetAddress(){return Address;}
 
       bool getHPGainFlag(){return hp_gain;}
-      bool getAIN1LMixPGAFlag(){return ain1l_mix;}
-      bool getLeftMixerPGAFlag(){return left_mix;}
-      bool getRightMixerPGAFlag(){return right_mix;}
+      bool getAIN1LMixAppliedGainFlag(){return ain1l_mix_applied_gain;}
+      bool getLeftMixerVolFlag(){return left_mix_vol;}
+      bool getRightMixerVolFlag(){return right_mix_vol;}
 };
 //Page 1 / Register 122: Reference Power Up Delay - 0x01 / 0x7A
 class P1R122_t{
@@ -1994,7 +1983,7 @@ class P44R1_t{
 		 dac_filt_buf_ctrl_flag(false),
 		 dac_filt_buf(dac_filt_buf_i){}
 
-      P44R1_t(int8_t reg){
+      P44R1_t(uint8_t reg){
 	dac_filt_ctrl = ((reg&0x04)>>2);
 	dac_filt_buf_ctrl_flag = ((reg&0x02)>>1);
 	dac_filt_buf = ((reg&0x01));
@@ -2026,7 +2015,7 @@ class FyberLabs_TAS2521 {
   uint8_t read8(uint8_t reg);
   void write8(uint8_t reg, uint8_t data);
 public:
-  	FyberLabs_TAS2521(uint8_t addr=0x18):_i2c_address(addr),_page(0){};
+  	FyberLabs_TAS2521(uint8_t addr=0x30):_i2c_address(addr),_page(0){};
   	uint8_t GetAddress(void){return _i2c_address;}
   	void begin(void);
   	void reset(void);
@@ -2379,6 +2368,7 @@ public:
   	void setGPIOControl(uint8_t control);
   	void setGPIOOutZero(void);
   	void setGPIOOutOne(void);
+  	bool GetGPIOInState(void);
 
   	void setDOUTBusKeeperEnabled(void);
   	void setDOUTBusKeeperDisabled(void);
@@ -2392,9 +2382,9 @@ public:
 		110: DOUT is Secondary BCLK
 		111: DOUT is Secondary WCLK
   	*/
-  	void setDOUTMuxControl(uint8_t mux);
-  	void setDOUTIsGPIO(void);
-  	void setDOUTNotGPIO(void);
+  	void setDOUTMuxControl(DOUT_MUX_CTRL_t mux);
+  	void setDOUTGPIOHigh(void);
+  	void setDOUTGPIOLow(void);
 
   	/*
   		DIN function control
@@ -2402,7 +2392,7 @@ public:
 		01: DIN is enabled for Primary Data Input or General Purpose Clock input 10: DIN is used as General Purpose Input
 		11: Reserved. Do not use
   	*/
-  	void setDINFunctionControl(uint8_t control);
+  	void setDINFunctionControl(DIN_FUNC_CTRL_t control);
   	bool getDINGPIOInput(void);
 
   	/*
@@ -2419,7 +2409,7 @@ public:
 		1010: MISO is Secondary Word Clock for Audio Interface
 		1011-1111: Reserved. Do not use
   	*/
-  	void setMISOFunctionControl(uint8_t control);
+  	void setMISOFunctionControl(MISO_FUNC_CTRL_t control);
   	void setMISOGPIOOutput(bool bit);
 
   	/*
@@ -2428,7 +2418,7 @@ public:
 		01: SCLK pin is enabled for SPI clock in SPI Interface mode or when in I2C Interface enabled for Secondary Data Input or Secondary Bit Clock Input or Secondary Word Clock. 10: SCLK is enabled as General Purpose Input
 		11: Reserved. Do not use
   	*/
-  	void setSCLKFunctionControl(uint8_t control);
+  	void setSCLKFunctionControl(SCLK_FUNC_CTRL_t control);
   	bool getSCLKGPIOInput(void);
 
   	/*
@@ -2437,7 +2427,7 @@ public:
 		0 0011: DAC Signal Processing Block PRB_P3
 		0 0100-1 1111: Reserved. Do not use
   	*/
-  	void setDACInstructionSet(uint8_t);
+  	void setDACInstructionSet(DAC_INST_t ins);
 
   	void setminiDSP_DConfigurationBitA(bool bit);
   	void setminiDSP_DConfigurationBitB(bool bit);
@@ -2453,7 +2443,7 @@ public:
 		10: DAC data is picked from Right Channel Audio Interface Data
 		11: DAC data is picked from Mono Mix of Left and Right Channel Audio Interface Data
   	*/
-  	void setDACChannelSetupDataPath(uint8_t path);
+  	void setDACChannelSetupDataPath(DAC_DATA_PATH_t path);
   	/*
   		DAC Channel Volume Control's Soft-Step control
   		00: Soft-Stepping is 1 step per 1 DAC Word Clock
@@ -2474,7 +2464,7 @@ public:
   		110: DAC is auto muted if input data is DC for more than 3200 consecutive inputs
   		111: DAC is auto muted if input data is DC for more than 6400 consecutive inputs
   	*/
-  	void setDACChannelAutoMuteControl(uint8_t mute);
+  	void setDACChannelAutoMuteControl(DAC_AUTO_MUTE_t mute);
   	void setDACChannelMute(void);
   	void setDACChannelUnmute(void);
   	/*
@@ -2510,13 +2500,11 @@ public:
   		10: AVDD LDO output is nominally 1.7V
   		11: AVDD LDO output is nominally 1.5V
   	*/
-  	void setLDOControl(uint8_t voltage);
+  	void setLDOControl(AVDD_LDO_CTRL_t voltage);
   	void setLDOPLLHPPowerUp(void);
   	void setLDOPLLHPPowerDown(void);
-  	void setLDOShortCircuitDetectionOn(void);
-  	void setLDOShortCircuitDetectionOff(void);
-  	void setLDOSelectLow(void);
-  	void setLDOSelectHigh(void);
+  	bool getLDOShortCircuitDetection(void);
+  	bool getLDOSelect(void);
 
   	void setPlaybackConfigurationDACLowPower(void);
   	void setPlaybackConfigurationDACHighPerformance(void);
@@ -2556,7 +2544,7 @@ public:
   		110: Over Current detection is debounced by 256ms
   		111: Over Current detection is debounced by 512ms
   	*/
-  	void setHPOUTOverCurrentDebounce(uint8_t debounce);
+  	void setHPOUTOverCurrentDebounce(OVER_CURRENT_DETECTION_DEBOUNCE_t debounce);
   	void setHPOUTOverCurrentLimiting(void);
   	void setHPOUTOverCurrentPowerOff(void);
 
@@ -2571,7 +2559,7 @@ public:
   		1100: AINL and AINR routed to Mixer A to HP driver
   		1101 - 1111: Do not use
   	*/
-  	void setHPOUTRouting(uint8_t routing);
+  	void setHPOUTRouting(ANALOG_ROUTING_t routing);
   	void setHPOUTDACRoutedDirect(void);
   	void setHPOUTDACRoutedIndirect(void);
   	void setHPOUTMixerPAttenuator(void);
@@ -2615,7 +2603,7 @@ public:
   		10: Soft-routing step time = 100ms
   		11: Soft-routing step time = 200ms
   	*/
-  	void setHPOOUTDriverStartupSoftRoutingStepTime(uint8_t time);
+  	void setHPOOUTDriverStartupSoftRoutingStepTime(SOFT_ROUTING_STEP_TIME_t time);
 
   	/*
   		0000: Slow power up of headphone amp's is disabled
@@ -2636,14 +2624,14 @@ public:
   		1111: Headphone amps power up slowly in 32.0 time constants (do not use for Rchg=25K)
   		Note: Time constants assume 47μF decoupling cap
   	*/
-  	void setHPOUTDriverStartupPowerUpTime(uint8_t time);
+  	void setHPOUTDriverStartupPowerUpTime(HP_AMP_SLOW_POWERUP_TIME_t time);
   	/*
   		00: Headphone amps power up time is determined with 25K resistance
   		01: Headphone amps power up time is determined with 6K resistance
   		10: Headphone amps power up time is determined with 2K resistance
   		11: Reserved. Do not use
   	*/
-  	void setHPOUTDriverResistance(uint8_t resistance);
+  	void setHPOUTDriverResistance(HP_AMP_POWERUP_RESISTOR_t resistance);
 
   	/*
   		000 0000: Volume Control = 0.0dB
@@ -2760,7 +2748,7 @@ public:
   		101: SPK Driver Volume = 32 dB
   		110 - 111: Reserved
   	*/
-  	void setSpeakerAmplifierVolume(uint8_t volume);
+  	void setSpeakerAmplifierVolume(SPK_AMP_VOL_t volume);
 
   	bool getHPOUTAppliedGain(void);
   	bool getAINLMixPGAHPOUTAppliedGain(void);
@@ -2778,7 +2766,7 @@ public:
   		110: Force power up of reference. Power up time will be 80ms
   		111: Force power up of reference. Power up time will be 120ms
   	*/
-  	void setReferencePowerUpDelay(uint8_t delay);
+  	void setReferencePowerUpDelay(REF_PWRUP_DELAY_t delay);
 
   	//Page 44 / Register 0: Page Select Register - 0x2C / 0x00
   	//Page 45 - 52 / Register 0: Page Select Register - 0x2D - 0x34 / 0x00
@@ -2786,40 +2774,29 @@ public:
   	//256 coeffs x 24bits
   	//30 coeffs per page
   	//4 reg per coeff
-  	void setDACProgrammableCoefficientsPageA(uint8_t page);
+  	//void setDACProgrammableCoefficientsPageA(uint8_t page);
 
   	void setDACAdaptiveFilterOn(void);
   	void setDACAdaptiveFilterOff(void);
-  	uint8_t getDACAdaptiveFilterControlFlag(void);
+  	bool getDACAdaptiveFilterControlFlag(void);
   	void setDACAdaptiveFilterSwitch(void);
   	void setDACAdaptiveFilterNotSwitch(void);
 
+
   	//Page 44 / Register 8 - 127: DAC Coefficient Buffer-A C(0:29) - 0x2C / 0x08 - 0x7F
   	//Page 45 - 52 / Register 8 - 127: DAC Coefficients Buffer-A C(30:255) - 0x2D - 0x34 / 0x08 -0x7F
-  	void setDACCoefficientBufferA(uint8_t reg, uint8_t value);
-  	uint8_t getDACCoefficientBufferA(uint8_t reg);
+  	void setDACCoefficientBufferA(uint8_t coeff, uint32_t value);
+  	uint32_t getDACCoefficientBufferA(uint8_t coeff);
 
-  	//Page 62 - 70 / Register 0: Page Select Register - 0x3E - 0x46 / 0x00
-  	//9 Pages DAC coeff B
-  	//256 coeffs x 24bits
-  	//30 coeffs per page
-  	//4 reg per coeff
-  	void setDACProgrammableCoefficientsPageB(uint8_t page);
 
   	//Page 62 - 70 / Register 8 -127: DAC Coefficients Buffer-B C(0:255) - 0x3E - 0x46 / 0x08 - 0x7F
-  	void setDACCoefficientBufferB(uint8_t reg, uint8_t value);
-  	uint8_t getDACCoefficientBufferB(uint8_t reg);
+  	void setDACCoefficientBufferB(uint8_t coeff, uint8_t value);
+  	uint32_t getDACCoefficientBufferB(uint8_t coeff);
 
-  	//Page 152 - 169 / Register 0: Page Select Register - 0x98 - 0xA9 / 0x00
-  	//18 Pages DAC Inst
-  	//1024 coeffs x 24bits
-  	//30 insts per page
-  	//4 reg per coeff
-  	void setDACminiDSPInstructionPage(uint8_t page);
 
   	//Page 152 - 169 / Register 8 - 127: DAC Instruction Registers - 0x98 - 0xA9 / 0x08 - 0x7F
-  	void setDACminiDSPInstruction(uint8_t reg, uint8_t value);
-  	uint8_t getDACminiDSPInstruction(uint8_t reg);
+  	void setDACminiDSPInstruction(uint8_t Inst, uint32_t value);
+  	uint32_t getDACminiDSPInstruction(uint8_t Inst);
 
 };
 

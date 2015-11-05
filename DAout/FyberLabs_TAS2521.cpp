@@ -2044,7 +2044,7 @@ uint32_t FyberLabs_TAS2521::getDACCoefficientBufferA(uint8_t coeff) {
 
 
 //Page 62 - 70 / Register 8 -127: DAC Coefficients Buffer-B C(0:255) - 0x3E - 0x46 / 0x08 - 0x7F
-void FyberLabs_TAS2521::setDACCoefficientBufferB(uint8_t coeff, uint8_t value) {
+void FyberLabs_TAS2521::setDACCoefficientBufferB(uint8_t coeff, uint32_t value) {
   uint8_t b1,b2,b3,page,reg;
 
   b3=(value&0x00FF0000)>>16;

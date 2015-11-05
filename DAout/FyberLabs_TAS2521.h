@@ -2790,7 +2790,7 @@ public:
 
 
   	//Page 62 - 70 / Register 8 -127: DAC Coefficients Buffer-B C(0:255) - 0x3E - 0x46 / 0x08 - 0x7F
-  	void setDACCoefficientBufferB(uint8_t coeff, uint8_t value);
+  	void setDACCoefficientBufferB(uint8_t coeff, uint32_t value);
   	uint32_t getDACCoefficientBufferB(uint8_t coeff);
 
 

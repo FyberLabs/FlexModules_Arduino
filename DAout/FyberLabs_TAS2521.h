@@ -1,11 +1,33 @@
-//
-//TODO make class methods based on usage examples in http://www.ti.com/lit/ug/slau456/slau456.pdf
+/****************************************************************************************
+    This is a library for the Fyber Labs DAout Flex Module
+
+    Copyright (c) 2015 Fyber Labs Inc.
+
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this
+    software and associated documentation files (the "Software"), to deal in the Software
+    without restriction, including without limitation the rights to use, copy, modify,
+    merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to the following
+    conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies
+    or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+    INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+    PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+    CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+    OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*****************************************************************************************/
 
 //The TAS2521 contains several pages of 8-bit registers, and each page can contain up to 128 registers.
-//The register pages are divided up based on functional blocks for this device. Page 0 is the default home page after RST. 
+//The register pages are divided up based on functional blocks for this device. Page 0 is the default home page after RST.
 //Page control is done by writing a new page value into register 0 of the current page.
 //Pages legal: 0, 1, 44-52, 62-70, and 152-169
-//All registers are 8 bits in width, with D7 referring to the most-significant bit of each register, 
+//All registers are 8 bits in width, with D7 referring to the most-significant bit of each register,
 //and D0 referring to the least-significant b
 
 /*
@@ -275,11 +297,11 @@ enum HP_AMP_POWERUP_RESISTOR_t{
 
 enum SPK_AMP_VOL_t{
   SPK_MUTED = 0, //000: SPK Driver is Muted (Default)
-  SPK_VOL_6DB = 0, //001: SPK Driver Volume = 6 dB
-  SPK_VOL_12DB = 0, //010: SPK Driver Volume = 12 dB
-  SPK_VOL_18DB = 0, //011: SPK Driver Volume = 18 dB
-  SPK_VOL_24DB = 0, //100: SPK Driver Volume = 24 dB
-  SPK_VOL_32DB = 0, //101: SPK Driver Volume = 32 dB
+  SPK_VOL_6DB = 1, //001: SPK Driver Volume = 6 dB
+  SPK_VOL_12DB = 2, //010: SPK Driver Volume = 12 dB
+  SPK_VOL_18DB = 3, //011: SPK Driver Volume = 18 dB
+  SPK_VOL_24DB = 4, //100: SPK Driver Volume = 24 dB
+  SPK_VOL_32DB = 5, //101: SPK Driver Volume = 32 dB
 };
 
 enum REF_PWRUP_DELAY_t{
@@ -2803,4 +2825,3 @@ public:
 }//namespace TAS2521
 
 #endif
-
